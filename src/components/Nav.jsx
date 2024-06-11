@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "./ui/button";
 // import { getServerSession } from "next-auth";
 // import { options } from "@/app/api/auth/[...nextauth]/options";
 async function Nav() {
@@ -23,30 +24,26 @@ async function Nav() {
           <div className="flex">
             <Link
               href="/search"
-              className="py-3 px-4 hover:border-b-black hover:border-b-2"
+              className="py-3 px-4 box hover:border-b-black hover:border-b-2"
             >
-              Better Search
+              YouTube Search
             </Link>
           </div>
         </div>
         <div className="flex gap-4 items-center">
           {session ? (
-            <Link
-              href="/auth/signout"
-              className="px-4 py-2 border-[1px] border-black rounded-md transition-all hover:bg-black hover:text-beige hover:scale-[1.03]"
-            >
-              Sign out
+            <Link href="/auth/signout">
+              <Button>Sign out</Button>
             </Link>
           ) : (
             <>
-              <Link href="/auth/login" className="px-4 py-2">
-                Sign in
+              <Link href="/auth/login">
+                <Button variant="link" className="text-base">
+                  Sign in
+                </Button>
               </Link>
-              <Link
-                href="/auth/register"
-                className="px-4 py-2 border-[1px] border-black rounded-md transition-all hover:bg-black hover:text-beige hover:scale-[1.03]"
-              >
-                Sign up
+              <Link href="/auth/register">
+                <Button className="text-base">Sign up</Button>
               </Link>
             </>
           )}
