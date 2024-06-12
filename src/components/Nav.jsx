@@ -10,26 +10,45 @@ async function Nav() {
   const session = await auth();
   return (
     <div className="sticky top-0 z-10">
-      <div className="flex flex-row justify-center py-1 bg-third">
-        <p className="text-sm font-medium text-white">
-          Welcome to TheBrains.com - a library of knowledge from YouTube
-        </p>
-      </div>
+      {!session && (
+        <div className="flex flex-row justify-center py-1 bg-third">
+          <p className="text-sm font-medium text-white">
+            Welcome to TheBrains.com - a library of knowledge from YouTube
+          </p>
+        </div>
+      )}
       <div className="flex gap-4 justify-between items-center px-20 border-b-2 border-b-gray-400 font-semibold bg-beige">
         <div className="flex">
           <div className="flex items-center gap-1 py-3 px-4 hover:border-b-black hover:border-b-2">
             <Image src="/brain.svg" width={25} height={25} />
             <Link href="/" className="font-bold">
-              TheBrain.com
+              TheBrain
             </Link>
           </div>
           <div className="flex">
-            <Link
-              href="/search"
-              className="py-3 px-4 box hover:border-b-black hover:border-b-2"
-            >
-              YouTube Search
-            </Link>
+            {session ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="py-3 px-4 box hover:border-b-black hover:border-b-2"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/library"
+                  className="py-3 px-4 box hover:border-b-black hover:border-b-2"
+                >
+                  Libraries
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/search"
+                className="py-3 px-4 box hover:border-b-black hover:border-b-2"
+              >
+                YouTube Search
+              </Link>
+            )}
           </div>
         </div>
         <div className="flex gap-4 items-center">
@@ -37,7 +56,7 @@ async function Nav() {
             <>
               <SignOutButton />
               <Avatar>
-                <AvatarImage src={session.user.image} alt="@shadcn" />
+                <AvatarImage src={session.user.image} alt={session.user.name} />
                 <AvatarFallback>
                   {session.user.name
                     .split(" ")

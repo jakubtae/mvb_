@@ -9,19 +9,20 @@ generator client {
 
 model User {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
+  name          String
   email         String?         @unique
   emailVerified DateTime?
-  image         String?
+  image         String
   password      String?
   accounts      Account[]
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      Role     @default(User)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  role      Role      @default(User)
+  Library   Library[]
 }
 
 enum Role {
@@ -51,6 +52,77 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+model Library {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @db.String
+  userId    String   @db.ObjectId
+  videos    String[] @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Video     Video[]
+}
+
+model Thumbnail {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  height    Int
+  width     Int
+  Video     Video?   @relation(fields: [videoId], references: [id])
+  videoId   String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Define the transcription model
+model Transcription {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  text       String?
+  confidence Float?
+  Video      Video?   @relation(fields: [videoId], references: [id])
+  videoId    String?  @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Define the post-processing model
+model PostProcessing {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tags      String[]
+  vectors   Float[]
+  status    String   @default("not_started")
+  Video     Video[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Define the video model
+model Video {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  type             String?
+  ie_key           String?
+  url              String
+  title            String
+  description      String?
+  duration         Int?
+  thumbnails       Thumbnail[]
+  view_count       Int?
+  channel          String?
+  channelName      String?
+  mp3              String?
+  transcription    Transcription[]
+  postProcessing   PostProcessing? @relation(fields: [postProcessingId], references: [id])
+  status           String          @default("fetched")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  postProcessingId String?         @db.ObjectId
+  Library          Library?        @relation(fields: [libraryId], references: [id])
+  libraryId        String?         @db.ObjectId
+}
+
+//! NOT IN USE
+// Those are always empty - no clue why
+// But not a problem because everything works
 model Session {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique

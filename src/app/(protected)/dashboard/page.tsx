@@ -1,16 +1,49 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import LibraryCard from "@/components/app_specific/LibraryCard";
+import { Button } from "@/components/ui/button";
+import { findrecentLibraries } from "@/data/library";
+import Link from "next/link";
+
 const DashboardPage = async () => {
   const session = await auth();
-  if (!session) {
-    return redirect("/auth/login");
+  if (!session || !session.user.id) {
+    return console.log("No session id");
   }
+  const recentLibraries = await findrecentLibraries(session?.user.id);
+
   return (
-    <main className="px-[128px] py-20">
+    <>
       <h1 className="text-8xl font-bold">
         Hello {session?.user.name?.split(" ").shift()}
       </h1>
-    </main>
+
+      {recentLibraries && (
+        <div className="flex flex-col mt-4">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-2xl">Recently Used Libraries</h3>
+            <div className="flex gap-x-1">
+              <Button variant="link">
+                <Link href="/library">Your Libraries</Link>
+              </Button>
+              <Button variant="link">
+                <Link href="/library/create">New library</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="flex gap-4 flex-wrap py-8">
+            {recentLibraries.map((library, index) => (
+              <Link href={"/library/" + library.id} key={`${index}m`}>
+                <LibraryCard
+                  libraryName={library.name}
+                  videosNumber={library.videos.length}
+                  key={`${index}a`}
+                />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -1,5 +1,4 @@
 import { db } from "@/lib/prismadb";
-import { ObjectId } from "mongodb";
 
 export const findUserByEmail = async (email: string) => {
   try {
