@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
-// import { getServerSession } from "next-auth";
-// import { options } from "@/app/api/auth/[...nextauth]/options";
+import { auth } from "@/auth";
+import SignOutButton from "./auth/SignOutButton";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 async function Nav() {
-  // const session = await getServerSession(options);
-  const session = false;
+  const session = await auth();
   return (
     <div className="sticky top-0 z-10">
       <div className="flex flex-row justify-center py-1 bg-third">
@@ -32,9 +34,18 @@ async function Nav() {
         </div>
         <div className="flex gap-4 items-center">
           {session ? (
-            <Link href="/auth/signout">
-              <Button>Sign out</Button>
-            </Link>
+            <>
+              <SignOutButton />
+              <Avatar>
+                <AvatarImage src={session.user.image} alt="@shadcn" />
+                <AvatarFallback>
+                  {session.user.name
+                    .split(" ")
+                    .map((word) => word[0].toUpperCase())
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+            </>
           ) : (
             <>
               <Link href="/auth/login">

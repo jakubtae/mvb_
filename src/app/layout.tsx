@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Utilize knowledge with simple yet effective tools",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
