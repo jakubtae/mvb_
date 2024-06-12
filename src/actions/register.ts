@@ -1,8 +1,10 @@
+// Used only if credentials register enabled
+// Currently dissabled
 "use server";
 import * as z from "zod";
 import bcrypt from "bcrypt";
 import { RegisterSchema } from "@/schemas";
-import clientPromise from "@/lib/db";
+import { db } from "@/lib/prismadb";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -14,19 +16,17 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const client = await clientPromise;
-    const database = client.db();
-    const usersCollection = database.collection("users");
-
-    const existingUser = await usersCollection.findOne({ email });
+    const existingUser = await db.user.findUnique({ where: { email } });
     if (existingUser) {
       return { error: "Email already in use" };
     }
 
-    await usersCollection.insertOne({
-      name,
-      email,
-      password: hashedPassword,
+    await db.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
     });
 
     // TODO: Send verification token email
