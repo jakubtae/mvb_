@@ -20,6 +20,12 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  role      Role     @default(User)
+}
+
+enum Role {
+  User
+  Admin
 }
 
 model Account {
