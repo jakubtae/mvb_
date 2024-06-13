@@ -12,7 +12,7 @@ interface CardWrapperProps {
 }
 const LibraryFormWrapper = ({ children }: CardWrapperProps) => {
   return (
-    <Card className="w-[700px] shadow-md py-10">
+    <Card className="w-[700px] shadow-none border-none py-10">
       <CardContent>{children}</CardContent>
     </Card>
   );

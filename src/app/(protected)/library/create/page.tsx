@@ -6,9 +6,6 @@ const DashboardPage = async () => {
 
   return (
     <div className="flex flex-col w-full justify-center items-center">
-      <h2 className="text-center font-bold text-6xl mb-6">
-        Create a new YouTube library
-      </h2>
       <LibraryForm />
     </div>
   );

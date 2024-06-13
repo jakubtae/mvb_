@@ -1,5 +1,39 @@
 import { db } from "@/lib/prismadb";
 
+export const createNewLibrary = async (
+  name: string,
+  sources: string,
+  id: string
+) => {
+  try {
+    const libExists = await db.library.findFirst({
+      where: {
+        userId: id,
+        name,
+      },
+    });
+    if (libExists) {
+      return {
+        error: "Library with such a name already exists. Use a unique name.",
+      };
+    }
+    const newLib = await db.library.create({
+      data: {
+        name,
+        sources,
+        userId: id,
+      },
+    });
+    if (!newLib) {
+      return { error: "Error creating a library" };
+    }
+    return { success: "created a library" };
+  } catch (error) {
+    console.error("Failed to find user libraries", error);
+    throw new Error("Error fetching libraries from database");
+  }
+};
+
 export const findrecentLibraries = async (user_id: string) => {
   try {
     const libraries = await db.library.findMany({

@@ -62,6 +62,6 @@ export const LibrarySchema = z.object({
   name: z.string().min(3, {
     message: "Must be at least 3 characters",
   }),
-  userId: objectIdValidation,
-  sources: z.array(youtubeUrlValidation),
+  // userId: objectIdValidation,
+  sources: youtubeUrlValidation,
 });
