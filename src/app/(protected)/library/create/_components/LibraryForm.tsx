@@ -44,7 +44,6 @@ const LibraryForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LibrarySchema>) => {
-    console.log("Creating a new library");
     setError("");
     setSuccess("");
     const id = session?.user.id as string;
@@ -52,8 +51,8 @@ const LibraryForm = () => {
       newLibrary(values, id).then((data) => {
         setError(data.error);
         setSuccess(data.success);
-        if (data.success) {
-          router.push("/library");
+        if (data.success && data.id) {
+          router.push(`/library/${data.id || ""}`, { scroll: true });
         }
       });
     });

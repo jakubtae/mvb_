@@ -2,12 +2,12 @@
 import * as z from "zod";
 import { LibrarySchema } from "@/schemas";
 import { createNewLibrary } from "@/data/library";
+import { deleteALibrary } from "@/data/library";
 
 export const newLibrary = async (
   values: z.infer<typeof LibrarySchema>,
   id: string
 ) => {
-  console.log("Library create action");
   const validatedFields = LibrarySchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
@@ -21,5 +21,17 @@ export const newLibrary = async (
     return { error: newLib.error };
   }
 
-  return { success: "Library created" };
+  return { success: "Library created", id: newLib.id };
+};
+
+export const deleteLibrary = async (id: string) => {
+  try {
+    const delLib = await deleteALibrary(id);
+    if (!delLib) {
+      return { error: "Error deleting the library" };
+    }
+    return { success: "Library deleted" };
+  } catch (error) {
+    return { error: error };
+  }
 };

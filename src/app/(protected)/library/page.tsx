@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getAllLibraries } from "@/data/library";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import NoLibrary from "../NoLibrary";
 
 const LibraryPage = async () => {
   const session = await auth();
@@ -20,17 +21,23 @@ const LibraryPage = async () => {
           <Link href="/library/create">Create a new library</Link>
         </Button>
       </div>
-      <div className="mt-10 grid grid-cols-3	">
-        {allLibraries.map((library, index) => (
-          <Link href={"/library/" + library.id} key={index}>
-            <LibraryCard
-              libraryName={library.name}
-              videosNumber={library.videos.length}
-              key={index}
-            />
-          </Link>
-        ))}
-      </div>
+      {allLibraries.length > 0 ? (
+        <div className="mt-10 grid grid-cols-3 gap-10	">
+          {allLibraries.map((library, index) => (
+            <Link href={"/library/" + library.id} key={index}>
+              <LibraryCard
+                libraryName={library.name}
+                videosNumber={library.videos.length}
+                key={index}
+              />
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="w-full">
+          <NoLibrary />
+        </div>
+      )}
     </>
   );
 };

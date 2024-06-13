@@ -1,7 +1,7 @@
 import { findLibraryById } from "@/data/library";
-import { checkVideoStatus, VideoStatus } from "@/data/video";
-import { stat } from "fs";
 import { redirect } from "next/navigation";
+import DeleteLibrary from "../_components/DeleteLibrary";
+import OpenSettings from "../_components/OpenSettings";
 
 interface LibraryIDPageProps {
   params: {
@@ -19,11 +19,7 @@ const isValidObjectId = (id: string): boolean => {
 
 const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   if (!isValidObjectId(params.id)) {
-    return (
-      <>
-        <h1>Provide correct library id</h1>
-      </>
-    );
+    redirect("/library");
   }
 
   const library = await findLibraryById(params.id);
@@ -31,36 +27,16 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
     redirect("/library");
   }
 
-  const { videos } = library;
-
-  const fetchVideoStatuses = async () => {
-    const statusPromises = videos.map(async (video_id) => {
-      const status = await checkVideoStatus(video_id);
-      return { video_id, ...status };
-    });
-    return Promise.all(statusPromises);
-  };
-
-  const statusComponent = async () => {
-    const statuses = await fetchVideoStatuses();
-
-    return (
-      <>
-        <h1>Video Status</h1>
-        {statuses.map((status, index) => (
-          <div key={index}>
-            <p>Video ID: {status.video_id}</p>
-            <p>Status: {status.status}</p>
-          </div>
-        ))}
-      </>
-    );
-  };
-
   return (
-    <div>
+    <div className="flex flex-col">
+      <div className="flex w-full justify-between">
+        <h1 className="text-4xl font-bold">{library.name}</h1>
+        <div className="flex gap-6">
+          <DeleteLibrary id={library.id} />
+          <OpenSettings id={library.id} />
+        </div>
+      </div>
       {JSON.stringify(library)}
-      {await statusComponent()}
     </div>
   );
 };

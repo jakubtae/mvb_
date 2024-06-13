@@ -27,10 +27,25 @@ export const createNewLibrary = async (
     if (!newLib) {
       return { error: "Error creating a library" };
     }
-    return { success: "created a library" };
+    return { success: "created a library", id: newLib.id };
   } catch (error) {
     console.error("Failed to find user libraries", error);
     throw new Error("Error fetching libraries from database");
+  }
+};
+
+export const deleteALibrary = async (id: string) => {
+  try {
+    const gotDeleted = await db.library.delete({
+      where: {
+        id,
+      },
+    });
+    console.log(gotDeleted);
+    return gotDeleted;
+  } catch (error) {
+    console.error("Failed to delete a library", error);
+    throw new Error("Error deleting a library from database");
   }
 };
 
