@@ -1,6 +1,7 @@
 import {
   Card,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -8,9 +9,14 @@ import {
 interface LibraryCardProps {
   libraryName: string;
   videosNumber: number; // Make videosNumber optional since it might not always be provided
+  status: "NOT_STARTED" | "IN_PROCESS" | "FINISHED";
 }
 
-const LibraryCard = ({ libraryName, videosNumber }: LibraryCardProps) => {
+const LibraryCard = ({
+  libraryName,
+  videosNumber,
+  status,
+}: LibraryCardProps) => {
   return (
     <Card className="w-[400px] hover:border-1 hover:border-primary">
       <CardHeader>
@@ -22,6 +28,7 @@ const LibraryCard = ({ libraryName, videosNumber }: LibraryCardProps) => {
               : `${videosNumber} videos`
             : "0 videos"}
         </CardDescription>
+        <CardFooter>{status}</CardFooter>
       </CardHeader>
     </Card>
   );

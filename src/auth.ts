@@ -27,6 +27,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   // adapter: MongoDBAdapter(clientPromise),
   adapter: PrismaAdapter(db),
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 60 * 60 * 12 },
   ...authConfig,
 });

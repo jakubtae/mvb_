@@ -53,72 +53,65 @@ model Account {
 }
 
 model Library {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String   @db.String
-  userId    String   @db.ObjectId
-  sources   String   @db.String
-  videos    String[] @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Video     Video[]
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  userId    String    @db.ObjectId
+  sources   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    LibStatus @default(NOT_STARTED)
+  videoIds  String[]  @default([]) @db.ObjectId
+  Videos    Video[]   @relation(fields: [videoIds], references: [id])
 }
 
-model Thumbnail {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  url       String
-  height    Int
-  width     Int
-  Video     Video?   @relation(fields: [videoId], references: [id])
-  videoId   String?  @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum LibStatus {
+  NOT_STARTED
+  IN_PROCESS
+  FINISHED
 }
 
-// Define the transcription model
-model Transcription {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  text       String?
-  confidence Float?
-  Video      Video?   @relation(fields: [videoId], references: [id])
-  videoId    String?  @db.ObjectId
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-// Define the post-processing model
-model PostProcessing {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  tags      String[]
-  vectors   Float[]
-  status    String   @default("not_started")
-  Video     Video[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// Define the video model
 model Video {
   id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  type             String?
-  ie_key           String?
-  url              String
+  url              String          @unique
   title            String
-  description      String?
   duration         Int?
   thumbnails       Thumbnail[]
   view_count       Int?
-  channel          String?
   channelName      String?
+  channelUrl       String?
   mp3              String?
-  transcription    Transcription[]
-  postProcessing   PostProcessing? @relation(fields: [postProcessingId], references: [id])
+  transcription    Transcription? // Reference to the Transcription type
+  postProcessing   PostProcessing? // Reference to the PostProcessing type
   status           String          @default("fetched")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   postProcessingId String?         @db.ObjectId
-  Library          Library?        @relation(fields: [libraryId], references: [id])
-  libraryId        String?         @db.ObjectId
+  libraryIDs       String[]        @default([]) @db.ObjectId
+  Library          Library[]       @relation(fields: [libraryIDs], references: [id])
+}
+
+// Define Thumbnail as a type
+type Thumbnail {
+  url    String
+  height Int
+  width  Int
+}
+
+// Define Transcription as a type
+type Transcription {
+  videoId   String?  @db.ObjectId
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+// Define PostProcessing as a type
+type PostProcessing {
+  tags      String[]
+  vectors   Float[]
+  status    String
+  createdAt DateTime
+  updatedAt DateTime
 }
 
 //! NOT IN USE

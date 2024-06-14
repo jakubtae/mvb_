@@ -21,7 +21,7 @@ export default async function RootLayout({
       lang="en"
       className={`scroll-smooth scroll-pt-0 ${montserrat.className} text-black`}
     >
-      <body className="bg-beige">
+      <body className="bg-white">
         <AuthProvider>
           <Nav />
           {children}

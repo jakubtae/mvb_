@@ -1,7 +1,9 @@
-import { findLibraryById } from "@/data/library";
 import { redirect } from "next/navigation";
 import DeleteLibrary from "../_components/DeleteLibrary";
 import OpenSettings from "../_components/OpenSettings";
+import { findLibraryById, updateLibraryStatus } from "@/data/library";
+import { Video } from "@prisma/client";
+import YouTubeCard from "../_components/YouTubeCard";
 
 interface LibraryIDPageProps {
   params: {
@@ -10,10 +12,7 @@ interface LibraryIDPageProps {
 }
 
 const isValidObjectId = (id: string): boolean => {
-  // Regular expression to match MongoDB ObjectId format
   const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-
-  // Check if the provided id matches the ObjectId pattern
   return objectIdRegex.test(id);
 };
 
@@ -26,7 +25,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   if (!library) {
     redirect("/library");
   }
-
+  const videos = library.Videos;
   return (
     <div className="flex flex-col">
       <div className="flex w-full justify-between">
@@ -36,7 +35,11 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
           <OpenSettings id={library.id} />
         </div>
       </div>
-      {JSON.stringify(library)}
+      <div className="flex flex-col gap-y-4 mt-10">
+        {videos.map((video: Video, index) => (
+          <YouTubeCard video={video} key={index} />
+        ))}
+      </div>
     </div>
   );
 };

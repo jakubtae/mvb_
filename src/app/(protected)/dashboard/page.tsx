@@ -3,7 +3,7 @@ import LibraryCard from "@/components/app_specific/LibraryCard";
 import { Button } from "@/components/ui/button";
 import { findrecentLibraries } from "@/data/library";
 import Link from "next/link";
-import NoLibrary from "../NoLibrary";
+import NoLibrary from "@/components/app_specific/NoLibrary";
 
 const DashboardPage = async () => {
   const session = await auth();
@@ -20,7 +20,7 @@ const DashboardPage = async () => {
       </h1>
 
       {recentLibraries && (
-        <div className="flex flex-col mt-4 p-10 bg-white shadow-md rounded-xl">
+        <div className="flex flex-col mt-4 p-5 bg-white shadow-md rounded-xl border-2 border-gray-300">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold text-2xl">Recently Used Libraries</h3>
             <div className="flex gap-x-1">
@@ -32,13 +32,14 @@ const DashboardPage = async () => {
               </Button>
             </div>
           </div>
-          <div className="flex gap-4 flex-wrap py-8">
+          <div className="flex gap-4 flex-wrap mt-4">
             {recentLibraries.length > 0 ? (
               recentLibraries.map((library, index) => (
                 <Link href={"/library/" + library.id} key={`${index}m`}>
                   <LibraryCard
                     libraryName={library.name}
-                    videosNumber={library.videos.length}
+                    videosNumber={library.videoIds.length}
+                    status={library.status}
                     key={`${index}a`}
                   />
                 </Link>

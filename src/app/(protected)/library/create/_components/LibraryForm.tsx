@@ -91,7 +91,7 @@ const LibraryForm = () => {
                     {...field}
                     disabled={isPending}
                     type="text"
-                    placeholder="Your YouTube public playlist link / channel link"
+                    placeholder="Your YouTube public playlist link"
                   />
                 </FormControl>
                 <FormDescription>

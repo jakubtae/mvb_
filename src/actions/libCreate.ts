@@ -3,12 +3,11 @@ import * as z from "zod";
 import { LibrarySchema } from "@/schemas";
 import { createNewLibrary } from "@/data/library";
 import { deleteALibrary } from "@/data/library";
-
 export const newLibrary = async (
   values: z.infer<typeof LibrarySchema>,
   id: string
 ) => {
-  const validatedFields = LibrarySchema.safeParse(values);
+  const validatedFields = await LibrarySchema.safeParseAsync(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }

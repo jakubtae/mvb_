@@ -17,10 +17,10 @@ async function Nav() {
           </p>
         </div>
       )}
-      <div className="flex gap-4 justify-between items-center px-20 border-b-2 border-b-gray-400 font-semibold bg-beige">
+      <div className="flex gap-4 justify-between items-center px-20 border-b-2 border-b-gray-400 font-semibold bg-white">
         <div className="flex">
           <div className="flex items-center gap-1 py-3 px-4 hover:border-b-black hover:border-b-2">
-            <Image src="/brain.svg" width={25} height={25} />
+            <Image src="/brain.svg" width={25} height={25} alt="BL" />
             <Link href="/" className="font-bold">
               TheBrain
             </Link>

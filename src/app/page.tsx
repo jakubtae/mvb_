@@ -46,7 +46,7 @@ export default function Home() {
             width={200}
             height={200}
             alt="YouTube Logo"
-            className="p-10 bg-beige rounded-md transition-transform hover:scale-105 pointer duration-200 h-fit"
+            className="p-10 bg-white rounded-md transition-transform hover:scale-105 pointer duration-200 h-fit"
           /> */}
           <div className="flex flex-col gap-y-4 w-1/2">
             <h3 className="capitalize text-3xl font-semibold">

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getAllLibraries } from "@/data/library";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import NoLibrary from "../NoLibrary";
+import NoLibrary from "@/components/app_specific/NoLibrary";
 
 const LibraryPage = async () => {
   const session = await auth();
@@ -27,7 +27,8 @@ const LibraryPage = async () => {
             <Link href={"/library/" + library.id} key={index}>
               <LibraryCard
                 libraryName={library.name}
-                videosNumber={library.videos.length}
+                videosNumber={library.videoIds.length}
+                status={library.status}
                 key={index}
               />
             </Link>

@@ -1,5 +1,6 @@
+import apiCreate from "@/lib/apiCreate";
 import * as z from "zod";
-
+import axios from "axios";
 // Login schema
 export const LoginSchema = z.object({
   email: z.string().email({
@@ -26,35 +27,36 @@ export const RegisterSchema = z.object({
 // Define the regular expressions for YouTube URLs
 const playlistRegex =
   /^https:\/\/www\.youtube\.com\/playlist\?list=[A-Za-z0-9_-]+$/;
-const userRegex = /^https:\/\/www\.youtube\.com\/@[A-Za-z0-9_-]+$/;
-const channelRegex = /^https:\/\/www\.youtube\.com\/channel\/[A-Za-z0-9_-]+$/;
-const videoRegex =
-  /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]+(&t=\d+s)?$/;
+// const userRegex = /^https:\/\/www\.youtube\.com\/@[A-Za-z0-9_-]+$/;
+// const channelRegex = /^https:\/\/www\.youtube\.com\/channel\/[A-Za-z0-9_-]+$/;
+// const videoRegex = /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]+(&t=\d+s)?$/;
 
-// Custom validation function for YouTube URLs
 const youtubeUrlValidation = z.string().refine(
-  (url) => {
-    return (
-      playlistRegex.test(url) ||
-      userRegex.test(url) ||
-      channelRegex.test(url) ||
-      videoRegex.test(url)
-    );
+  async (url: string) => {
+    try {
+      // TODO : VALIDATE IF AN URL IS A PUBLIC OR PRIVATE PLAYLIST USING A FETCH TO BACKEND SERVER
+      // const response = await axios.post(apiCreate(`/api/playlist`), data, {
+      //   headers: {
+      //     Accept: "application/json",
+      //     "Content-Type": "application/json;charset=UTF-8",
+      //   },
+      // });
+      // if (response.status !== 200) {
+      //   return false;
+      // }
+      return playlistRegex.test(url);
+    } catch (error) {
+      return false;
+    }
   },
   {
-    message: "Must be a valid YouTube playlist, user, channel, or video URL",
+    message: "Must be a valid YouTube public playlist link",
   }
 );
 
 // Video schema
 export const VideoSchema = z.object({
   url: youtubeUrlValidation,
-});
-
-// Regular expression for MongoDB ObjectId
-const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-const objectIdValidation = z.string().refine((val) => objectIdRegex.test(val), {
-  message: "Must be a valid ObjectId",
 });
 
 // Library schema
