@@ -46,7 +46,11 @@ export const createNewLibrary = async (
     const startBackproccess = await fetch(bacproccessUrl, {
       cache: "no-cache",
     });
-    console.log(startBackproccess);
+    if (!startBackproccess) {
+      throw new Error(
+        `Erro starting the backprocess for the libary : ${newLib.id}`
+      );
+    }
     return { success: "created a library", id: newLib.id };
   } catch (error) {
     console.error("Failed to find user libraries", error);
@@ -61,7 +65,28 @@ export const deleteALibrary = async (id: string) => {
         id,
       },
     });
-    console.log(gotDeleted);
+    gotDeleted.videoIds.forEach(async (videoId) => {
+      const checkVid = await db.video.findUnique({
+        where: {
+          id: videoId,
+        },
+      });
+      const toPull = await db.video.update({
+        where: {
+          id: videoId,
+        },
+        data: {
+          libraryIDs: {
+            set: checkVid?.libraryIDs.filter((id) => id !== gotDeleted.id),
+          },
+        },
+      });
+      if (!toPull) {
+        throw new Error(
+          "Error pulling relate library.id from Video.librariesIds"
+        );
+      }
+    });
     return gotDeleted;
   } catch (error) {
     console.error("Failed to delete a library", error);

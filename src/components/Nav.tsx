@@ -6,6 +6,16 @@ import SignOutButton from "./auth/SignOutButton";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+
 async function Nav() {
   const session = await auth();
   return (
@@ -52,7 +62,10 @@ async function Nav() {
           </div>
         </div>
         <div className="flex gap-4 items-center">
-          {session ? (
+          {session &&
+          session.user &&
+          session.user.image &&
+          session.user.name ? (
             <>
               <SignOutButton />
               <Avatar>

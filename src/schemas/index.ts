@@ -1,6 +1,4 @@
-import apiCreate from "@/lib/apiCreate";
 import * as z from "zod";
-import axios from "axios";
 // Login schema
 export const LoginSchema = z.object({
   email: z.string().email({
@@ -34,16 +32,8 @@ const playlistRegex =
 const youtubeUrlValidation = z.string().refine(
   async (url: string) => {
     try {
-      // TODO : VALIDATE IF AN URL IS A PUBLIC OR PRIVATE PLAYLIST USING A FETCH TO BACKEND SERVER
-      // const response = await axios.post(apiCreate(`/api/playlist`), data, {
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json;charset=UTF-8",
-      //   },
-      // });
-      // if (response.status !== 200) {
-      //   return false;
-      // }
+      //* Validating if an url is a public playlist takes place in a :
+      // src\data\library.ts CreateLibrary
       return playlistRegex.test(url);
     } catch (error) {
       return false;
@@ -61,7 +51,7 @@ export const VideoSchema = z.object({
 
 // Library schema
 export const LibrarySchema = z.object({
-  name: z.string().min(3, {
+  name: z.string().toLowerCase().min(3, {
     message: "Must be at least 3 characters",
   }),
   // userId: objectIdValidation,

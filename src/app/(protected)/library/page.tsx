@@ -22,7 +22,7 @@ const LibraryPage = async () => {
         </Button>
       </div>
       {allLibraries.length > 0 ? (
-        <div className="mt-10 grid grid-cols-3 gap-10	">
+        <div className="mt-10 grid grid-cols-3 gap-10">
           {allLibraries.map((library, index) => (
             <Link href={"/library/" + library.id} key={index}>
               <LibraryCard
