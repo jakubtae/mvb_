@@ -23,7 +23,8 @@ export const findUserLibraries = async (userId: string) => {
 export const createNewLibrary = async (
   name: string,
   sources: string,
-  id: string
+  id: string,
+  videoIds: string[]
 ) => {
   try {
     const libExists = await db.library.findFirst({
@@ -38,25 +39,35 @@ export const createNewLibrary = async (
       };
     }
 
-    // TODO CHECK IF URL IS A CORRECT PLAYLIST URL
-    // if (!checkUrl.ok) {
-    //   return { error: "Must be a public library" };
-    // }
     const newLib = await db.library.create({
       data: {
         name,
         sources,
         userId: id,
+        videoIds, // Add the videoIds array here
       },
     });
     if (!newLib) {
       return { error: "Error creating a library" };
     }
-    // TODO : PARSE A SOURCE
-    return { success: "created a library", id: newLib.id };
+
+    await Promise.all(
+      videoIds.map((videoId) =>
+        db.video.update({
+          where: { id: videoId },
+          data: {
+            libraryIDs: {
+              push: newLib.id,
+            },
+          },
+        })
+      )
+    );
+
+    return { success: "Library created", id: newLib.id };
   } catch (error) {
-    console.error("Failed to find user libraries", error);
-    throw new Error("Error fetching libraries from database");
+    console.error("Failed to create a new library", error);
+    throw new Error("Error creating a new library");
   }
 };
 

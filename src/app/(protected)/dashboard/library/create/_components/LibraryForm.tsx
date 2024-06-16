@@ -105,7 +105,7 @@ const LibraryForm = () => {
             />
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isPending}>
               Create a library
             </Button>
           </form>

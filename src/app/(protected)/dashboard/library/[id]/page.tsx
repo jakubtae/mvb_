@@ -17,25 +17,26 @@ const isValidObjectId = (id: string): boolean => {
 
 const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   if (!isValidObjectId(params.id)) {
-    redirect("/library");
+    redirect("/dashboard/library");
   }
 
   const library = await findLibraryById(params.id);
   if (!library) {
-    redirect("/library");
+    redirect("/dashboard/library");
   }
   return (
     <>
       <div className="flex flex-col">
         <div className="flex w-full justify-between">
-          <Button variant="link">
-            <Link href={"/library/" + library.id}>
+          <Button variant="link" asChild>
+            <Link href={"/dashboard/library/" + library.id}>
               <h1 className="text-4xl font-bold lowercase">{library.name}</h1>
             </Link>
           </Button>
           <div className="flex gap-6">
             <DeleteLibrary id={library.id} />
           </div>
+          Search Engine nigga
         </div>
       </div>
     </>
