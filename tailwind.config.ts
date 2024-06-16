@@ -15,6 +15,7 @@ const config = {
         beige: "#F1F0EA",
         black: "#131515",
         third: "#8B5FBF",
+        light: "#FAFAFA",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
