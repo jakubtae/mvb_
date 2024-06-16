@@ -72,23 +72,20 @@ enum LibStatus {
 }
 
 model Video {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  url              String          @unique
-  title            String
-  duration         Int?
-  thumbnails       Thumbnail[]
-  view_count       Int?
-  channelName      String?
-  channelUrl       String?
-  mp3              String?
-  transcription    Transcription? // Reference to the Transcription type
-  postProcessing   PostProcessing? // Reference to the PostProcessing type
-  status           String          @default("fetched")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  postProcessingId String?         @db.ObjectId
-  libraryIDs       String[]        @default([]) @db.ObjectId
-  Library          Library[]       @relation(fields: [libraryIDs], references: [id])
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  url         String      @unique
+  title       String
+  duration    Int?
+  thumbnails  Thumbnail[]
+  view_count  Int?
+  channelName String?
+  channelUrl  String?
+  mp3         String?
+  status      String      @default("fetched")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  libraryIDs  String[]    @default([]) @db.ObjectId
+  Library     Library[]   @relation(fields: [libraryIDs], references: [id])
 }
 
 // Define Thumbnail as a type
@@ -96,22 +93,6 @@ type Thumbnail {
   url    String
   height Int
   width  Int
-}
-
-// Define Transcription as a type
-type Transcription {
-  videoId   String?  @db.ObjectId
-  createdAt DateTime
-  updatedAt DateTime
-}
-
-// Define PostProcessing as a type
-type PostProcessing {
-  tags      String[]
-  vectors   Float[]
-  status    String
-  createdAt DateTime
-  updatedAt DateTime
 }
 
 //! NOT IN USE

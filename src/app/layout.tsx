@@ -3,7 +3,6 @@ import { Montserrat } from "next/font/google";
 import "tailwindcss/tailwind.css";
 import "./globals.css";
 import Nav from "@/components/Nav";
-import AuthProvider from "@/context/AuthProvider";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,10 +21,8 @@ export default async function RootLayout({
       className={`scroll-smooth scroll-pt-0 ${montserrat.className} text-black`}
     >
       <body className="bg-white">
-        <AuthProvider>
-          <Nav />
-          {children}
-        </AuthProvider>
+        <Nav />
+        {children}
       </body>
     </html>
   );
