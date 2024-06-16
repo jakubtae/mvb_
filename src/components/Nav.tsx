@@ -4,18 +4,6 @@ import { Button } from "./ui/button";
 import { auth } from "@/auth";
 import SignOutButton from "./auth/SignOutButton";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-
 async function Nav() {
   const session = await auth();
   return (
@@ -23,60 +11,29 @@ async function Nav() {
       {!session && (
         <div className="flex flex-row justify-center py-1 bg-third">
           <p className="text-sm font-medium text-white">
-            Welcome to TheBrains.com - a library of knowledge from YouTube
+            Welcome to appName.com - a tool descxription
           </p>
         </div>
       )}
-      <div className="flex gap-4 justify-between items-center px-20 border-b-2 border-b-gray-400 font-semibold bg-white">
-        <div className="flex">
-          <div className="flex items-center gap-1 py-3 px-4 hover:border-b-black hover:border-b-2">
-            <Image src="/brain.svg" width={25} height={25} alt="BL" />
-            <Link href="/" className="font-bold">
-              TheBrain
-            </Link>
-          </div>
-          <div className="flex">
-            {session ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="py-3 px-4 box hover:border-b-black hover:border-b-2"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/library"
-                  className="py-3 px-4 box hover:border-b-black hover:border-b-2"
-                >
-                  Libraries
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/search"
-                className="py-3 px-4 box hover:border-b-black hover:border-b-2"
-              >
-                YouTube Search
-              </Link>
-            )}
-          </div>
+      <div className="flex gap-4 justify-between items-center px-20 py-2 font-semibold bg-white">
+        <Link href="/" className="lowercase">
+          AppName
+        </Link>
+        <div className="flex items-center">
+          <Button variant="ghost">
+            <Link href="/tab1">Tab 1</Link>
+          </Button>
+          <Button variant="ghost">
+            <Link href="/tab2">Tab 2</Link>
+          </Button>
         </div>
         <div className="flex gap-4 items-center">
-          {session &&
-          session.user &&
-          session.user.image &&
-          session.user.name ? (
+          {session ? (
             <>
               <SignOutButton />
-              <Avatar>
-                <AvatarImage src={session.user.image} alt={session.user.name} />
-                <AvatarFallback>
-                  {session.user.name
-                    .split(" ")
-                    .map((word) => word[0].toUpperCase())
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
+              <Button variant="outline">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
             </>
           ) : (
             <>

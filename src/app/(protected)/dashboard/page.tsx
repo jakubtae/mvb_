@@ -8,8 +8,8 @@ const DashboardPage = async () => {
     <>
       <h1 className="text-6xl font-bold">
         Hello {session?.user.name?.split(" ").shift()}
-        This is the main dashboard
       </h1>
+      This is the main dashboard
     </>
   );
 };
