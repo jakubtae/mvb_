@@ -149,6 +149,8 @@ interface VideoEntry {
 }
 
 interface VideoResult {
+  image: string;
+  title: string;
   url: string;
   entries: VideoEntry[];
 }
@@ -205,6 +207,8 @@ export const searchLibraryVideosBySubtitleWithContext = async (
       });
 
       return {
+        image: video.thumbnailUrl,
+        title: video.title,
         url: video.url,
         entries: entries,
       };

@@ -27,7 +27,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   }
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-y-10">
         <div className="flex w-full justify-between">
           <Button variant="link" asChild>
             <Link href={"/dashboard/library/" + library.id}>

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 interface SearchLibraryInterface {
   libraryid: string;
 }
@@ -23,6 +25,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
           if (searchResults.error || !searchResults.success) {
             return false;
           }
+          console.log(searchResults.success);
           setResults(searchResults.success);
         } else {
           setResults([]);
@@ -45,30 +48,40 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
   };
 
   return (
-    <div className="flex flex-col">
-      <Label htmlFor="queryBox">Your search query</Label>
-      <Input
-        id="queryBox"
-        type="text"
-        value={query}
-        onChange={handleInputChange}
-      />
+    <div className="flex flex-col gap-y-10">
+      <div>
+        <Label htmlFor="queryBox">Your search query</Label>
+        <Input
+          id="queryBox"
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          placeholder="Text you want to find"
+        />
+      </div>
 
       {/* Display results */}
       <div className="mt-4">
         {loading && <p>Loading...</p>}
         {!loading && results.length > 0 ? (
           results.map((video) => (
-            <div key={video.videoId} className="mb-2">
-              <h3>{video.title}</h3>
-              <p>{video.description}</p>
+            <Card key={video.videoId} className="mb-2 p-20 h-10">
+              <Image
+                src={video.image}
+                alt={video.title}
+                fill
+                className="rounded-lg object-cover"
+              />
+              <CardHeader className="h-20">
+                <CardTitle>{video.title}</CardTitle>
+              </CardHeader>
               {/* Render subtitles with context */}
               {video.entries.map((entry: any, index: number) => (
                 <div key={index}>
                   <p>{entry.context}</p>
                 </div>
               ))}
-            </div>
+            </Card>
           ))
         ) : !loading && results.length === 0 ? (
           <p>No results found</p>
