@@ -107,26 +107,6 @@ export const deleteALibrary = async (id: string) => {
   }
 };
 
-export const updateLibraryStatus = async (id: string) => {
-  try {
-    const gotUpdated = await db.library.update({
-      where: {
-        id,
-      },
-      data: {
-        status: "IN_PROCESS",
-      },
-    });
-    if (!gotUpdated) {
-      throw new Error("Prisma error / error updating");
-    }
-    return gotUpdated;
-  } catch (error) {
-    console.error("Failed to update a library status", error);
-    throw new Error("Error updating a library status from database");
-  }
-};
-
 export const findrecentLibraries = async (user_id: string) => {
   try {
     const libraries = await db.library.findMany({
@@ -159,5 +139,82 @@ export const findLibraryById = async (id: string) => {
   } catch (error) {
     console.error("Failed to find a library by ID", error);
     throw new Error("Error fetching library by ID from database");
+  }
+};
+
+interface VideoEntry {
+  start: string;
+  dur: string;
+  context: string;
+}
+
+interface VideoResult {
+  url: string;
+  entries: VideoEntry[];
+}
+
+export const searchLibraryVideosBySubtitleWithContext = async (
+  libraryId: string,
+  query: string
+): Promise<VideoResult[]> => {
+  try {
+    const videos = await db.video.findMany({
+      where: {
+        libraryIDs: {
+          has: libraryId,
+        },
+        subtitles: {
+          some: {
+            text: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+    });
+
+    const videosWithContext: VideoResult[] = videos.map((video) => {
+      const entries: VideoEntry[] = [];
+
+      video.subtitles.forEach((subtitle) => {
+        const subtitleText = subtitle.text.toLowerCase();
+        const queryLower = query.toLowerCase();
+        const index = subtitleText.indexOf(queryLower);
+
+        if (index !== -1) {
+          const beforeContext = subtitleText.substring(
+            Math.max(0, index - 20),
+            index
+          );
+          const match = subtitleText.substring(
+            index,
+            index + queryLower.length
+          );
+          const afterContext = subtitleText.substring(
+            index + queryLower.length,
+            index + queryLower.length + 20
+          );
+
+          entries.push({
+            start: subtitle.start,
+            dur: subtitle.dur,
+            context: `${beforeContext} ${match} ${afterContext}`,
+          });
+        }
+      });
+
+      return {
+        url: video.url,
+        entries: entries,
+      };
+    });
+
+    return videosWithContext;
+  } catch (error) {
+    console.error("Failed to search videos by subtitle with context", error);
+    throw new Error(
+      "Error searching videos by subtitle with context in the database"
+    );
   }
 };

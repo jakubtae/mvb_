@@ -3,6 +3,7 @@ import { findLibraryById } from "@/data/library";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import DeleteLibrary from "../../_components/DeleteLibrary";
+import SearchLibraryTool from "./_components/SearchLibraryTool";
 
 interface LibraryIDPageProps {
   params: {
@@ -36,8 +37,8 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
           <div className="flex gap-6">
             <DeleteLibrary id={library.id} />
           </div>
-          Search Engine nigga
         </div>
+        <SearchLibraryTool libraryid={library.id} />
       </div>
     </>
   );
