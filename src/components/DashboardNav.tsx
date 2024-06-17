@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { Library, SquarePlus, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import MenuButton from "./DashboardButton";
 
 const menuList = [
@@ -20,16 +18,16 @@ const menuList = [
       },
     ],
   },
-  {
-    group: "Profile",
-    items: [
-      {
-        link: "/profile",
-        text: "Your profile",
-        icon: <User size={20} />,
-      },
-    ],
-  },
+  // {
+  //   group: "Profile",
+  //   items: [
+  //     {
+  //       link: "/profile",
+  //       text: "Your profile",
+  //       icon: <User size={20} />,
+  //     },
+  //   ],
+  // },
 ];
 
 const DashboardNav = () => {

@@ -160,74 +160,62 @@ export const searchLibraryVideosBySubtitleWithContext = async (
   libraryId: string
 ): Promise<VideoResult[]> => {
   try {
-    // Split the query into individual words
-    const queryWords = query.toLowerCase().split(" ");
-
-    // Fetch videos from the database that belong to the specified library
+    const splittedQuery = query.split(" ");
+    splittedQuery.forEach(async (query) => {});
     const videos = await db.video.findMany({
       where: {
         libraryIDs: {
           has: libraryId,
         },
+        subtitles: {
+          some: {
+            text: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        },
       },
     });
 
-    // Process each video to add context around matched subtitles
-    const videosWithContext: VideoResult[] = videos
-      .map((video) => {
-        // Initialize an array to store video entries (matched subtitles with context)
-        const entries: VideoEntry[] = [];
+    const videosWithContext: VideoResult[] = videos.map((video) => {
+      const entries: VideoEntry[] = [];
 
-        // Process subtitles to find and add context around matched query words
-        video.subtitles.forEach((subtitle) => {
-          // Convert subtitle text to lowercase for case-insensitive comparison
-          const subtitleText = subtitle.text.toLowerCase();
+      video.subtitles.forEach((subtitle) => {
+        const subtitleText = subtitle.text.toLowerCase();
+        const queryLower = query.toLowerCase();
+        const index = subtitleText.indexOf(queryLower);
 
-          // Check if each word in queryWords is found in subtitle text
-          const matchedWords = queryWords.filter((word) =>
-            subtitleText.includes(word)
+        if (index !== -1) {
+          const beforeContext = subtitleText.substring(
+            Math.max(0, index - 20),
+            index
+          );
+          const match = subtitleText.substring(
+            index,
+            index + queryLower.length
+          );
+          const afterContext = subtitleText.substring(
+            index + queryLower.length,
+            index + queryLower.length + 20
           );
 
-          // If all query words are found in subtitle text
-          if (matchedWords.length === queryWords.length) {
-            // Extract context around the matched query words
-            const startIndex = matchedWords.reduce((acc, word) => {
-              return Math.max(acc, subtitleText.indexOf(word));
-            }, 0);
-
-            const beforeContext = subtitleText.substring(
-              Math.max(0, startIndex - 20),
-              startIndex
-            );
-            const afterContext = subtitleText.substring(
-              startIndex + query.length,
-              startIndex + query.length + 20
-            );
-
-            // Create a new VideoEntry object and push it to entries array
-            entries.push({
-              start: subtitle.start,
-              dur: subtitle.dur,
-              context: `${beforeContext} ${query} ${afterContext}`.trim(),
-            });
-          }
-        });
-
-        // Return a VideoResult object only if entries exist for the video
-        if (entries.length > 0) {
-          return {
-            image: video.thumbnailUrl,
-            title: video.title,
-            url: video.url,
-            entries,
-          };
-        } else {
-          return null; // Return null for videos without entries
+          entries.push({
+            start: subtitle.start,
+            dur: subtitle.dur,
+            context: `${beforeContext} ${match} ${afterContext}`,
+          });
         }
-      })
-      .filter((video) => video !== null) as VideoResult[]; // Filter out null entries
+      });
 
-    // Return the processed videos with subtitles context
+      return {
+        image: video.thumbnailUrl,
+        title: video.title,
+        url: video.url,
+        entries: entries,
+      };
+    });
+
     return videosWithContext;
   } catch (error) {
     console.error("Failed to search videos by subtitle with context", error);

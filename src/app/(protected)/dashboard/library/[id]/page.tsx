@@ -18,12 +18,12 @@ const isValidObjectId = (id: string): boolean => {
 
 const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   if (!isValidObjectId(params.id)) {
-    redirect("/dashboard/library");
+    redirect("/dashboard/libraries");
   }
 
   const library = await findLibraryById(params.id);
   if (!library) {
-    redirect("/dashboard/library");
+    redirect("/dashboard/libraries");
   }
   return (
     <>

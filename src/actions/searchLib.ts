@@ -10,6 +10,6 @@ export const searchLibrary = async (query: string, libraryId: string) => {
     return { success: result };
   } catch (error) {
     console.log(error);
-    return { error: error };
+    return { error: error as string };
   }
 };

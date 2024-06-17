@@ -6,6 +6,32 @@ import { deleteALibrary } from "@/data/library";
 import ytfps from "ytfps";
 import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
+import { Subtitle } from "@prisma/client";
+
+function splitSubtitlesIntoWords(
+  subtitles: Subtitle[]
+): { text: string; start: string; dur: string }[] {
+  const words: { text: string; start: string; dur: string }[] = [];
+
+  subtitles.forEach((subtitle) => {
+    const startTime = parseFloat(subtitle.start);
+    const duration = parseFloat(subtitle.dur);
+    const subtitleText = subtitle.text;
+
+    const wordArray = subtitleText.split(" ");
+    const wordDuration = duration / wordArray.length;
+
+    wordArray.forEach((word: string, index: number) => {
+      words.push({
+        text: word.toLowerCase(),
+        start: String(startTime + index * wordDuration),
+        dur: String(wordDuration),
+      });
+    });
+  });
+
+  return words;
+}
 
 const fetchSubtitles = async (videoID: string, lang = "en") => {
   try {
@@ -64,6 +90,11 @@ export const newLibrary = async (
         if (!subtitles) {
           throw new Error("Error getting subtitles");
         }
+
+        const splitSubtitles = splitSubtitlesIntoWords(subtitles);
+        if (!splitSubtitles) {
+          throw new Error("Error spliting subtitles");
+        }
         const newVideo = await db.video.create({
           data: {
             title: video.title,
@@ -71,14 +102,15 @@ export const newLibrary = async (
             videoId: video.id,
             length: video.length,
             milisLength: video.milis_length,
-            thumbnailUrl: video.thumbnail_url,
+            thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
             author: {
               name: video.author.name,
               url: video.author.url,
             },
-            subtitles: subtitles,
+            subtitles: splitSubtitles, // Store the split subtitles here
           },
         });
+
         videoIds.push(newVideo.id);
       } else {
         videoIds.push(existingVideo.id);
