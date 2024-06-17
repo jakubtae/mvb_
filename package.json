@@ -35,6 +35,8 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.0",
     "react-icons": "^5.2.1",
+    "react-lite-youtube-embed": "^2.4.0",
+    "react-youtube": "^10.1.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "youtube-caption-extractor": "^1.4.3",

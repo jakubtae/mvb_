@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { findUserLibraries } from "@/data/library";
 import { redirect } from "next/navigation";
 import { DataTable } from "../_components/Data-Table";
-import { LocalLibrary, columns } from "../_components/Columns";
+import { LocalLibrary, Columns } from "../_components/Columns";
 
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -17,7 +17,7 @@ const Libraries = async () => {
   return (
     <>
       <h1 className="font-bold text-xl">Your libraries</h1>
-      <DataTable columns={columns} data={Libraries} />
+      <DataTable columns={Columns} data={Libraries} />
     </>
   );
 };

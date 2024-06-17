@@ -26,7 +26,7 @@ export type LocalLibrary = {
   videoIds: string[];
 };
 
-export const columns: ColumnDef<LocalLibrary>[] = [
+export const Columns: ColumnDef<LocalLibrary>[] = [
   {
     accessorKey: "name",
     header: "Name",

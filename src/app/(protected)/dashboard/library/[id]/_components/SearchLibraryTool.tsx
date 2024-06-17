@@ -1,14 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
-import Image from "next/image";
+import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
 
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Link2, SquareArrowOutUpRight } from "lucide-react";
+import { formatTime } from "@/lib/formatTime";
 
 interface SearchLibraryInterface {
   libraryid: string;
@@ -18,6 +18,13 @@ interface VideoEntry {
   start: string;
   dur: string;
   context: string;
+}
+
+function extractYouTubeVideoId(url: string): string {
+  const regExp =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regExp);
+  return match ? match[1] : "";
 }
 
 interface VideoResult {
@@ -33,6 +40,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
+  const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -67,6 +75,11 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
     }
   }, [searchTriggered, libraryid, query]);
 
+  useEffect(() => {
+    // Initialize refs for each video
+    playerRefs.current = new Array(results.length);
+  }, [results.length]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
@@ -75,6 +88,16 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
     if (query.trim() !== "") {
       setSearchTriggered(true);
     }
+  };
+
+  const handleButtonClick = (index: number, time: number) => {
+    if (playerRefs.current[index]) {
+      playerRefs.current[index].seekTo(time);
+    }
+  };
+
+  const handlePlayerReady = (index: number, event: any) => {
+    playerRefs.current[index] = event.target;
   };
 
   return (
@@ -96,54 +119,98 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
       </div>
 
       {/* Display results */}
-      <div className="mt-4">
-        {loading && <p>Loading...</p>}
-        {!loading && error && <p>{error}</p>}
-        {!loading && results.length > 0 ? (
-          results.map((video, index) => (
-            <div key={index} className="mb-2">
-              <Button variant="link" asChild>
-                <Link
-                  href={video.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-lg font-extrabold w-full flex items-center justify-between"
+      <div className="flex flex-col gap-4">
+        {loading && (
+          <p className="p-4 bg-white shadow-md rounded-lg">Loading...</p>
+        )}
+
+        {!loading && error && (
+          <p className="p-4 bg-red-100 text-red-600 shadow-md rounded-lg">
+            {error}
+          </p>
+        )}
+
+        {!loading && results.length > 0
+          ? results.map((video, index) => {
+              const opts: YouTubeProps["opts"] = {
+                playerVars: {
+                  start: parseInt(video.entries[0].start) - 2,
+                },
+              };
+
+              return (
+                <div
+                  key={index}
+                  className="w-full mb-4 p-4 rounded-lg border border-gray-300 bg-white shadow-md"
                 >
-                  {video.title}
-                  <SquareArrowOutUpRight size={15} />
-                </Link>
-              </Button>
-              <div className="w-[400px]">
-                <AspectRatio ratio={16 / 9} asChild>
-                  <Image
-                    src={video.image}
-                    alt={video.title}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
-                </AspectRatio>
-              </div>
-              {video.entries.map((entry, entryIndex) => {
-                console.log(entry.start);
-                return (
-                  <Link
-                    key={entryIndex}
-                    rel="noopener noreferrer"
-                    className="flex w-full justify-between items-center"
-                    href={
-                      video.url + "&t=" + Math.floor(parseInt(entry.start) - 2)
-                    }
-                    target="_blank"
-                  >
-                    <p>{entry.context}</p>
-                  </Link>
-                );
-              })}
-            </div>
-          ))
-        ) : !loading && results.length === 0 && !error ? (
-          <p>No results found</p>
-        ) : null}
+                  <div className="w-full flex items-center justify-between">
+                    <Button variant="link" asChild className="flex-grow">
+                      <Link
+                        href={video.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-between truncate"
+                      >
+                        <h1 className="text-xl font-semibold">{video.title}</h1>
+                        <SquareArrowOutUpRight size={15} className="ml-2" />
+                      </Link>
+                    </Button>
+                    <span className="truncate">
+                      {video.entries.length} Mentions
+                    </span>
+                  </div>
+
+                  <div className="flex items-start mt-4">
+                    {/* <div className="w-[300px]">
+                    <AspectRatio ratio={16 / 9} asChild>
+                      <Image
+                        src={video.image}
+                        alt={video.title}
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    </AspectRatio>
+                  </div> */}
+                    <YouTube
+                      videoId={extractYouTubeVideoId(video.url)}
+                      title={video.title}
+                      opts={opts}
+                      onReady={(event: YouTubeEvent) =>
+                        handlePlayerReady(index, event)
+                      }
+                      onStateChange={(a: YouTubeEvent) => {
+                        console.log(a.target.getCurrentTime());
+                      }}
+                    />
+
+                    <div className="flex flex-col gap-2 flex-1 ml-4 overflow-y-auto">
+                      <div className="max-h-36 overflow-y-auto space-y-4 snap-y snap-always">
+                        {video.entries.map((entry, entryIndex) => (
+                          <Button
+                            key={entryIndex}
+                            variant="outline"
+                            className="snap-start w-full flex items-center justify-between p-2"
+                            onClick={() =>
+                              handleButtonClick(index, parseInt(entry.start))
+                            }
+                          >
+                            <span className="truncate">{entry.context}</span>
+                            <span>{formatTime(parseInt(entry.start))}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          : !loading &&
+            results.length === 0 &&
+            !error && (
+              <p className="p-4 bg-gray-100 shadow-md rounded-lg">
+                No results found
+              </p>
+            )}
       </div>
     </div>
   );

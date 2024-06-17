@@ -17,7 +17,7 @@ async function Nav() {
       )}
       <div className="flex gap-4 justify-between items-center px-20 py-2 font-semibold bg-white border-b-2 border-b-gray-200">
         <Link href="/" className="lowercase">
-          AppName
+          MediaLibrary
         </Link>
         <div className="flex items-center">
           <Button variant="ghost">

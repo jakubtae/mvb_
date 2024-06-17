@@ -7,7 +7,7 @@ import AuthProvider from "@/context/AuthProvider";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TheBrain.com",
+  title: "mediaLibrary",
   description: "Utilize knowledge with simple yet effective tools",
 };
 

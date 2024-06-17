@@ -216,6 +216,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
         // Return a VideoResult object only if entries exist for the video
         if (entries.length > 0) {
           return {
+            id: video.id,
             image: video.thumbnailUrl,
             title: video.title,
             url: video.url,
