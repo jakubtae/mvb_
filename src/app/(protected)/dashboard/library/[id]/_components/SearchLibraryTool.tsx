@@ -92,7 +92,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
 
   const handleButtonClick = (index: number, time: number) => {
     if (playerRefs.current[index]) {
-      playerRefs.current[index].seekTo(time);
+      playerRefs.current[index].seekTo(time - 2);
     }
   };
 
@@ -178,9 +178,6 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                       onReady={(event: YouTubeEvent) =>
                         handlePlayerReady(index, event)
                       }
-                      onStateChange={(a: YouTubeEvent) => {
-                        console.log(a.target.getCurrentTime());
-                      }}
                     />
 
                     <div className="flex flex-col gap-2 flex-1 ml-4 overflow-y-auto">
