@@ -1,5 +1,5 @@
 const Tab1Page = () => {
-  return <div>Tab 1</div>;
+  return <div>How it works</div>;
 };
 
 export default Tab1Page;

@@ -1,5 +1,5 @@
 const Tab2Page = () => {
-  return <div>Tab 2</div>;
+  return <div>Pricing</div>;
 };
 
 export default Tab2Page;

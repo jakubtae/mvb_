@@ -21,10 +21,10 @@ async function Nav() {
         </Link>
         <div className="flex items-center">
           <Button variant="ghost">
-            <Link href="/tab1">Tab 1</Link>
+            <Link href="/howitworks">How it works?</Link>
           </Button>
           <Button variant="ghost">
-            <Link href="/tab2">Tab 2</Link>
+            <Link href="/pricing">Pricing</Link>
           </Button>
         </div>
         <div className="flex gap-4 items-center">
