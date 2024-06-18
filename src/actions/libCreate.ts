@@ -55,9 +55,8 @@ export const newLibrary = async (
     return { error: "Must provide userId" };
   }
   const { name, sources } = validatedFields.data;
-
   const playlistRegex =
-    /^https:\/\/www\.youtube\.com\/playlist\?list=([A-Za-z0-9_-]+)$/;
+    /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
 
   // Extract the playlist ID
   const match = sources.match(playlistRegex);

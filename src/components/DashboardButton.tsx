@@ -7,7 +7,7 @@ const MenuButton: React.FC<{ children: React.ReactNode; link: string }> = ({
 }) => {
   return (
     <Link
-      className=" py-2 px-2 w-40 flex justify-start gap-2 rounded-sm border-2 border-transparent hover:bg-secondary hover:border-gray-200"
+      className=" py-2 px-2 w-30 flex justify-start gap-2 rounded-sm border-2 border-transparent hover:bg-secondary hover:border-gray-200 text-xs"
       href={"/dashboard" + link}
     >
       {children}

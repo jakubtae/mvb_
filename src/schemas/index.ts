@@ -24,7 +24,8 @@ export const RegisterSchema = z.object({
 
 // Define the regular expressions for YouTube URLs
 const playlistRegex =
-  /^https:\/\/www\.youtube\.com\/playlist\?list=[A-Za-z0-9_-]+$/;
+  /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
+
 // const userRegex = /^https:\/\/www\.youtube\.com\/@[A-Za-z0-9_-]+$/;
 // const channelRegex = /^https:\/\/www\.youtube\.com\/channel\/[A-Za-z0-9_-]+$/;
 // const videoRegex = /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]+(&t=\d+s)?$/;

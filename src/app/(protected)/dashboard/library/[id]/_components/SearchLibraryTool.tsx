@@ -102,26 +102,32 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex flex-grow flex-col gap-2">
-          <Label htmlFor="queryBox">Your search query</Label>
+      <div className="flex flex-grow flex-col gap-2">
+        <Label htmlFor="queryBox">Your search query</Label>
+        <div className="flex items-end justify-between gap-4">
           <Input
             id="queryBox"
             type="text"
             value={query}
             onChange={handleInputChange}
             placeholder="Text you want to find"
+            className="bg-background"
           />
+          <Button
+            size="lg"
+            className="font-bold text-sm md:text-base h-full"
+            type="button"
+            onClick={handleSearchClick}
+          >
+            Search
+          </Button>
         </div>
-        <Button type="button" onClick={handleSearchClick}>
-          Search
-        </Button>
       </div>
 
       {/* Display results */}
       <div className="flex flex-col gap-4">
         {loading && (
-          <p className="p-4 bg-white shadow-md rounded-lg">Loading...</p>
+          <p className="p-4 bg-slate-50 shadow-md rounded-lg">Loading...</p>
         )}
 
         {!loading && error && (
@@ -141,7 +147,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
               return (
                 <div
                   key={index}
-                  className="w-full mb-4 p-4 rounded-lg border border-gray-300 bg-white shadow-md"
+                  className="w-full mb-4 p-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
                 >
                   <div className="w-full flex items-center justify-between">
                     <Button variant="link" asChild className="flex-grow">

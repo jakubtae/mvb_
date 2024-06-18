@@ -83,7 +83,10 @@ const Testimonials: React.FC = () => {
         }),
       ]}
       className="w-full flex-col flex gap-2"
-      opts={{ loop: true, align: "start", slidesToScroll: "auto" }}
+      opts={{
+        loop: true,
+        align: "start",
+      }}
     >
       <CarouselContent className="w-full py-2">
         {testimonials.map(

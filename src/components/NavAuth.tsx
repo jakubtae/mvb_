@@ -3,6 +3,7 @@ import Link from "next/link";
 import SignOutButton from "./auth/SignOutButton";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
+import DashboardNav from "./DashboardNav";
 
 const NavAuth = () => {
   const session = useSession();
@@ -11,9 +12,7 @@ const NavAuth = () => {
       {session.status == "authenticated" ? (
         <>
           <SignOutButton />
-          <Button variant="outline">
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
+          <DashboardNav />
         </>
       ) : (
         <>
