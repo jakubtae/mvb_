@@ -12,7 +12,9 @@ const TopNav = () => {
           Welcome to medialibrary - a tool for easy research. Start here.
         </Link>
       ) : (
-        <Link href="loom link">Watch the tutorial</Link>
+        <Link href="loom link" className="hover:underline">
+          Watch the tutorial
+        </Link>
       )}
     </div>
   );

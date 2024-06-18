@@ -37,13 +37,13 @@ function Nav() {
               : "hidden"
           }`}
         >
-          <Button variant="ghost" className="w-full">
+          <Button variant="ghost" className="w-full" asChild>
             <Link href="/#howitworks">How it works?</Link>
           </Button>
-          <Button variant="ghost" className="w-full">
+          <Button variant="ghost" className="w-full" asChild>
             <Link href="/#testimonials">Testimonials</Link>
           </Button>
-          <Button variant="ghost" className="w-full">
+          <Button variant="ghost" className="w-full" asChild>
             <Link href="/#pricing">Pricing</Link>
           </Button>
           <NavAuth />
