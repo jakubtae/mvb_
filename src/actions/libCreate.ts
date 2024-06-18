@@ -8,12 +8,26 @@ import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
 import { Subtitle } from "@prisma/client";
 
-function splitSubtitlesIntoWords(
-  subtitles: Subtitle[]
-): { text: string; start: string; dur: string }[] {
-  const words: { text: string; start: string; dur: string }[] = [];
+type LocalSubtitle = {
+  start: string;
+  dur: string;
+  text: string;
+};
 
-  subtitles.forEach((subtitle) => {
+function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
+  text: string;
+  start: string;
+  dur: string;
+  wordIndex: number;
+}[] {
+  const words: {
+    text: string;
+    start: string;
+    dur: string;
+    wordIndex: number;
+  }[] = [];
+
+  subtitles.forEach((subtitle, subIndex) => {
     const startTime = parseFloat(subtitle.start);
     const duration = parseFloat(subtitle.dur);
     const subtitleText = subtitle.text;
@@ -26,6 +40,7 @@ function splitSubtitlesIntoWords(
         text: word.toLowerCase(),
         start: String(startTime + index * wordDuration),
         dur: String(wordDuration),
+        wordIndex: subIndex,
       });
     });
   });

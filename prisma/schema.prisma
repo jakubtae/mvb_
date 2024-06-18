@@ -99,9 +99,10 @@ type Author {
 }
 
 type Subtitle {
-  start String
-  dur   String
-  text  String
+  start     String
+  dur       String
+  text      String
+  wordIndex Int
 }
 
 model Orders {

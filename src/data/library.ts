@@ -1,4 +1,5 @@
 import { db } from "@/lib/prismadb";
+import { Subtitles } from "lucide-react";
 
 export const findUserLibraries = async (userId: string) => {
   try {
@@ -145,14 +146,52 @@ export const findLibraryById = async (id: string) => {
 interface VideoEntry {
   start: string;
   dur: string;
-  context: string;
+  word: string;
+  phrase: string;
 }
 
 interface VideoResult {
+  id: string;
   image: string;
   title: string;
   url: string;
   entries: VideoEntry[];
+}
+interface Subtitle {
+  start: string;
+  dur: string;
+  text: string;
+  wordIndex: number;
+}
+type Entry = {
+  start: string;
+  dur: string;
+  word: string;
+  phrase: string;
+};
+
+function findAdjacentSubtitles(subtitles: Subtitle[]): VideoEntry[] {
+  const entries: VideoEntry[] = [];
+
+  for (let i = 0; i < subtitles.length - 1; i++) {
+    const subtitle1 = subtitles[i];
+    const subtitle2 = subtitles[i + 1];
+
+    // Check if the subtitles are adjacent based on wordIndex
+    if (subtitle2.wordIndex === subtitle1.wordIndex + 1) {
+      const matchedWords = [subtitle1.text, subtitle2.text];
+      const totalDur = +subtitle1.dur + +subtitle2.dur; // Convert string to number and sum durations
+
+      entries.push({
+        start: subtitle1.start,
+        dur: totalDur.toString(), // Convert total duration back to string
+        word: matchedWords.join(" "),
+        phrase: "your query", // Replace with actual query
+      });
+    }
+  }
+
+  return entries;
 }
 
 export const searchLibraryVideosBySubtitleWithContext = async (
@@ -161,7 +200,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 ): Promise<VideoResult[]> => {
   try {
     // Split the query into individual words
-    const queryWords = query.toLowerCase().split(" ");
+    const queryWords = query.toLowerCase().trim().split(" ");
 
     // Fetch videos from the database that belong to the specified library
     const videos = await db.video.findMany({
@@ -173,60 +212,57 @@ export const searchLibraryVideosBySubtitleWithContext = async (
     });
 
     // Process each video to add context around matched subtitles
-    const videosWithContext: VideoResult[] = videos
-      .map((video) => {
-        // Initialize an array to store video entries (matched subtitles with context)
-        const entries: VideoEntry[] = [];
+    const videosWithContext: VideoResult[] = [];
 
-        // Process subtitles to find and add context around matched query words
-        video.subtitles.forEach((subtitle) => {
-          // Convert subtitle text to lowercase for case-insensitive comparison
-          const subtitleText = subtitle.text.toLowerCase();
+    for (const video of videos) {
+      const entrySet: Set<string> = new Set(); // Set to store unique entry keys
+      const entries: VideoEntry[] = [];
+      const foundSubs: Subtitle[] = [];
 
-          // Check if each word in queryWords is found in subtitle text
-          const matchedWords = queryWords.filter((word) =>
-            subtitleText.includes(word)
-          );
-
-          // If all query words are found in subtitle text
-          if (matchedWords.length === queryWords.length) {
-            // Extract context around the matched query words
-            const startIndex = matchedWords.reduce((acc, word) => {
-              return Math.max(acc, subtitleText.indexOf(word));
-            }, 0);
-
-            const beforeContext = subtitleText.substring(
-              Math.max(0, startIndex - 20),
-              startIndex
-            );
-            const afterContext = subtitleText.substring(
-              startIndex + query.length,
-              startIndex + query.length + 20
-            );
-
-            // Create a new VideoEntry object and push it to entries array
-            entries.push({
-              start: subtitle.start,
-              dur: subtitle.dur,
-              context: `${beforeContext} ${query} ${afterContext}`.trim(),
-            });
+      // Process subtitles to find and add context around matched query words
+      for (const subtitle of video.subtitles) {
+        for (const queryWord of queryWords) {
+          if (queryWord === subtitle.text.toLowerCase()) {
+            const entryKey = `${subtitle.start}-${subtitle.dur}-${subtitle.text}`;
+            if (!entrySet.has(entryKey)) {
+              entries.push({
+                start: subtitle.start,
+                dur: subtitle.dur,
+                word: subtitle.text,
+                phrase: query,
+              });
+              entrySet.add(entryKey);
+            }
+            foundSubs.push(subtitle);
           }
-        });
-
-        // Return a VideoResult object only if entries exist for the video
-        if (entries.length > 0) {
-          return {
-            id: video.id,
-            image: video.thumbnailUrl,
-            title: video.title,
-            url: video.url,
-            entries,
-          };
-        } else {
-          return null; // Return null for videos without entries
         }
-      })
-      .filter((video) => video !== null) as VideoResult[]; // Filter out null entries
+      }
+
+      // Find adjacent subtitles if multiple query words are found
+      if (queryWords.length > 1) {
+        const queryFound = findAdjacentSubtitles(foundSubs);
+        if (queryFound.length > 0) {
+          queryFound.forEach((entry) => {
+            const entryKey = `${entry.start}-${entry.dur}-${entry.word}`;
+            if (!entrySet.has(entryKey)) {
+              entries.push(entry);
+              entrySet.add(entryKey);
+            }
+          });
+        }
+      }
+
+      // Return a VideoResult object only if entries exist for the video
+      if (entries.length > 0) {
+        videosWithContext.push({
+          id: video.id,
+          image: video.thumbnailUrl,
+          title: video.title,
+          url: video.url,
+          entries,
+        });
+      }
+    }
 
     // Return the processed videos with subtitles context
     return videosWithContext;

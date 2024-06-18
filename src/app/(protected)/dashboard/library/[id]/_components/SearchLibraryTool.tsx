@@ -17,7 +17,8 @@ interface SearchLibraryInterface {
 interface VideoEntry {
   start: string;
   dur: string;
-  context: string;
+  word: string;
+  phrase: string;
 }
 
 function extractYouTubeVideoId(url: string): string {
@@ -187,7 +188,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                     />
 
                     <div className="flex flex-col gap-2 flex-1 ml-4 overflow-y-auto">
-                      <div className="max-h-36 overflow-y-auto space-y-4 snap-y snap-always">
+                      <div className="max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always">
                         {video.entries.map((entry, entryIndex) => (
                           <Button
                             key={entryIndex}
@@ -197,7 +198,8 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                               handleButtonClick(index, parseInt(entry.start))
                             }
                           >
-                            <span className="truncate">{entry.context}</span>
+                            <span className="truncate">{entry.word}</span>
+                            <span className="truncate">{entry.phrase}</span>
                             <span>{formatTime(parseInt(entry.start))}</span>
                           </Button>
                         ))}
