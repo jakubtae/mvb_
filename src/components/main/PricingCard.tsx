@@ -23,7 +23,7 @@ const PricingCard: React.FC<CustomCardProps> = ({ title, price, type }) => {
         <span>USD</span>
       </span>
       <span className="text-xs">One-time payment. No subscription.</span>
-      <Button variant="buy" size="lg" className="w-full">
+      <Button variant="buy" size="lg" className="w-full" asChild>
         <Link href={"/buy/" + type}>Buy now</Link>
       </Button>
     </div>

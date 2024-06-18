@@ -3,6 +3,9 @@ import { findUserLibraries } from "@/data/library";
 import { redirect } from "next/navigation";
 import { DataTable } from "../_components/Data-Table";
 import { LocalLibrary, Columns } from "../_components/Columns";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { SquarePlus } from "lucide-react";
 
 const Libraries = async () => {
   const session = await auth();
@@ -13,7 +16,15 @@ const Libraries = async () => {
   const Libraries = await findUserLibraries(session.user.id);
   return (
     <>
-      <h1 className="font-bold text-xl">Your libraries</h1>
+      <div className="w-full flex justify-between items-center">
+        <h1 className="font-bold text-xl">Your libraries</h1>
+        <Button variant="secondary" asChild>
+          <Link href="/dashboard/library/create" className="flex gap-2">
+            New library
+            <SquarePlus />
+          </Link>
+        </Button>
+      </div>
       <DataTable columns={Columns} data={Libraries} />
     </>
   );

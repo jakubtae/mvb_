@@ -2,6 +2,7 @@ import MainCard from "@/components/main/MainCard";
 import PricingCard from "@/components/main/PricingCard";
 import Testimonials from "@/components/main/Testimonials";
 import { Button } from "@/components/ui/button";
+import { Instagram, XIcon } from "lucide-react";
 import Link from "next/link";
 
 interface Header2TagType {
@@ -113,11 +114,39 @@ export default function Home() {
         </div>
       </LandingSection>
       <LandingSection headerText="Contact us" id="contact">
-        <Button variant="link">
-          <Link href="mailto:jakub@test.com">
-            You can always email me by using this link
-          </Link>
-        </Button>
+        <div className="text-xs md:text-base flex flex-row w-full justify-center items-center gap-2">
+          <div className="flex gap-2 justify-center items-center">
+            You can always email me by using
+            <Button
+              variant="link"
+              asChild
+              className="!p-0 !text-xs md:!text-base"
+            >
+              <Link href="mailto:jakub@test.com">this link.</Link>
+            </Button>
+          </div>
+          Or message me on one of those.
+          <div className="flex flex-row gap-2 items-center justify-center">
+            <Button variant="secondary" asChild>
+              <Link
+                href="https://www.instagram.com/jakubtomczyk05/"
+                target="_blank"
+                className="text-zinc-900 dark:text-zinc-500"
+              >
+                <Instagram size={20} />
+              </Link>
+            </Button>
+            <Button variant="secondary" asChild>
+              <Link
+                href="https://x.com/JacobTomczyk05"
+                target="_blank"
+                className="text-zinc-900 dark:text-zinc-500"
+              >
+                <XIcon size={20} />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </LandingSection>
     </div>
   );
