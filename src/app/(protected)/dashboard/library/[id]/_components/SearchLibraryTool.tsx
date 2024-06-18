@@ -204,7 +204,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
           : !loading &&
             results.length === 0 &&
             !error && (
-              <p className="p-4 bg-gray-100 shadow-md rounded-lg">
+              <p className="p-4 bg-gray-100 dark:bg-background/60 dark:border-2 dark:border-gray-300/10 shadow-md rounded-lg">
                 No results found
               </p>
             )}

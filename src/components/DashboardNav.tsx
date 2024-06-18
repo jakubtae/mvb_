@@ -32,7 +32,7 @@ const menuList = [
 
 const DashboardNav = () => {
   return (
-    <div className="flex flex-col items-start bg-light border-r-2 border-r-gray-200 py-10 gap-y-2">
+    <div className="flex flex-col items-start bg-background text-foreground border-r-2 border-r-gray-200 py-10 gap-y-2">
       {menuList.map((list: any, key: number) => (
         <div key={key}>
           <div key={key} className="flex flex-col gap-y-2 px-4 py-2">

@@ -75,6 +75,7 @@ export default function Home() {
             variant="default"
             size="lg"
             className="font-bold text-lg py-6"
+            asChild
           >
             <Link href="/auth/login">Start now</Link>
           </Button>
@@ -82,6 +83,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             className="font-bold text-lg py-6"
+            asChild
           >
             <Link href="loom link">Watch a demo</Link>
           </Button>

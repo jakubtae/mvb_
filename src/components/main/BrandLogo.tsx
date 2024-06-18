@@ -9,7 +9,10 @@ const BrandLogo = ({ variant }: BrandLogoProps) => {
   if (variant === "light") {
     return (
       <Button variant="link" className="text-lg font-semibold" asChild>
-        <Link href="/" className="flex items-center gap-1 lowercase">
+        <Link
+          href="/"
+          className="flex items-center gap-1 lowercase text-foreground"
+        >
           <Library size={20} />
           MediaLibrary
         </Link>
@@ -17,7 +20,11 @@ const BrandLogo = ({ variant }: BrandLogoProps) => {
     );
   } else if (variant === "dark") {
     return (
-      <Button variant="link" className="text-lg font-semibold" asChild>
+      <Button
+        variant="link"
+        className="text-lg font-semibold text-foreground"
+        asChild
+      >
         <Link
           href="/"
           className="flex items-center gap-1 lowercase text-background"

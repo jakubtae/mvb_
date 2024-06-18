@@ -19,7 +19,7 @@ function Nav() {
   return (
     <div className="sticky top-0 z-10 bg-white">
       <TopNav />
-      <div className="flex gap-4 justify-between items-center px-4 py-2 font-semibold border-b-2 border-b-gray-200">
+      <div className="flex gap-4 justify-between items-center px-4 py-2 font-semibold border-b-2 border-b-gray-200 bg-background">
         <div className="w-full flex items-center justify-between">
           <BrandLogo variant="light" />
           <Button
@@ -31,9 +31,9 @@ function Nav() {
           </Button>
         </div>
         <nav
-          className={`md:flex md:gap-4 md:flex-row md:relative md:top-0 ${
+          className={`md:flex md:gap-4 md:flex-row md:relative md:top-0 bg-background dark:bg-background ${
             isMenuOpen
-              ? "absolute top-[97.5px] left-0 bg-white flex flex-col w-screen items-center gap-2 border-b-2 border-b-gray-300 py-2"
+              ? "absolute top-[80px] left-0 bg-white flex flex-col w-screen items-center gap-2 border-b-2 border-b-gray-300 py-2 md:border-none"
               : "hidden"
           }`}
         >

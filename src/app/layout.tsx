@@ -20,13 +20,13 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`scroll-smooth -scroll-pt-10 ${montserrat.className} text-black min-h-screen antialiased`}
+      className={`scroll-smooth -scroll-pt-10 ${montserrat.className} text-black min-h-screen antialiased dark`}
     >
       <body className="bg-background min-h-screen">
         <AuthProvider>
           <Nav />
           {children}
-          <footer className="bg-foreground text-background font-bold flex p-4 items-center">
+          <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground">
             <BrandLogo variant="dark" />
           </footer>
         </AuthProvider>
