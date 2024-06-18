@@ -18,11 +18,11 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  role      Role      @default(User)
-  Library   Library[]
+  orders        Orders[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  role          Role            @default(User)
+  Library       Library[]
 }
 
 enum Role {
@@ -102,6 +102,20 @@ type Subtitle {
   start String
   dur   String
   text  String
+}
+
+model Orders {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String        @db.ObjectId
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentPlan PaymentLength
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum PaymentLength {
+  WEEK
+  MONTH
 }
 
 // Define Thumbnail as a type

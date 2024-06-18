@@ -22,15 +22,24 @@ const MainCard: React.FC<CustomCardProps> = ({
   description,
 }) => {
   return (
-    <Card className="pt-2 px-2 shadow-2xl shadow-purple-500/50">
+    <Card className="w-full md:w-1/2 pt-2 px-2 shadow-2xl shadow-purple-500/10 flex-grow">
       <div className="w-full">
         <AspectRatio ratio={16 / 9}>
-          <Image src={src} alt={alt} fill className="rounded-lg object-cover" />
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className="rounded-lg object-cover border-2 border-gray-100"
+          />
         </AspectRatio>
       </div>
       <CardHeader>
-        <CardTitle className="font-bold text-lg">{title}</CardTitle>
-        <CardDescription className="text-base">{description}</CardDescription>
+        <CardTitle className="font-bold text-lg md:text-base lg:text-lg">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-base md:text-sm lg:text-base">
+          {description}
+        </CardDescription>
       </CardHeader>
     </Card>
   );

@@ -6,11 +6,11 @@ const config = {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
     },
     extend: {
+      screens: {
+        md: "820px",
+      },
       colors: {
         beige: "#F1F0EA",
         black: "#131515",

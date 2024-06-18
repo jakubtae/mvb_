@@ -1,62 +1,53 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { auth } from "@/auth";
-import SignOutButton from "./auth/SignOutButton";
 import { Library } from "lucide-react";
+import TopNav from "./TopNav";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import NavAuth from "./NavAuth";
+import { Separator } from "@/components/ui/separator";
+import BrandLogo from "./main/BrandLogo";
 
-async function Nav() {
-  const session = await auth();
+function Nav() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <div className="sticky top-0 z-10">
-      <div className="flex flex-row justify-center py-1 bg-violet-500 text-sm font-semibold text-white">
-        {session ? (
-          <Button variant="link" asChild className="text-white font-semibold">
-            <Link href="loom link">Watch the tutorial</Link>
-          </Button>
-        ) : (
-          <p>
-            Welcome to medialibrary - a tool for easy search across multiple
-            sources
-          </p>
-        )}
-      </div>
-      <div className="flex gap-4 justify-between items-center px-20 py-2 font-semibold bg-white border-b-2 border-b-gray-200">
-        <Button variant="link" className="text-lg font-semibold" asChild>
-          <Link href="/" className="flex lowercase">
-            <Library size={20} />
-            MediaLibrary
-          </Link>
-        </Button>
-        <div className="flex items-center">
-          <Button variant="ghost" asChild>
-            <Link href="/howitworks">How it works?</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/pricing">Pricing</Link>
+    <div className="sticky top-0 z-10 bg-white">
+      <TopNav />
+      <div className="flex gap-4 justify-between items-center px-4 py-2 font-semibold border-b-2 border-b-gray-200">
+        <div className="w-full flex items-center justify-between">
+          <BrandLogo variant="light" />
+          <Button
+            variant="ghost"
+            onClick={toggleMenu}
+            className="md:hidden mr-2"
+          >
+            <HamburgerMenuIcon />
           </Button>
         </div>
-        <div className="flex gap-4 items-center">
-          {session ? (
-            <>
-              <SignOutButton />
-              <Button variant="outline">
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login">
-                <Button variant="link" className="text-base">
-                  Sign in
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="text-base">Sign up</Button>
-              </Link>
-            </>
-          )}
-        </div>
+        <nav
+          className={`md:flex md:gap-4 md:flex-row md:relative md:top-0 ${
+            isMenuOpen
+              ? "absolute top-[97.5px] left-0 bg-white flex flex-col w-screen items-center gap-2 border-b-2 border-b-gray-300 py-2"
+              : "hidden"
+          }`}
+        >
+          <Button variant="ghost" className="w-full">
+            <Link href="/#howitworks">How it works?</Link>
+          </Button>
+          <Button variant="ghost" className="w-full">
+            <Link href="/#testimonials">Testimonials</Link>
+          </Button>
+          <Button variant="ghost" className="w-full">
+            <Link href="/#pricing">Pricing</Link>
+          </Button>
+          <NavAuth />
+        </nav>
       </div>
     </div>
   );

@@ -1,15 +1,12 @@
+// components/Testimonials.tsx
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AutoScroll from "embla-carousel-auto-scroll";
-
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardDescription, CardHeader } from "../ui/card";
 import React from "react";
 
 const getAcronym = (name: string) =>
@@ -25,12 +22,17 @@ interface TestimonialCardProps {
   image: string;
   opinion: string;
 }
-const TestimonialCard = ({ name, image, opinion }: TestimonialCardProps) => {
+
+const TestimonialCard: React.FC<TestimonialCardProps> = ({
+  name,
+  image,
+  opinion,
+}) => {
   return (
-    <div className="bg-white rounded-xl flex flex-col items-start gap-2 w-full py-4 px-4 h-full max-h-[150px]">
+    <div className="shadow-lg rounded-xl flex flex-col items-start gap-2 w-full py-4 px-4 h-full max-h-[150px] border-2 border-gray-300">
       <div className="flex flex-row gap-2 items-center justify-center">
         <Avatar>
-          <AvatarImage src={image} />
+          <AvatarImage src={image} alt={name} />
           <AvatarFallback>{getAcronym(name)}</AvatarFallback>
         </Avatar>
         <span className="font-bold text-lg">{name}</span>
@@ -40,8 +42,7 @@ const TestimonialCard = ({ name, image, opinion }: TestimonialCardProps) => {
   );
 };
 
-const Testimonials = () => {
-  //   const testimonials = await fetchTestimonials();
+const Testimonials: React.FC = () => {
   const testimonials: TestimonialCardProps[] = [
     {
       name: "Adam Knot",
@@ -74,7 +75,7 @@ const Testimonials = () => {
     <Carousel
       plugins={[
         AutoScroll({
-          speed: 1.2,
+          speed: 2,
           stopOnMouseEnter: true,
           playOnInit: true,
           stopOnInteraction: false,
@@ -84,15 +85,15 @@ const Testimonials = () => {
       className="w-full flex-col flex gap-2"
       opts={{ loop: true, align: "start", slidesToScroll: "auto" }}
     >
-      <CarouselContent className="w-full">
-        {testimonials.map(({ name, opinion, image }: TestimonialCardProps) => (
-          <CarouselItem className="md:basis-1/4 lg:basis-1/3">
-            <TestimonialCard name={name} opinion={opinion} image={image} />
-          </CarouselItem>
-        ))}
+      <CarouselContent className="w-full py-2">
+        {testimonials.map(
+          ({ name, opinion, image }: TestimonialCardProps, index) => (
+            <CarouselItem className="md:basis-1/4 lg:basis-1/3" key={index}>
+              <TestimonialCard name={name} opinion={opinion} image={image} />
+            </CarouselItem>
+          )
+        )}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
     </Carousel>
   );
 };

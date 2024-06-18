@@ -4,7 +4,8 @@ import "tailwindcss/tailwind.css";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import AuthProvider from "@/context/AuthProvider";
-const montserrat = Montserrat({ subsets: ["latin"] });
+import BrandLogo from "@/components/main/BrandLogo";
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans " });
 
 export const metadata: Metadata = {
   title: "mediaLibrary",
@@ -19,12 +20,15 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`scroll-smooth scroll-pt-0 ${montserrat.className} text-black min-h-screen`}
+      className={`scroll-smooth -scroll-pt-10 ${montserrat.className} text-black min-h-screen antialiased`}
     >
       <body className="bg-background min-h-screen">
         <AuthProvider>
           <Nav />
           {children}
+          <footer className="bg-foreground text-background font-bold flex p-4 items-center">
+            <BrandLogo variant="dark" />
+          </footer>
         </AuthProvider>
       </body>
     </html>
