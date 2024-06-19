@@ -131,6 +131,14 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
       // revalidatePath("/dashboard/library/" + libraryId);
     } else {
       videoId = existingVideo.id;
+      await db.video.update({
+        where: {
+          id: videoId,
+        },
+        data: {
+          libraryIDs: { push: libraryId },
+        },
+      });
     }
     await db.library.update({
       where: { id: libraryId },

@@ -1,30 +1,27 @@
 import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import { Library } from "@prisma/client";
+import { revalidatePath, revalidateTag } from "next/cache";
 
-export const findUserLibraries = cache(
-  async (userId: string): Promise<Library[]> => {
-    try {
-      const libraries = await db.library.findMany({
-        where: {
-          userId: userId,
-        },
-        orderBy: {
-          updatedAt: "desc",
-        },
-      });
-      if (!libraries) {
-        throw new Error("Error finding user libraries");
-      }
-      return libraries;
-    } catch (error) {
-      console.error("Failed to find user libraries", error);
-      throw new Error("Error fetching libraries from database");
+export const findUserLibraries = async (userId: string): Promise<Library[]> => {
+  try {
+    const libraries = await db.library.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+    if (!libraries) {
+      throw new Error("Error finding user libraries");
     }
-  },
-  ["abc"],
-  { revalidate: 60 * 60 * 24 }
-);
+    return libraries;
+  } catch (error) {
+    console.error("Failed to find user libraries", error);
+    throw new Error("Error fetching libraries from database");
+  }
+};
 
 export const createNewLibrary = async (
   name: string,
@@ -69,7 +66,7 @@ export const createNewLibrary = async (
         })
       )
     );
-
+    revalidateTag("findUserLibraries");
     return { success: "Library created", id: newLib.id };
   } catch (error) {
     console.error("Failed to create a new library", error);
@@ -106,6 +103,8 @@ export const deleteALibrary = async (id: string) => {
         );
       }
     });
+    revalidatePath("/dashboard/libraries");
+    revalidateTag("findUserLibraries");
     return gotDeleted;
   } catch (error) {
     console.error("Failed to delete a library", error);

@@ -25,7 +25,6 @@ export default auth(async function middleware(req: NextRequest) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
-    signOut();
     return;
   }
 

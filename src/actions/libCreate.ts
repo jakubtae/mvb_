@@ -5,6 +5,7 @@ import { createNewLibrary } from "@/data/library";
 import { deleteALibrary } from "@/data/library";
 import ytfps from "ytfps";
 import { inngest } from "@/inngest/client";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export const newLibrary = async (
   values: z.infer<typeof LibrarySchema>,
@@ -74,6 +75,8 @@ export const deleteLibrary = async (id: string) => {
     if (!delLib) {
       return { error: "Error deleting the library" };
     }
+    revalidateTag("findUserLibraries");
+    revalidatePath("/dashboard/libraries");
     return { success: "Library deleted" };
   } catch (error: any) {
     console.error("Error deleting library:", error);
