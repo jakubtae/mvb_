@@ -15,8 +15,8 @@ const Libraries = async () => {
   }
   const Libraries = await findUserLibraries(session.user.id);
   return (
-    <>
-      <div className="w-full flex justify-between items-center">
+    <div className="w-full">
+      <div className="w-full flex justify-between items-center mb-4">
         <h1 className="font-bold text-xl">Your libraries</h1>
         <Button variant="secondary" asChild>
           <Link href="/dashboard/library/create" className="flex gap-2">
@@ -26,7 +26,7 @@ const Libraries = async () => {
         </Button>
       </div>
       <DataTable columns={Columns} data={Libraries} />
-    </>
+    </div>
   );
 };
 

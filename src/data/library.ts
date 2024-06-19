@@ -1,25 +1,30 @@
+import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
-import { Subtitles } from "lucide-react";
+import { Library } from "@prisma/client";
 
-export const findUserLibraries = async (userId: string) => {
-  try {
-    const libraries = await db.library.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    });
-    if (!libraries) {
-      throw new Error("Error finding user libraries");
+export const findUserLibraries = cache(
+  async (userId: string): Promise<Library[]> => {
+    try {
+      const libraries = await db.library.findMany({
+        where: {
+          userId: userId,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+      if (!libraries) {
+        throw new Error("Error finding user libraries");
+      }
+      return libraries;
+    } catch (error) {
+      console.error("Failed to find user libraries", error);
+      throw new Error("Error fetching libraries from database");
     }
-    return libraries;
-  } catch (error) {
-    console.error("Failed to find user libraries", error);
-    throw new Error("Error fetching libraries from database");
-  }
-};
+  },
+  ["abc"],
+  { revalidate: 60 * 60 * 24 }
+);
 
 export const createNewLibrary = async (
   name: string,
@@ -163,43 +168,14 @@ interface Subtitle {
   text: string;
   wordIndex: number;
 }
-type Entry = {
-  start: string;
-  dur: string;
-  word: string;
-  phrase: string;
-};
-
-function findAdjacentSubtitles(subtitles: Subtitle[]): VideoEntry[] {
-  const entries: VideoEntry[] = [];
-
-  for (let i = 0; i < subtitles.length - 1; i++) {
-    const subtitle1 = subtitles[i];
-    const subtitle2 = subtitles[i + 1];
-
-    // Check if the subtitles are adjacent based on wordIndex
-    if (subtitle2.wordIndex === subtitle1.wordIndex + 1) {
-      const matchedWords = [subtitle1.text, subtitle2.text];
-      const totalDur = +subtitle1.dur + +subtitle2.dur; // Convert string to number and sum durations
-
-      entries.push({
-        start: subtitle1.start,
-        dur: totalDur.toString(), // Convert total duration back to string
-        word: matchedWords.join(" "),
-        phrase: "your query", // Replace with actual query
-      });
-    }
-  }
-
-  return entries;
-}
 
 export const searchLibraryVideosBySubtitleWithContext = async (
   query: string,
   libraryId: string
 ): Promise<VideoResult[]> => {
   try {
-    // Split the query into individual words
+    // Split the query into individual words\
+    console.log("GOT TO THE REQUEST");
     const queryWords = query.toLowerCase().trim().split(" ");
 
     // Fetch videos from the database that belong to the specified library

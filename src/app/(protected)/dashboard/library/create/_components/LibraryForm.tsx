@@ -59,7 +59,7 @@ const LibraryForm = () => {
   };
 
   return (
-    <Card className="w-[700px] shadow-none border-none py-10">
+    <Card className="w-full max-w-[600px] shadow-none border-none py-10">
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

@@ -38,6 +38,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             <DeleteLibrary id={library.id} />
           </div>
         </div>
+        {JSON.stringify(library.videoIds)}
         <Tabs defaultValue="search" className="">
           <TabsList>
             <TabsTrigger value="search">Search</TabsTrigger>

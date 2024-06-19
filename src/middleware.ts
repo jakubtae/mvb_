@@ -7,6 +7,7 @@ import {
   authRoutes,
   publicRoutes,
 } from "@/routes";
+import { signOut } from "./auth";
 const { auth } = NextAuth(authConfig);
 export default auth(async function middleware(req: NextRequest) {
   const isLoggedIn = await auth();
@@ -24,6 +25,7 @@ export default auth(async function middleware(req: NextRequest) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
+    signOut();
     return;
   }
 
