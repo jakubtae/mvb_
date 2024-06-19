@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"; // Assuming you have a Button c
 import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
