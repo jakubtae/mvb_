@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import DeleteLibrary from "../../_components/DeleteLibrary";
 import SearchLibraryTool from "./_components/SearchLibraryTool";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LibraryStatus from "./_components/LibraryStatus";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@/auth";
 import { db } from "@/lib/prismadb";
+import LibrarySettings from "./_components/LibrarySettings";
+import { Badge } from "@/components/ui/badge";
 interface LibraryIDPageProps {
   params: {
     id: string;
@@ -41,6 +42,14 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
       });
     }
   }
+  const finishedVideosCount = library.Videos.filter(
+    (video): video is NonNullable<typeof video> => video !== null
+  ).filter((video) => video.status === "FINISHED").length;
+  const noSubsVideosCount = library.Videos.filter(
+    (video): video is NonNullable<typeof video> => video !== null
+  ).filter((video) => video.status === "NO_SUBS").length;
+  const noSubsWord = noSubsVideosCount > 1 ? "videos" : "video";
+  const finishedVideosWord = finishedVideosCount > 1 ? "videos" : "video";
   return (
     <>
       <div className="flex flex-col gap-y-10 w-full">
@@ -55,18 +64,37 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
           </div>
         </div>
         <Tabs defaultValue="search" className="w-full">
-          <TabsList>
-            <TabsTrigger value="search">Search</TabsTrigger>
-            <TabsTrigger value="sources">Sources</TabsTrigger>
+          <TabsList className="w-full flex justify-between !py-6">
+            <div className="flex gap-2">
+              <TabsTrigger value="search" className="py-2">
+                Search
+              </TabsTrigger>
+              <TabsTrigger value="sources" className="py-2">
+                Sources
+              </TabsTrigger>
+            </div>
           </TabsList>
           <TabsContent value="search" className="flex flex-col gap-4">
-            <LibraryStatus videosIds={library.videoIds} />
+            {library.status === "IN_PROCESS" && (
+              <span className="text-wrap text-xs dark:text-neutral-300">
+                If your library is big you might have to wait and refresh for a
+                few minutes
+              </span>
+            )}{" "}
+            {noSubsVideosCount > 0 && (
+              <Badge className="px-4 py-2" variant="destructive">
+                No subtitles for {noSubsVideosCount} {noSubsWord}{" "}
+              </Badge>
+            )}
+            <Badge className="px-4 py-2" variant="outline">
+              Finished {finishedVideosCount} /{" "}
+              {library.videoIds.length - noSubsVideosCount} {finishedVideosWord}
+            </Badge>
             <Separator orientation="horizontal" />
             <SearchLibraryTool libraryid={library.id} />
           </TabsContent>
           <TabsContent value="sources">
-            <h3>View your sources</h3>
-            <p>Coming tommorow</p>
+            <LibrarySettings />
           </TabsContent>
         </Tabs>
       </div>
