@@ -38,15 +38,15 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             <DeleteLibrary id={library.id} />
           </div>
         </div>
-        <Tabs defaultValue="account" className="">
+        <Tabs defaultValue="search" className="">
           <TabsList>
             <TabsTrigger value="search">Search</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           <TabsContent value="search">
             <SearchLibraryTool libraryid={library.id} />
           </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
+          <TabsContent value="settings">Change your password here.</TabsContent>
         </Tabs>
       </div>
     </>

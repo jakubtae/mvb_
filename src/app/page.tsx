@@ -120,17 +120,7 @@ export default function Home() {
       </LandingSection>
       <LandingSection headerText="Contact us" id="contact">
         <div className="text-xs md:text-base flex flex-row w-full justify-center items-center gap-2">
-          <div className="flex gap-2 justify-center items-center">
-            You can always email me by using
-            <Button
-              variant="link"
-              asChild
-              className="!p-0 !text-xs md:!text-base"
-            >
-              <Link href="mailto:jakub@test.com">this link.</Link>
-            </Button>
-          </div>
-          Or message me on one of those.
+          Shoot me a dm.
           <div className="flex flex-row gap-2 items-center justify-center">
             <Button variant="secondary" asChild>
               <Link

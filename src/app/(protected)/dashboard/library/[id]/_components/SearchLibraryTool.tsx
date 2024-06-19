@@ -9,6 +9,7 @@ import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
 
 import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
+
 interface SearchLibraryInterface {
   libraryid: string;
 }
@@ -80,6 +81,12 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
     playerRefs.current = new Array(results.length);
   }, [results.length]);
 
+  const handleKeyDown = (event: any) => {
+    if (event.key === "Enter") {
+      setSearchTriggered(true);
+      // Perform your desired action here
+    }
+  };
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
@@ -110,6 +117,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
             type="text"
             value={query}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             placeholder="Text you want to find"
             className="bg-background"
           />
@@ -126,11 +134,13 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
       {/* Display results */}
       <div className="flex flex-col gap-4">
         {loading && (
-          <p className="p-4 bg-slate-50 shadow-md rounded-lg">Loading...</p>
+          <p className="p-4 bg-slate-50 dark:bg-neutral-800 text-white shadow-md rounded-lg">
+            Loading...
+          </p>
         )}
 
         {!loading && error && (
-          <p className="p-4 bg-red-100 text-red-600 shadow-md rounded-lg">
+          <p className="p-4 bg-red-200 dark:bg-destructive text-red-600 shadow-md rounded-lg">
             {error}
           </p>
         )}
@@ -146,36 +156,25 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
               return (
                 <div
                   key={index}
-                  className="w-full mb-4 p-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
+                  className="w-full mb-4 p-4 pt-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
                 >
-                  <div className="w-full flex items-center justify-between">
+                  <div className="w-full flex flex-col md:flex-row items-center justify-between">
                     <Button variant="link" asChild className="flex-grow">
                       <Link
                         href={video.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center justify-between truncate"
+                        className="w-full flex items-center justify-between text-wrap"
                       >
-                        <h1 className="text-xl font-semibold">{video.title}</h1>
-                        <SquareArrowOutUpRight size={15} className="ml-2" />
+                        <h1 className="text-base font-semibold">
+                          {video.title}
+                        </h1>
+                        <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
                       </Link>
                     </Button>
-                    <span className="truncate">
-                      {video.entries.length} Mentions
-                    </span>
                   </div>
 
-                  <div className="flex items-start mt-4">
-                    {/* <div className="w-[300px]">
-                    <AspectRatio ratio={16 / 9} asChild>
-                      <Image
-                        src={video.image}
-                        alt={video.title}
-                        fill
-                        className="object-cover rounded-md"
-                      />
-                    </AspectRatio>
-                  </div> */}
+                  <div className="flex flex-col md:flex-row items-start mt-4 md:mt-8 w-full">
                     <YouTube
                       videoId={extractYouTubeVideoId(video.url)}
                       title={video.title}
@@ -183,10 +182,11 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                       onReady={(event: YouTubeEvent) =>
                         handlePlayerReady(index, event)
                       }
+                      iframeClassName="w-full "
+                      className="w-full md:w-1/2 aspect-video	"
                     />
-
-                    <div className="flex flex-col gap-2 flex-1 ml-4 overflow-y-auto">
-                      <div className="max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always">
+                    <div className="flex flex-col mt-10 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
+                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always">
                         {video.entries.map((entry, entryIndex) => (
                           <Button
                             key={entryIndex}
@@ -196,8 +196,10 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                               handleButtonClick(index, parseInt(entry.start))
                             }
                           >
-                            <span className="truncate">{entry.word}</span>
-                            <span className="truncate">{entry.phrase}</span>
+                            <span className="truncate">
+                              {entryIndex + 1}. {entry.word}
+                            </span>
+                            {/* <span className="truncate">{entry.phrase}</span> */}
                             <span>{formatTime(parseInt(entry.start))}</span>
                           </Button>
                         ))}
