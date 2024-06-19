@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import DeleteLibrary from "../../_components/DeleteLibrary";
 import SearchLibraryTool from "./_components/SearchLibraryTool";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface LibraryIDPageProps {
   params: {
     id: string;
@@ -38,7 +38,16 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             <DeleteLibrary id={library.id} />
           </div>
         </div>
-        <SearchLibraryTool libraryid={library.id} />
+        <Tabs defaultValue="account" className="">
+          <TabsList>
+            <TabsTrigger value="search">Search</TabsTrigger>
+            <TabsTrigger value="password">Password</TabsTrigger>
+          </TabsList>
+          <TabsContent value="search">
+            <SearchLibraryTool libraryid={library.id} />
+          </TabsContent>
+          <TabsContent value="password">Change your password here.</TabsContent>
+        </Tabs>
       </div>
     </>
   );

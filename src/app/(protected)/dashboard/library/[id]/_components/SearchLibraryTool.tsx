@@ -7,9 +7,8 @@ import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
 
-import { Link2, SquareArrowOutUpRight } from "lucide-react";
+import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
-
 interface SearchLibraryInterface {
   libraryid: string;
 }
@@ -115,7 +114,6 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
             className="bg-background"
           />
           <Button
-            size="lg"
             className="font-bold text-sm md:text-base h-full"
             type="button"
             onClick={handleSearchClick}

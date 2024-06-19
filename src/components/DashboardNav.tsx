@@ -69,7 +69,7 @@ const DashboardNav = () => {
                   {list.group}
                 </span>
                 {list.items.map((listItem: any, key: number) => (
-                  <SheetClose asChild>
+                  <SheetClose asChild key={key}>
                     <Button type="submit" asChild variant="secondary">
                       <Link
                         className=" py-2 px-2 flex !justify-start gap-2 rounded-sm border-2 text-xs"
