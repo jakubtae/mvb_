@@ -27,7 +27,8 @@ export const createNewLibrary = async (
   name: string,
   sources: string,
   id: string,
-  videoIds: string[]
+  videoIds: string[],
+  visibility: "PRIVATE" | "PUBLIC"
 ) => {
   try {
     const libExists = await db.library.findFirst({
@@ -48,6 +49,8 @@ export const createNewLibrary = async (
         sources,
         userId: id,
         videoIds, // Add the videoIds array here
+        uniqueViews: [id],
+        visibility: visibility,
       },
     });
     if (!newLib) {

@@ -53,16 +53,23 @@ model Account {
 }
 
 model Library {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  userId    String    @db.ObjectId
-  sources   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status    LibStatus @default(IN_PROCESS)
-  videoIds  String[]  @default([]) @db.ObjectId
-  Videos    Video[]   @relation(fields: [videoIds], references: [id])
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  userId      String         @db.ObjectId
+  sources     String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      LibStatus      @default(IN_PROCESS)
+  videoIds    String[]       @default([]) @db.ObjectId
+  Videos      Video[]        @relation(fields: [videoIds], references: [id])
+  visibility  visibilityEnum @default(PRIVATE)
+  uniqueViews String[]       @db.ObjectId
+}
+
+enum visibilityEnum {
+  PRIVATE
+  PUBLIC
 }
 
 enum LibStatus {

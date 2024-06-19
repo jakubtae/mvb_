@@ -7,6 +7,8 @@ import SearchLibraryTool from "./_components/SearchLibraryTool";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LibraryStatus from "./_components/LibraryStatus";
 import { Separator } from "@/components/ui/separator";
+import { auth } from "@/auth";
+import { db } from "@/lib/prismadb";
 interface LibraryIDPageProps {
   params: {
     id: string;
@@ -19,13 +21,25 @@ const isValidObjectId = (id: string): boolean => {
 };
 
 const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
-  if (!isValidObjectId(params.id)) {
+  const session = await auth();
+  if (!isValidObjectId(params.id) || !session || !session.user.id) {
     redirect("/dashboard/libraries");
   }
 
   const library = await findLibraryById(params.id);
   if (!library) {
     redirect("/dashboard/libraries");
+  }
+  if (library.visibility === "PRIVATE" && library.userId !== session.user.id) {
+    return <>This library is private</>;
+  }
+  if (library.visibility === "PUBLIC") {
+    if (!library.uniqueViews.includes(session.user.id)) {
+      await db.library.update({
+        where: { id: params.id },
+        data: { uniqueViews: { push: session.user.id } },
+      });
+    }
   }
   return (
     <>

@@ -9,9 +9,8 @@ import { findUserByID } from "./data/user";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
+      if (!token.sub) return session;
+      session.user.id = token.sub;
       if (token.role && session.user) {
         session.user.role = token.role as "ADMIN" | "USER";
       }

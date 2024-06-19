@@ -25,7 +25,14 @@ import { newLibrary } from "@/actions/libCreate";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 const LibraryForm = () => {
   const router = useRouter();
 
@@ -40,6 +47,7 @@ const LibraryForm = () => {
     defaultValues: {
       name: "",
       sources: "",
+      visibility: "PRIVATE",
     },
   });
 
@@ -98,6 +106,33 @@ const LibraryForm = () => {
                   <FormDescription>
                     We only accept one source right now. We are working on
                     expanding this.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a verified email to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="PRIVATE">Private</SelectItem>
+                      <SelectItem value="PUBLIC">Public</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    If it's public then anyone can view it.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

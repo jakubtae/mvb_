@@ -52,9 +52,14 @@ export const VideoSchema = z.object({
 
 // Library schema
 export const LibrarySchema = z.object({
-  name: z.string().toLowerCase().min(3, {
-    message: "Must be at least 3 characters",
-  }),
-  // userId: objectIdValidation,
+  name: z
+    .string()
+    .min(3, {
+      message: "Must be at least 3 characters",
+    })
+    .transform((str) => str.toLowerCase()),
   sources: youtubeUrlValidation,
+  visibility: z.string({
+    required_error: "Please select an email to display.",
+  }),
 });

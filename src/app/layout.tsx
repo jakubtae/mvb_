@@ -22,7 +22,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`scroll-smooth -scroll-pt-10 ${montserrat.className} text-black min-h-screen antialiased`}
+      className={`scroll-smooth -scroll-pt-10 ${montserrat.className} text-black min-h-screen antialiased dark`}
     >
       <body className="bg-background min-h-screen">
         <AuthProvider>

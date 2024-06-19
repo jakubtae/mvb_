@@ -18,7 +18,7 @@ export const newLibrary = async (
   if (!id) {
     return { error: "Must provide userId" };
   }
-  const { name, sources } = validatedFields.data;
+  const { name, sources, visibility } = validatedFields.data;
   const playlistRegex =
     /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
 
@@ -43,7 +43,7 @@ export const newLibrary = async (
   // Create the library initially
   let newLib;
   try {
-    newLib = await createNewLibrary(name, sources, id, []);
+    newLib = await createNewLibrary(name, sources, id, [], visibility);
     if (newLib.error) {
       return { error: newLib.error };
     }
