@@ -86,7 +86,12 @@ export default function Home() {
             className="font-bold text-lg py-6"
             asChild
           >
-            <Link href="loom link">Watch a demo</Link>
+            <Link
+              href="https://www.loom.com/share/e25da8ec58d24cf99e347e7691342157?sid=e52e0c9b-2952-4955-874f-e0ddde5662e4"
+              target="_blank"
+            >
+              Watch a demo
+            </Link>
           </Button>
         </div>
         <span>8498 researchers already love it</span>
