@@ -59,7 +59,7 @@ export const LibrarySchema = z.object({
     })
     .transform((str) => str.toLowerCase()),
   sources: youtubeUrlValidation,
-  visibility: z.string({
+  visibility: z.enum(["PUBLIC", "PRIVATE"], {
     required_error: "Please select an email to display.",
   }),
 });

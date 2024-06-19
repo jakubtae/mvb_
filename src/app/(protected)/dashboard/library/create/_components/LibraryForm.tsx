@@ -132,7 +132,7 @@ const LibraryForm = () => {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    If it's public then anyone can view it.
+                    If set to public then anyone can view it.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

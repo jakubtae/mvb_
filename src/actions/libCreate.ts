@@ -43,7 +43,13 @@ export const newLibrary = async (
   // Create the library initially
   let newLib;
   try {
-    newLib = await createNewLibrary(name, sources, id, [], visibility);
+    newLib = await createNewLibrary(
+      name,
+      sources,
+      id,
+      [],
+      visibility as "PUBLIC" | "PRIVATE"
+    );
     if (newLib.error) {
       return { error: newLib.error };
     }
