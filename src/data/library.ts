@@ -221,38 +221,45 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 
       // Process subtitles to find and add context around matched query words
       for (const subtitle of video.subtitles) {
-        for (const queryWord of queryWords) {
-          if (queryWord === subtitle.text.toLowerCase()) {
-            const entryKey = `${subtitle.start}-${subtitle.dur}-${subtitle.text}`;
-            if (!entrySet.has(entryKey)) {
-              entries.push({
-                start: subtitle.start,
-                dur: subtitle.dur,
-                word: subtitle.text,
-                phrase: query,
-              });
-              entrySet.add(entryKey);
+        if (subtitle.text === queryWords[0]) {
+          let foundPhrasearr: Subtitle[] = [];
+          let isMatch = true;
+
+          for (var z = 0; z < queryWords.length; z++) {
+            const currentIndex = subtitle.wordIndex + z;
+            if (
+              currentIndex < video.subtitles.length &&
+              video.subtitles[currentIndex].text === queryWords[z]
+            ) {
+              foundPhrasearr.push(video.subtitles[currentIndex]);
+            } else {
+              isMatch = false;
+              break;
             }
-            foundSubs.push(subtitle);
+          }
+
+          if (isMatch) {
+            // Calculate the phrase, start time, and total duration
+            const phrase = foundPhrasearr.map((sub) => sub.text).join(" ");
+            const start = foundPhrasearr[0].start;
+            const totalDur = foundPhrasearr
+              .reduce((acc, sub) => acc + parseFloat(sub.dur), 0)
+              .toFixed(10);
+
+            const result = {
+              phrase: phrase,
+              word: phrase,
+              start: start,
+              dur: totalDur,
+            };
+
+            entries.push(result);
+            // console.log(result);
           }
         }
       }
 
-      // Find adjacent subtitles if multiple query words are found
-      if (queryWords.length > 1) {
-        const queryFound = findAdjacentSubtitles(foundSubs);
-        if (queryFound.length > 0) {
-          queryFound.forEach((entry) => {
-            const entryKey = `${entry.start}-${entry.dur}-${entry.word}`;
-            if (!entrySet.has(entryKey)) {
-              entries.push(entry);
-              entrySet.add(entryKey);
-            }
-          });
-        }
-      }
-
-      // Return a VideoResult object only if entries exist for the video
+      // Add video to results if entries exist
       if (entries.length > 0) {
         videosWithContext.push({
           id: video.id,

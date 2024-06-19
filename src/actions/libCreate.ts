@@ -26,6 +26,7 @@ function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
     dur: string;
     wordIndex: number;
   }[] = [];
+  let currentWordIndex = 0;
 
   subtitles.forEach((subtitle, subIndex) => {
     const startTime = parseFloat(subtitle.start);
@@ -40,8 +41,9 @@ function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
         text: word.toLowerCase(),
         start: String(startTime + index * wordDuration),
         dur: String(wordDuration),
-        wordIndex: subIndex,
+        wordIndex: currentWordIndex,
       });
+      currentWordIndex++;
     });
   });
 
@@ -51,6 +53,9 @@ function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
 const fetchSubtitles = async (videoID: string, lang = "en") => {
   try {
     const subtitles = await getSubtitles({ videoID, lang });
+    if (!Array.isArray(subtitles)) {
+      console.log(subtitles);
+    }
     return subtitles;
   } catch (error) {
     console.error("Error fetching subtitles:", error);
@@ -104,7 +109,6 @@ export const newLibrary = async (
         if (!subtitles) {
           throw new Error("Error getting subtitles");
         }
-
         const splitSubtitles = splitSubtitlesIntoWords(subtitles);
         if (!splitSubtitles) {
           throw new Error("Error spliting subtitles");
