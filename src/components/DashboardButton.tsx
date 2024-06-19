@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "./ui/button";
 const MenuButton: React.FC<{ children: React.ReactNode; link: string }> = ({
   children,
   link,

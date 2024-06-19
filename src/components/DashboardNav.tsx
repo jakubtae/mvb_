@@ -3,12 +3,15 @@ import { Separator } from "@/components/ui/separator";
 import MenuButton from "./DashboardButton";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
 const menuList = [
   {
@@ -66,10 +69,17 @@ const DashboardNav = () => {
                   {list.group}
                 </span>
                 {list.items.map((listItem: any, key: number) => (
-                  <MenuButton key={key} link={listItem.link}>
-                    {listItem.icon}
-                    {listItem.text}
-                  </MenuButton>
+                  <SheetClose asChild>
+                    <Button type="submit" asChild variant="secondary">
+                      <Link
+                        className=" py-2 px-2 flex !justify-start gap-2 rounded-sm border-2 text-xs"
+                        href={"/dashboard" + listItem.link}
+                      >
+                        {listItem.icon}
+                        {listItem.text}
+                      </Link>
+                    </Button>
+                  </SheetClose>
                 ))}
               </div>
               <Separator />
