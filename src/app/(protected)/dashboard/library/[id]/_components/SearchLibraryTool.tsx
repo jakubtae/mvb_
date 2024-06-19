@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"; // Assuming you have a Button c
 import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
@@ -108,8 +109,8 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
   };
 
   return (
-    <div className="flex flex-col gap-y-10">
-      <div className="flex flex-grow flex-col gap-2">
+    <div className="flex flex-col gap-y-10 w-full mt-4">
+      <div className="w-full flex flex-grow flex-col gap-2">
         <Label htmlFor="queryBox">Your search query</Label>
         <div className="flex items-end justify-between gap-4">
           <Input
@@ -134,7 +135,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
       </div>
 
       {/* Display results */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full">
         {loading && (
           <p className="p-4 bg-slate-50 dark:bg-neutral-800 text-white shadow-md rounded-lg">
             Loading...
@@ -158,7 +159,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
               return (
                 <div
                   key={index}
-                  className="w-full mb-4 p-4 pt-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
+                  className="w-full mb-4 p-4 pt-8 md:pt-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
                 >
                   <div className="w-full flex flex-col md:flex-row items-center justify-between">
                     <Button variant="link" asChild className="flex-grow">
@@ -168,7 +169,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-between text-wrap"
                       >
-                        <h1 className="text-base font-semibold">
+                        <h1 className="text-sm md:text-base font-semibold">
                           {video.title}
                         </h1>
                         <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
@@ -176,7 +177,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                     </Button>
                   </div>
 
-                  <div className="flex flex-col md:flex-row items-start mt-4 md:mt-8 w-full">
+                  <div className="flex flex-col md:flex-row items-start mt-6 md:mt-8 w-full">
                     <YouTube
                       videoId={extractYouTubeVideoId(video.url)}
                       title={video.title}
@@ -188,7 +189,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                       className="w-full md:w-1/2 aspect-video	"
                     />
                     <div className="flex flex-col mt-10 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
-                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always">
+                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
                         {video.entries.map((entry, entryIndex) => (
                           <Button
                             key={entryIndex}

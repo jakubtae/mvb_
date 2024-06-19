@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import DeleteLibrary from "../../_components/DeleteLibrary";
 import SearchLibraryTool from "./_components/SearchLibraryTool";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LibraryStatus from "./_components/LibraryStatus";
+import { Separator } from "@/components/ui/separator";
 interface LibraryIDPageProps {
   params: {
     id: string;
@@ -27,7 +29,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   }
   return (
     <>
-      <div className="flex flex-col gap-y-10">
+      <div className="flex flex-col gap-y-10 w-full">
         <div className="flex w-full justify-between">
           <Button variant="link" asChild>
             <Link href={"/dashboard/library/" + library.id}>
@@ -38,16 +40,20 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             <DeleteLibrary id={library.id} />
           </div>
         </div>
-        {JSON.stringify(library.videoIds)}
-        <Tabs defaultValue="search" className="">
+        <Tabs defaultValue="search" className="w-full">
           <TabsList>
             <TabsTrigger value="search">Search</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="sources">Sources</TabsTrigger>
           </TabsList>
-          <TabsContent value="search">
+          <TabsContent value="search" className="flex flex-col gap-4">
+            <LibraryStatus videosIds={library.videoIds} />
+            <Separator orientation="horizontal" />
             <SearchLibraryTool libraryid={library.id} />
           </TabsContent>
-          <TabsContent value="settings">Change your password here.</TabsContent>
+          <TabsContent value="sources">
+            <h3>View your sources</h3>
+            <p>Coming tommorow</p>
+          </TabsContent>
         </Tabs>
       </div>
     </>

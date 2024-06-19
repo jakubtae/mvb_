@@ -60,7 +60,7 @@ model Library {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status    LibStatus @default(FINISHED)
+  status    LibStatus @default(IN_PROCESS)
   videoIds  String[]  @default([]) @db.ObjectId
   Videos    Video[]   @relation(fields: [videoIds], references: [id])
 }
@@ -71,8 +71,14 @@ enum LibStatus {
   FINISHED
 }
 
+enum VideoStatus {
+  FINISHED
+  IN_PROCESS
+  NO_SUBS
+}
+
 model Video {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
   title        String
   url          String
   videoId      String // Renamed to avoid confusion with `id`
@@ -81,11 +87,11 @@ model Video {
   thumbnailUrl String // Use camelCase for consistency
   author       Author // Embedded type for author
   subtitles    Subtitle[] // Array of embedded Subtitle objects
-
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  libraryIDs String[]  @default([]) @db.ObjectId
-  Library    Library[] @relation(fields: [libraryIDs], references: [id])
+  status       VideoStatus @default(IN_PROCESS)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  libraryIDs   String[]    @default([]) @db.ObjectId
+  Library      Library[]   @relation(fields: [libraryIDs], references: [id])
 
   @@index([title])
   @@index([author.name])

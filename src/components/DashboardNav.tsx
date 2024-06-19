@@ -55,7 +55,7 @@ const DashboardNav = () => {
   return (
     <div className="">
       <Sheet>
-        <SheetTrigger className="bg-neutral-800 px-2 py-1 rounded-md font-medium hover:bg-neutral-600 hover:text-foreground/90">
+        <SheetTrigger className="bg-neutral-200 dark:bg-neutral-800 px-2 py-2 rounded-md font-medium dark:hover:bg-neutral-600 dark:hover:text-foreground/90 hover:bg-neutral-300 hover:text-foreground/90 text-sm">
           Dashboard
         </SheetTrigger>
         <SheetContent>

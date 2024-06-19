@@ -83,8 +83,8 @@ function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
 const fetchSubtitles = async (videoID: string, lang = "en") => {
   try {
     const subtitles = await getSubtitles({ videoID, lang });
-    if (!Array.isArray(subtitles)) {
-      console.log(subtitles);
+    if (subtitles.length === 0) {
+      console.log(`No subtitles for ${videoID}`);
     }
     return subtitles;
   } catch (error) {
@@ -116,6 +116,7 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
           videoId: video.id,
           length: video.length,
           milisLength: video.milis_length,
+          status: splitSubtitles.length > 0 ? "FINISHED" : "NO_SUBS",
           thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
           author: {
             name: video.author.name,
@@ -142,10 +143,10 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
     }
     await db.library.update({
       where: { id: libraryId },
-      data: { videoIds: { push: videoId } },
+      data: { videoIds: { push: videoId }, status: { set: "FINISHED" } },
     });
     revalidatePath(`/dashboard/library/${libraryId}`);
-    return { sucess: "Success creating this shit" };
+    return { success: "Success creating this video" };
   } catch (error) {
     console.error("Error creating video entries:", error);
     return { error: "Some error message" };

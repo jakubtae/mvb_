@@ -54,7 +54,6 @@ export const newLibrary = async (
 
   // Start processing videos in the background
   playlist.videos.forEach(async (playlistVideo) => {
-    console.log(playlistVideo);
     await inngest.send({
       name: "video/process",
       data: {
