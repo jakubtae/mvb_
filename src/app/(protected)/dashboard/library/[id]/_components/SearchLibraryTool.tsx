@@ -120,11 +120,13 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
             onKeyDown={handleKeyDown}
             placeholder="Text you want to find"
             className="bg-background"
+            disabled={loading}
           />
           <Button
             className="font-bold text-sm md:text-base h-full"
             type="button"
             onClick={handleSearchClick}
+            disabled={loading}
           >
             Search
           </Button>
