@@ -27,6 +27,7 @@ model User {
 }
 
 enum UserType {
+  NONE
   BASIC
   PREMIUM
 }
@@ -143,11 +144,11 @@ model Features {
   upvote            Int          @default(0)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+  createdBy         String       @db.ObjectId
 }
 
 enum FeatureStage {
   IDEA
-  PLANNED
   IN_PRODUCTION
   FINISHED
 }

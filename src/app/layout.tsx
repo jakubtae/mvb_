@@ -26,12 +26,14 @@ export default async function RootLayout({
     >
       <body className="bg-background min-h-screen">
         <AuthProvider>
-          <Nav />
-          {children}
-          <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground">
-            <BrandLogo variant="dark" />
-          </footer>
-          <Analytics />
+          <div className="bg-background min-h-screen flex flex-col">
+            <Nav />
+            <div className="flex-grow">{children}</div>
+            <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground">
+              <BrandLogo variant="dark" />
+            </footer>
+            <Analytics />
+          </div>
         </AuthProvider>
       </body>
     </html>

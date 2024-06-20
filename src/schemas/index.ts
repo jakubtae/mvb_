@@ -63,3 +63,21 @@ export const LibrarySchema = z.object({
     required_error: "Please select an email to display.",
   }),
 });
+
+const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+const objectIdSchema = z.string().refine((val) => objectIdPattern.test(val), {
+  message: "Invalid ObjectId",
+});
+
+export const FeatureSchema = z.object({
+  title: z.string().min(10),
+  publicDescription: z.string().min(20),
+  developerNote: z.string(),
+  plannedFinish: z.date().optional(),
+  createdBy: objectIdSchema,
+  stage: z
+    .enum(["IDEA", "IN_PRODUCTION", "FINISHED"], {
+      required_error: "Please select the feature stage",
+    })
+    .default("IDEA"),
+});
