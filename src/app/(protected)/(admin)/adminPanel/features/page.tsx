@@ -2,7 +2,7 @@ import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import FeatureCreate from "./_components/featureCreate";
 
-export const getFeatures = cache(
+const getFeatures = cache(
   async () => {
     const features = await db.features.findMany();
     return features;

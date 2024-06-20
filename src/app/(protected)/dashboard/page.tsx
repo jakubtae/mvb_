@@ -32,8 +32,9 @@ const DashboardPage = async () => {
             </>
           ) : (
             <div className="flex flex-col md:flex-row gap-2 w-full">
-              {recentLibaries.map((library) => (
+              {recentLibaries.map((library, key) => (
                 <Link
+                  key={key}
                   className="flex flex-col gap-2 px-6 py-2 md:px-4 flex-grow flex-shrink basis-0 md:max-w-[400px] bg-neutral-300 dark:bg-neutral-700 rounded hover:bg-neutral-400 hover:dark:bg-neutral-600"
                   href={"/dashboard/library/" + library.id}
                 >

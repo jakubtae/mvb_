@@ -21,7 +21,7 @@ import {
 
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,16 +55,11 @@ import { createFeature } from "../_actions/createFeature";
 export type FeatureFormValues = z.infer<typeof FeatureSchema>;
 function CalendarForm() {
   const router = useRouter();
-
-  const { data: session, status } = useSession({ required: true });
-  if (!session?.user.id) {
-    router.push("/dashboard");
-    return null;
-  }
-
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+
+  const { data: session, status } = useSession({ required: true });
 
   const form = useForm<FeatureFormValues>({
     resolver: zodResolver(FeatureSchema),
@@ -74,9 +69,21 @@ function CalendarForm() {
       developerNote: "",
       plannedFinish: undefined,
       stage: "IDEA",
-      createdBy: session.user.id,
+      createdBy: "",
     },
   });
+
+  useEffect(() => {
+    if (session?.user.id) {
+      form.setValue("createdBy", session.user.id);
+    }
+  }, [session, form]);
+
+  // Early return based on session state
+  if (!session?.user.id) {
+    router.push("/dashboard");
+    return null;
+  }
 
   const onSubmit: SubmitHandler<FeatureFormValues> = (values) => {
     setError("");
