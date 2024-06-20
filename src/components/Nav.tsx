@@ -171,7 +171,7 @@ async function Nav() {
                     <SheetClose asChild>
                       <Link
                         className="py-2 px-2 flex !justify-start items-center gap-2 rounded-sm border-2 text-xs"
-                        href={"/dashboard/admin"}
+                        href={"/adminPanel"}
                       >
                         Admin Panel
                       </Link>

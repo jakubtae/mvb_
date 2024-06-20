@@ -8,7 +8,7 @@ const AdminPage = async () => {
   }
   return (
     <>
-      <>Hello Admin {session.user.name}</>
+      <>Hello Admin {session.user.name}</> <br />
       <>If you are not an admin please tell us and leave this page alone.</>
     </>
   );
