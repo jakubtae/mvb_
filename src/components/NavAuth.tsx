@@ -8,7 +8,7 @@ import DashboardNav from "./DashboardNav";
 const NavAuth = () => {
   const session = useSession();
   return (
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-4 items-center flex-grow">
       {session.status == "authenticated" ? (
         <>
           <SignOutButton />

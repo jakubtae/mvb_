@@ -21,13 +21,19 @@ model User {
   orders        Orders[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  role          Role            @default(User)
+  role          Role            @default(USER)
+  userType      UserType        @default(BASIC)
   Library       Library[]
 }
 
+enum UserType {
+  BASIC
+  PREMIUM
+}
+
 enum Role {
-  User
-  Admin
+  USER
+  ADMIN
 }
 
 model Account {
@@ -119,27 +125,34 @@ type Subtitle {
 }
 
 model Orders {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String        @db.ObjectId
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  paymentPlan PaymentLength
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  boughtType UserType
 }
 
-enum PaymentLength {
-  WEEK
-  MONTH
+model Features {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  publicDescription String
+  developerNote     String
+  stage             FeatureStage @default(IDEA)
+  plannedFinish     DateTime?
+  upvote            Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
-// Define Thumbnail as a type
-// type Thumbnail {
-//   url    String
-//   height Int
-//   width  Int
-// }
+enum FeatureStage {
+  IDEA
+  PLANNED
+  IN_PRODUCTION
+  FINISHED
+}
 
-//! NOT IN USE
+// NOT IN USE
 // Those are always empty - no clue why
 // But not a problem because everything works
 model Session {
