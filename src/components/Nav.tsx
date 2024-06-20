@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import TopNav from "./TopNav";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
-import NavAuth from "./NavAuth";
 import BrandLogo from "./main/BrandLogo";
 import {
   Sheet,
@@ -16,9 +15,7 @@ import {
 import { auth } from "@/auth";
 import { AppWindow, Library, SquarePlus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import MenuButton from "./DashboardButton";
 import SignOutButton from "./auth/SignOutButton";
-import DashboardNav from "./DashboardNav";
 interface MenuItem {
   link: string;
   text: string;
@@ -89,27 +86,55 @@ async function Nav() {
                 Pricing
               </Link>
             </Button>
-            <NavAuth />
+            <div className="flex gap-4 items-center flex-grow">
+              {!session?.user.role ? (
+                <>
+                  <Button variant="buy" asChild className="!font-base">
+                    <Link href="/auth/login">Sign in</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    asChild
+                    className="!font-base flex-grow !py-5 !font-bold"
+                  >
+                    <Link href="/auth/register">Sign up</Link>
+                  </Button>
+                </>
+              ) : (
+                <SheetTrigger className="bg-neutral-200 dark:bg-neutral-800 px-2 py-2 rounded-md font-medium dark:hover:bg-neutral-600 dark:hover:text-foreground/90 hover:bg-neutral-300 hover:text-foreground/90 text-sm">
+                  Dashboard
+                </SheetTrigger>
+              )}
+            </div>
           </nav>
-          <SheetContent className="bg-background dark:bg-background flex flex-col gap-4">
+          <SheetContent className="bg-background dark:bg-background flex flex-col">
             {!session?.user.role ? (
               <>
                 {" "}
-                <Button variant="ghost" className="w-full" asChild>
-                  <Link href="/#howitworks" scroll={true}>
-                    How it works?
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full" asChild>
-                  <Link href="/#testimonials" scroll={true}>
-                    Testimonials
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full" asChild>
-                  <Link href="/#pricing" scroll={true}>
-                    Pricing
-                  </Link>
-                </Button>
+                <SheetHeader>
+                  <SheetTitle>Page Navigation</SheetTitle>
+                </SheetHeader>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link href="/#howitworks" scroll={true}>
+                      How it works?
+                    </Link>
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link href="/#testimonials" scroll={true}>
+                      Testimonials
+                    </Link>
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link href="/#pricing" scroll={true}>
+                      Pricing
+                    </Link>
+                  </Button>
+                </SheetClose>
               </>
             ) : (
               <>
@@ -119,7 +144,7 @@ async function Nav() {
                 </SheetHeader>
                 {menuList.map((list, groupIndex) => (
                   <div key={groupIndex}>
-                    <div className="flex flex-col gap-y-2 px-4 py-2">
+                    <div className="flex flex-col gap-y-2 px-4 py-2 mb-2">
                       <span className="font-semibold text-xs text-gray-500">
                         {list.group}
                       </span>
@@ -156,28 +181,29 @@ async function Nav() {
               </>
             )}
 
-            <div className="flex gap-4 items-center w-full">
+            <div className="flex gap-4 items-center w-full mt-2">
               {session ? (
-                <>
-                  <SignOutButton />
-                  {session.user.role === "ADMIN" && (
-                    <div className="hidden md:inline-block">
-                      <DashboardNav />
-                    </div>
-                  )}
-                </>
+                <SignOutButton />
               ) : (
                 <>
-                  <Button
-                    variant="buy"
-                    asChild
-                    className="!font-base flex-grow"
-                  >
-                    <Link href="/auth/login">Sign in</Link>
-                  </Button>
-                  <Button variant="destructive" asChild className="flex-grow">
-                    <Link href="/auth/register">Sign up</Link>
-                  </Button>
+                  <SheetClose asChild>
+                    <Button
+                      variant="buy"
+                      asChild
+                      className="!font-base flex-grow"
+                    >
+                      <Link href="/auth/login">Sign in</Link>
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      variant="outline"
+                      asChild
+                      className="!font-base flex-grow !py-5 !font-bold"
+                    >
+                      <Link href="/auth/register">Sign up</Link>
+                    </Button>
+                  </SheetClose>
                 </>
               )}
             </div>
