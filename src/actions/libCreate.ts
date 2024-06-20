@@ -68,7 +68,8 @@ export const newLibrary = async (
       },
     });
   });
-
+  // ! IS A WORKING CACHE
+  revalidateTag("getUserLibarries");
   return { success: "Library created", id: newLib.id };
 };
 
@@ -80,8 +81,8 @@ export const deleteLibrary = async (id: string) => {
     if (!delLib) {
       return { error: "Error deleting the library" };
     }
-    revalidateTag("findUserLibraries");
-    revalidatePath("/dashboard/libraries");
+    // ! IS A WORKING CACHE
+    revalidateTag("getUserLibarries");
     return { success: "Library deleted" };
   } catch (error: any) {
     console.error("Error deleting library:", error);

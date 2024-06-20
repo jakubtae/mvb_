@@ -2,7 +2,7 @@ import { inngest } from "./client";
 import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
 import { Subtitle, Library } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
@@ -145,7 +145,8 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
       where: { id: libraryId },
       data: { videoIds: { push: videoId }, status: { set: "FINISHED" } },
     });
-    revalidatePath(`/dashboard/library/${libraryId}`);
+    // ! Doesn't work
+    revalidateTag("findLibraryByID");
     return { success: "Success creating this video" };
   } catch (error) {
     console.error("Error creating video entries:", error);

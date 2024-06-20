@@ -1,11 +1,37 @@
 import { auth } from "@/auth";
-import { findUserLibraries } from "@/data/library";
 import { redirect } from "next/navigation";
 import { DataTable } from "../_components/Data-Table";
 import { LocalLibrary, Columns } from "../_components/Columns";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SquarePlus } from "lucide-react";
+import { Library } from "@prisma/client";
+import { db } from "@/lib/prismadb";
+import { cache } from "@/lib/cache";
+
+const findUserLibraries = cache(
+  async (userId: string): Promise<Library[]> => {
+    try {
+      const libraries = await db.library.findMany({
+        where: {
+          userId: userId,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+      if (!libraries) {
+        throw new Error("Error finding user libraries");
+      }
+      return libraries;
+    } catch (error) {
+      console.error("Failed to find user libraries", error);
+      throw new Error("Error fetching libraries from database");
+    }
+  },
+  ["/", "dashboard", "libraries"],
+  { revalidate: 60 * 60 * 24, tags: ["getUserLibarries"] }
+);
 
 const Libraries = async () => {
   const session = await auth();

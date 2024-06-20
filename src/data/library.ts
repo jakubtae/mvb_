@@ -3,26 +3,6 @@ import { db } from "@/lib/prismadb";
 import { Library } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-export const findUserLibraries = async (userId: string): Promise<Library[]> => {
-  try {
-    const libraries = await db.library.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    });
-    if (!libraries) {
-      throw new Error("Error finding user libraries");
-    }
-    return libraries;
-  } catch (error) {
-    console.error("Failed to find user libraries", error);
-    throw new Error("Error fetching libraries from database");
-  }
-};
-
 export const createNewLibrary = async (
   name: string,
   sources: string,
@@ -133,22 +113,26 @@ export const findrecentLibraries = async (user_id: string) => {
   }
 };
 
-export const findLibraryById = async (id: string) => {
-  try {
-    const library = await db.library.findFirst({
-      where: {
-        id: id,
-      },
-      include: {
-        Videos: true, // Include all fields of Video
-      },
-    });
-    return library;
-  } catch (error) {
-    console.error("Failed to find a library by ID", error);
-    throw new Error("Error fetching library by ID from database");
-  }
-};
+export const findLibraryById = cache(
+  async (id: string) => {
+    try {
+      const library = await db.library.findFirst({
+        where: {
+          id: id,
+        },
+        include: {
+          Videos: true, // Include all fields of Video
+        },
+      });
+      return library;
+    } catch (error) {
+      console.error("Failed to find a library by ID", error);
+      throw new Error("Error fetching library by ID from database");
+    }
+  },
+  ["/", "serverAction", "findLibraryById"],
+  { revalidate: 60 * 60 * 12, tags: ["findLibraryByID"] }
+);
 
 interface VideoEntry {
   start: string;

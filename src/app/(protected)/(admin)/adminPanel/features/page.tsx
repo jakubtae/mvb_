@@ -1,9 +1,8 @@
 import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import FeatureCreate from "./_components/featureCreate";
-import { unstable_cache as nextCache } from "next/cache";
 
-export const getFeatures = nextCache(
+export const getFeatures = cache(
   async () => {
     const features = await db.features.findMany();
     return features;

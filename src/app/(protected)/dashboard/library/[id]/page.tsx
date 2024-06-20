@@ -52,7 +52,10 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   const finishedVideosWord = finishedVideosCount > 1 ? "videos" : "video";
   return (
     <>
-      <div className="flex flex-col gap-y-10 w-full">
+      <div className="flex flex-col gap-y-4 w-full">
+        <Button variant="ghost" asChild>
+          <Link href="/dashboard/libraries">Go back</Link>
+        </Button>
         <div className="flex w-full justify-between">
           <Button variant="link" asChild>
             <Link href={"/dashboard/library/" + library.id}>
@@ -63,8 +66,8 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             <DeleteLibrary id={library.id} />
           </div>
         </div>
-        <Tabs defaultValue="search" className="w-full">
-          <TabsList className="w-full flex justify-between !py-6">
+        <Tabs defaultValue="search" className="w-full mt-4">
+          <TabsList className="w-full flex justify-between !py-6 mb-4">
             <div className="flex gap-2">
               <TabsTrigger value="search" className="py-2">
                 Search
@@ -75,6 +78,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             </div>
           </TabsList>
           <TabsContent value="search" className="flex flex-col gap-4">
+            <Separator orientation="horizontal" />
             {library.status === "IN_PROCESS" && (
               <span className="text-wrap text-xs dark:text-neutral-300">
                 If your library is big you might have to wait and refresh for a
@@ -90,7 +94,6 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
               Finished {finishedVideosCount} /{" "}
               {library.videoIds.length - noSubsVideosCount} {finishedVideosWord}
             </Badge>
-            <Separator orientation="horizontal" />
             <SearchLibraryTool libraryid={library.id} />
           </TabsContent>
           <TabsContent value="sources">
