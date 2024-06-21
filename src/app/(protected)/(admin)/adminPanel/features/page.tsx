@@ -1,9 +1,11 @@
 import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import FeatureCreate from "./_components/featureCreate";
+import FeatureDropdown from "./_components/featureDropdown";
 
 const getFeatures = cache(
   async () => {
+    console.log("Fetching features");
     const features = await db.features.findMany();
     return features;
   },
@@ -20,7 +22,17 @@ const AdminFeaturesPage = async () => {
         <FeatureCreate />
       </div>
       {features.length > 0 ? (
-        features.map((feature, key) => <div key={key}>{feature.title}</div>)
+        features.map((feature, key) => {
+          return (
+            <div
+              key={key}
+              className="w-full py-2 px-4 dark:bg-neutral-700 rounded-lg flex items-center justify-between"
+            >
+              {feature.title}
+              <FeatureDropdown id={feature.id} formData={feature} />
+            </div>
+          );
+        })
       ) : (
         <div className="flex flex-col md:flex-row gap-2 items-center">
           No features yet. <FeatureCreate />

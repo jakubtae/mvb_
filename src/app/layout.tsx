@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import AuthProvider from "@/context/AuthProvider";
 import BrandLogo from "@/components/main/BrandLogo";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "@/components/ui/toaster";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans " });
 
@@ -29,6 +30,7 @@ export default async function RootLayout({
           <div className="bg-background min-h-screen flex flex-col">
             <Nav />
             <div className="flex-grow">{children}</div>
+            <Toaster />
             <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground">
               <BrandLogo variant="dark" />
             </footer>
