@@ -74,7 +74,7 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
       publicDescription: formData.publicDescription,
       developerNote: formData.developerNote,
       plannedFinish: formData.plannedFinish
-        ? formData.plannedFinish
+        ? new Date(formData.plannedFinish)
         : undefined,
       createdBy: formData.createdBy,
       stage: formData.stage,
@@ -157,7 +157,7 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
             render={({ field }) => (
               <FormItem className="md:min-h-[100px] w-full">
                 <FormLabel>Current Stage</FormLabel>
-                <Select onValueChange={field.onChange}>
+                <Select onValueChange={field.onChange} {...field}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a stage" />
@@ -208,6 +208,7 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
                       initialFocus
+                      {...field}
                     />
                   </PopoverContent>
                 </Popover>

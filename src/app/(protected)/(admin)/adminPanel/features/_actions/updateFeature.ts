@@ -19,10 +19,10 @@ export const updateFeature = async (
     });
 
     if (!newFetaure) {
-      throw new Error("Failed to create feature");
+      throw new Error("Failed to update feature");
     }
     revalidateTag("/getFeatures");
-    return { success: "Feature created" };
+    return { success: "Feature updated" };
   } catch (error: any) {
     console.error("Error deleting library:", error);
     return { error: error.message };
