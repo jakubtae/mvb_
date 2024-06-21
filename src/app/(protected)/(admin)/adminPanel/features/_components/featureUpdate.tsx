@@ -57,6 +57,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
 
 export type FeatureFormValues = z.infer<typeof FeatureSchema>;
 function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
@@ -139,11 +140,10 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
             <FormItem>
               <FormLabel>Public Description</FormLabel>
               <FormControl>
-                <Input
+                <Textarea
                   {...field}
-                  type="text"
                   disabled={isPending}
-                  placeholder="Description of your feature"
+                  placeholder="Description of the feature"
                 />
               </FormControl>
               <FormMessage />

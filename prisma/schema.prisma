@@ -154,6 +154,21 @@ enum FeatureStage {
   FINISHED
 }
 
+model Bugs {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  serialNumber Int
+  content      String
+  createdBy    String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  state        BugState @default(NOT_SOLVED)
+}
+
+enum BugState {
+  NOT_SOLVED
+  SOLVED
+}
+
 // NOT IN USE
 // Those are always empty - no clue why
 // But not a problem because everything works

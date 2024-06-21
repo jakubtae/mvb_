@@ -178,7 +178,17 @@ async function Nav() {
                         className="py-2 px-2 flex !justify-start items-center gap-2 rounded-sm border-2 text-xs"
                         href={"/adminPanel"}
                       >
-                        Admin Panel
+                        <AppWindow size={20} />
+                        Admin Dashboard
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        className="py-2 px-2 flex !justify-start items-center gap-2 rounded-sm border-2 text-xs"
+                        href={"/adminPanel/features"}
+                      >
+                        <ClipboardPlus size={20} />
+                        Features Panel
                       </Link>
                     </SheetClose>
                   </div>

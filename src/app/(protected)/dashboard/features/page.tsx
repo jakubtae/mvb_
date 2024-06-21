@@ -7,6 +7,7 @@ import { cache } from "@/lib/cache";
 import FeaturePopup from "../_components/FeaturePopup";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProposeFeature from "../_components/ProposeFeature";
 
 interface GroupedFeatures {
   ideaFeatures: Features[];
@@ -83,7 +84,10 @@ const Libraries = async () => {
   const groupedFeatures = await findFeatures();
   return (
     <div className="w-full flex flex-col gap-2">
-      <h1 className="text-2xl md:text-4xl font-bold">Features</h1>
+      <div className="w-full flex justify-between">
+        <h1 className="text-2xl md:text-4xl font-bold">Features</h1>
+        <ProposeFeature />
+      </div>
       <Tabs defaultValue="ideas">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="ideas">Ideas</TabsTrigger>

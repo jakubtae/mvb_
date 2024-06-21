@@ -51,6 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createFeature } from "../_actions/createFeature";
+import { Textarea } from "@/components/ui/textarea";
 
 export type FeatureFormValues = z.infer<typeof FeatureSchema>;
 function CalendarForm() {
@@ -129,11 +130,10 @@ function CalendarForm() {
             <FormItem>
               <FormLabel>Public Description</FormLabel>
               <FormControl>
-                <Input
+                <Textarea
                   {...field}
-                  type="text"
                   disabled={isPending}
-                  placeholder="Description of your feature"
+                  placeholder="Description of the feature"
                 />
               </FormControl>
               <FormMessage />
