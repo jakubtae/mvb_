@@ -1,5 +1,5 @@
+import FeatureLayout from "@/components/features/featureLayout";
 import FeatureCreate from "./_components/featureCreate";
-import { FeatureLayout } from "@/app/(protected)/dashboard/features/page";
 
 const AdminFeaturesPage = async () => {
   return (
