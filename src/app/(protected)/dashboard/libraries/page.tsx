@@ -8,6 +8,7 @@ import { SquarePlus } from "lucide-react";
 import { Library } from "@prisma/client";
 import { db } from "@/lib/prismadb";
 import { cache } from "@/lib/cache";
+import LibraryContainer from "@/components/libraries/librariesDisplay";
 
 const findUserLibraries = cache(
   async (userId: string): Promise<Library[]> => {
@@ -42,7 +43,7 @@ const Libraries = async () => {
   const Libraries = await findUserLibraries(session.user.id);
   return (
     <div className="w-full">
-      <div className="w-full flex justify-between items-center mb-4">
+      {/* <div className="w-full flex justify-between items-center mb-4">
         <h1 className="font-bold text-xl">Your libraries</h1>
         <Button variant="secondary" asChild>
           <Link href="/dashboard/library/create" className="flex gap-2">
@@ -50,8 +51,26 @@ const Libraries = async () => {
             <SquarePlus />
           </Link>
         </Button>
+      </div> */}
+      {/* <DataTable columns={Columns} data={Libraries} />
+       */}
+      <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-lg py-4 px-3 md:px-10 md:py-4 flex flex-col justify-start gap-2">
+        <div className="w-full flex justify-between items-center">
+          <h2 className="text-xl md:text-2xl font-semibold">Your Libraries</h2>
+          <div className="flex gap-1">
+            <Button asChild variant="ghost" className="px-2 md:px-4">
+              <Link href="/dashboard/library/create">Create a library</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="w-full py-2 flex items-center flex-col">
+          {!Libraries || Libraries.length === 0 ? (
+            <p className="font-black">You have no libraries. </p>
+          ) : (
+            <LibraryContainer libraries={Libraries} />
+          )}
+        </div>
       </div>
-      <DataTable columns={Columns} data={Libraries} />
     </div>
   );
 };

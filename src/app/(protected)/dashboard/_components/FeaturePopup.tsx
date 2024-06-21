@@ -15,12 +15,14 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { upVote } from "../_actions/upVote";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
+import FeatureDropdown from "../../(admin)/adminPanel/features/_components/featureDropdown";
 
 interface FeaturePopupProps {
   data: Features;
+  forWho: "USER" | "ADMIN";
 }
 
-const FeaturePopup = ({ data }: FeaturePopupProps) => {
+const FeaturePopup = ({ data, forWho }: FeaturePopupProps) => {
   const { data: session, status } = useSession({ required: true });
 
   const [isPending, startTransition] = useTransition();
@@ -53,27 +55,32 @@ const FeaturePopup = ({ data }: FeaturePopupProps) => {
 
   return (
     <Dialog>
-      <div className="flex flex-row w-full justify-between items-center py-2">
+      <div className="flex flex-row w-full justify-between items-center px-2">
         <DialogTrigger asChild>
           <Button
             variant="link"
-            className="dark:!text-white flex-grow justify-start px-0 text-wrap h-full"
+            className="dark:!text-white flex-grow justify-start px-0 text-wrap h-full text-xs font-normal md:text-base md:font-semibold"
           >
             {data.title} ({data.upvote})
           </Button>
         </DialogTrigger>
-        <Button
-          variant="buy"
-          className="font-light"
-          onClick={handleUpvote}
-          disabled={isPending}
-        >
-          {data.whoUpvoted.includes(session.user.id) ? (
-            <ChevronDown />
-          ) : (
-            <ChevronUp />
+        <div className="flex gap-2 items-center">
+          {forWho === "ADMIN" && (
+            <FeatureDropdown id={data.id} formData={data} />
           )}
-        </Button>
+          <Button
+            variant="buy"
+            className="font-light"
+            onClick={handleUpvote}
+            disabled={isPending}
+          >
+            {data.whoUpvoted.includes(session.user.id) ? (
+              <ChevronDown />
+            ) : (
+              <ChevronUp />
+            )}
+          </Button>
+        </div>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{data.title}</DialogTitle>

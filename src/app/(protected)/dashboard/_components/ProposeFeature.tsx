@@ -126,7 +126,13 @@ function CalendarForm() {
         <Separator />
         <FormError message={error} />
         <FormSuccess message={success} />
-        <Button type="submit">Submit</Button>
+        <Button
+          type="submit"
+          className="w-full font-semibold py-2"
+          disabled={isPending}
+        >
+          Submit
+        </Button>
       </form>
     </Form>
   );

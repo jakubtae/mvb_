@@ -52,6 +52,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createFeature } from "../_actions/createFeature";
 import { Textarea } from "@/components/ui/textarea";
+import { DiamondPlus } from "lucide-react";
 
 export type FeatureFormValues = z.infer<typeof FeatureSchema>;
 function CalendarForm() {
@@ -229,7 +230,13 @@ function CalendarForm() {
 
         <FormError message={error} />
         <FormSuccess message={success} />
-        <Button type="submit">Submit</Button>
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-full py-2 font-semibold"
+        >
+          Submit
+        </Button>
       </form>
     </Form>
   );
@@ -239,7 +246,13 @@ const FeatureCreate = () => {
   return (
     <Dialog>
       <DialogTrigger asChild className="max-w-[300px]">
-        <Button variant="buy">Create a new feature</Button>
+        <Button
+          variant="buy"
+          className="flex items-center justify-center gap-2"
+        >
+          {" "}
+          <DiamondPlus size={20} /> New feature
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-full sm:max-w-[600px]">
         <DialogHeader>
