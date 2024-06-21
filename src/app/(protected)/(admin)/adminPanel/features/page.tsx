@@ -5,12 +5,11 @@ import FeatureDropdown from "./_components/featureDropdown";
 
 const getFeatures = cache(
   async () => {
-    console.log("Fetching features");
     const features = await db.features.findMany();
     return features;
   },
   ["/", "getFeatures"],
-  { tags: ["/getFeatures"], revalidate: 60 * 60 * 12 }
+  { tags: ["getFeatures"], revalidate: 60 * 60 * 12 }
 );
 
 const AdminFeaturesPage = async () => {
@@ -26,7 +25,7 @@ const AdminFeaturesPage = async () => {
           return (
             <div
               key={key}
-              className="w-full py-2 px-4 dark:bg-neutral-700 rounded-lg flex items-center justify-between"
+              className="w-full py-2 px-4 dark:bg-neutral-800 rounded-lg flex items-center justify-between"
             >
               {feature.title}
               <FeatureDropdown id={feature.id} formData={feature} />
@@ -35,7 +34,7 @@ const AdminFeaturesPage = async () => {
         })
       ) : (
         <div className="flex flex-col md:flex-row gap-2 items-center">
-          No features yet. <FeatureCreate />
+          No features yet.
         </div>
       )}
     </div>

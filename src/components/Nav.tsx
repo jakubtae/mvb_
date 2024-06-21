@@ -13,7 +13,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { auth } from "@/auth";
-import { AppWindow, Library, SquarePlus } from "lucide-react";
+import { AppWindow, ClipboardPlus, Library, SquarePlus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import SignOutButton from "./auth/SignOutButton";
 interface MenuItem {
@@ -35,6 +35,11 @@ const menuList: MenuGroup[] = [
         link: "/",
         text: "Dashboard",
         icon: <AppWindow size={20} />,
+      },
+      {
+        link: "/features",
+        text: "Features",
+        icon: <ClipboardPlus size={20} />,
       },
     ],
   },

@@ -138,10 +138,11 @@ model Features {
   id                String       @id @default(auto()) @map("_id") @db.ObjectId
   title             String
   publicDescription String
-  developerNote     String
+  developerNote     String?
   stage             FeatureStage @default(IDEA)
   plannedFinish     DateTime?
   upvote            Int          @default(0)
+  whoUpvoted        String[]     @default([]) @db.ObjectId
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   createdBy         String       @db.ObjectId

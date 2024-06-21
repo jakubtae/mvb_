@@ -1,18 +1,22 @@
 "use server";
 import { FeatureSchema } from "@/schemas";
-import { FeatureFormValues } from "../_components/featureCreate";
 import { db } from "@/lib/prismadb";
 import { revalidateTag } from "next/cache";
+import { ProposeFeatureForm } from "../_components/ProposeFeature";
 
-export const createFeature = async (values: FeatureFormValues) => {
+export const proposeFeature = async (values: ProposeFeatureForm) => {
   try {
     const validatedFields = await FeatureSchema.safeParseAsync(values);
     if (!validatedFields.success) {
       return { error: "Invalid fields!" };
     }
-
+    const { title, publicDescription, createdBy } = validatedFields.data;
     const newFetaure = await db.features.create({
-      data: validatedFields.data,
+      data: {
+        title,
+        publicDescription,
+        createdBy,
+      },
     });
 
     if (!newFetaure) {

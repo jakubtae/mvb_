@@ -11,7 +11,9 @@ export const deleteFeature = async (featureID: string) => {
     if (!deleteFeature) {
       throw new Error("Failed to delete a feature");
     }
-    revalidateTag("/getFeatures");
+    revalidateTag("getNewestFeature");
+    revalidateTag("getFeatures");
+    revalidateTag("dasboardgetFeatures");
     return { success: "Feature created" };
   } catch (error: any) {
     console.error("Error deleting library:", error);

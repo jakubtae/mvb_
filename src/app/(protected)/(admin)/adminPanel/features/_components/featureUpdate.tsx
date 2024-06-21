@@ -72,7 +72,9 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
     defaultValues: {
       title: formData.title,
       publicDescription: formData.publicDescription,
-      developerNote: formData.developerNote,
+      developerNote: formData.developerNote
+        ? formData.developerNote
+        : undefined,
       plannedFinish: formData.plannedFinish
         ? new Date(formData.plannedFinish)
         : undefined,
