@@ -95,12 +95,15 @@ const Libraries = async () => {
             <FeatureGroup handler={groupedFeatures.ideaFeatures} />
           )}
         </TabsContent>
-        <TabsContent value="in_process" className="mt-4 border-2 rounded-lg">
+        <TabsContent
+          value="in_process"
+          className="mt-4 border-2 rounded-lg py-4"
+        >
           {groupedFeatures.inProgressFeatures && (
             <FeatureGroup handler={groupedFeatures.inProgressFeatures} />
           )}
         </TabsContent>
-        <TabsContent value="finished" className="mt-4 border-2 rounded-lg">
+        <TabsContent value="finished" className="mt-4 border-2 rounded-lg py-4">
           {groupedFeatures.finishedFeatures && (
             <FeatureGroup handler={groupedFeatures.finishedFeatures} />
           )}
