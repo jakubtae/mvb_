@@ -23,7 +23,7 @@ export const updateFeature = async (
     }
     revalidateTag("getNewestFeature");
     revalidateTag("getFeatures");
-    revalidateTag("dasboardgetFeatures");
+
     return { success: "Feature updated" };
   } catch (error: any) {
     console.error("Error deleting library:", error);

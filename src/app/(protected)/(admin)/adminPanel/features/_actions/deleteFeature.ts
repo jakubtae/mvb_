@@ -13,7 +13,7 @@ export const deleteFeature = async (featureID: string) => {
     }
     revalidateTag("getNewestFeature");
     revalidateTag("getFeatures");
-    revalidateTag("dasboardgetFeatures");
+
     return { success: "Feature created" };
   } catch (error: any) {
     console.error("Error deleting library:", error);

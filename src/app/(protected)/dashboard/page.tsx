@@ -77,7 +77,7 @@ const DashboardPage = async () => {
         </div>
       </div>
       <div className="flex flex-col md:flex-row justify-start gap-2 gap-y-4 items-start">
-        <div className="flex flex-col gap-2 py-4 px-3 md:px-4 md:py-4 bg-neutral-200 dark:bg-neutral-800 rounded-lg w-full md:max-w-[400px]">
+        <div className="flex flex-col gap-2 py-4 px-3 md:px-4 md:py-4 bg-neutral-200 dark:bg-neutral-800 rounded-lg w-full md:max-w-[400px] flex-grow flex-shrink basis-0">
           <div className="space-y-0">
             <h2 className="text-xl md:text-2xl font-semibold">
               Upcoming features
@@ -86,7 +86,7 @@ const DashboardPage = async () => {
               Press on a feature to learn more
             </p>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-4">
             {Array.isArray(features) &&
             features.length > 0 &&
             !("error" in features) ? (
@@ -94,7 +94,7 @@ const DashboardPage = async () => {
                 {features.map((feature, key) => (
                   <FeaturePopup data={feature} key={key} forWho="USER" />
                 ))}
-                <Button asChild className="font-semibold">
+                <Button asChild className="font-semibold text-xs sm:text-sm">
                   <Link href="/dashboard/features">View all features</Link>
                 </Button>
               </>
@@ -107,7 +107,7 @@ const DashboardPage = async () => {
           <Separator orientation="horizontal" />
           <ProposeFeature />
         </div>
-        <div>
+        <div className="flex-grow flex-shrink basis-0 w-full md:max-w-[400px]">
           <FoundABug />
         </div>
       </div>

@@ -32,7 +32,7 @@ export const upVote = async ({ featureId, userId }: UpVoteTypes) => {
       if (removeUpVote) {
         revalidateTag("getNewestFeature");
         revalidateTag("getFeatures");
-        revalidateTag("dasboardgetFeatures");
+
         return { success: "Removed your upvote" };
       } else {
         throw new Error("error removing your upvote");
@@ -51,7 +51,7 @@ export const upVote = async ({ featureId, userId }: UpVoteTypes) => {
       if (addUpVote) {
         revalidateTag("getNewestFeature");
         revalidateTag("getFeatures");
-        revalidateTag("dasboardgetFeatures");
+
         return { success: "Added your upvote" };
       } else {
         throw new Error("error increasing upvotes");

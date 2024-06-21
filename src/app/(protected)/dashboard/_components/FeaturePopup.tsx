@@ -59,7 +59,7 @@ const FeaturePopup = ({ data, forWho }: FeaturePopupProps) => {
         <DialogTrigger asChild>
           <Button
             variant="link"
-            className="dark:!text-white flex-grow justify-start px-0 text-wrap h-full text-xs font-normal md:text-base md:font-semibold"
+            className="dark:!text-white flex-grow justify-start px-0 text-wrap h-full text-xs font-normal sm:text-base md:font-medium"
           >
             {data.title} ({data.upvote})
           </Button>

@@ -1,29 +1,30 @@
 "use server";
-import { FeatureSchema } from "@/schemas";
+import { BugSchema } from "@/schemas";
 import { db } from "@/lib/prismadb";
 import { revalidateTag } from "next/cache";
-import { ProposeFeatureForm } from "../_components/ProposeFeature";
+import { ReportBagForm } from "../_components/foundABug";
 
-export const proposeFeature = async (values: ProposeFeatureForm) => {
+export const createBug = async (values: ReportBagForm) => {
   try {
-    const validatedFields = await FeatureSchema.safeParseAsync(values);
+    const validatedFields = await BugSchema.safeParseAsync(values);
     if (!validatedFields.success) {
       return { error: "Invalid fields!" };
     }
-    const { title, publicDescription, createdBy } = validatedFields.data;
-    const newFetaure = await db.features.create({
+    const { content, createdBy } = validatedFields.data;
+    const count = await db.bugs.count();
+
+    const newFetaure = await db.bugs.create({
       data: {
-        title,
-        publicDescription,
+        content,
         createdBy,
+        serialNumber: count + 1,
       },
     });
 
     if (!newFetaure) {
       throw new Error("Failed to create feature");
     }
-    revalidateTag("getNewestFeature");
-    revalidateTag("getFeatures");
+    revalidateTag("getBugs");
 
     return { success: "Feature created" };
   } catch (error: any) {

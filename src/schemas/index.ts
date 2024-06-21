@@ -81,3 +81,10 @@ export const FeatureSchema = z.object({
     })
     .default("IDEA"),
 });
+
+export const BugSchema = z.object({
+  content: z.string().min(20, {
+    message: "Must be 20 characters",
+  }),
+  createdBy: objectIdSchema,
+});

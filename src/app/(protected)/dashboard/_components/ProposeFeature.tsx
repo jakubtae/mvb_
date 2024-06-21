@@ -142,7 +142,7 @@ const ProposeFeature = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="font-semibold" variant="ghost">
+        <Button className="font-semibold text-xs sm:text-sm" variant="ghost">
           Propose a feature
         </Button>
       </DialogTrigger>

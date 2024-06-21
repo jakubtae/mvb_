@@ -20,7 +20,7 @@ export const createFeature = async (values: FeatureFormValues) => {
     }
     revalidateTag("getNewestFeature");
     revalidateTag("getFeatures");
-    revalidateTag("dasboardgetFeatures");
+
     return { success: "Feature created" };
   } catch (error: any) {
     console.error("Error deleting library:", error);
