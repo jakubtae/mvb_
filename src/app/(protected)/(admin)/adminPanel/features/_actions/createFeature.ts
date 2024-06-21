@@ -10,14 +10,6 @@ export const createFeature = async (values: FeatureFormValues) => {
     if (!validatedFields.success) {
       return { error: "Invalid fields!" };
     }
-    const {
-      title,
-      developerNote,
-      plannedFinish,
-      publicDescription,
-      stage,
-      createdBy,
-    } = validatedFields.data;
 
     const newFetaure = await db.features.create({
       data: validatedFields.data,
