@@ -4,6 +4,7 @@ import { createNewLibrary, deleteALibrary } from "@/data/library";
 import ytfps from "ytfps";
 import { inngest } from "@/inngest/client";
 import { revalidateTag } from "next/cache";
+import { db } from "@/lib/prismadb";
 
 interface ValueTypes {
   name: string;
@@ -57,18 +58,19 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
           throw new Error("Bad url");
         }
         const playlist = await ytfps(playlistId, { limit: 13 });
-        playlist.videos.forEach(async (playlistVideo) => {
-          await inngest.send({
-            name: "video/process",
-            data: {
-              videoLink: playlistVideo,
-              libraryId: newLib.id,
-            },
-          });
-        });
+        await Promise.all(
+          playlist.videos.map(async (playlistVideo) => {
+            await inngest.send({
+              name: "video/process",
+              data: {
+                videoLink: playlistVideo,
+                libraryId: newLib.id,
+              },
+            });
+          })
+        );
       })
     );
-
     // Send each video for processing
   } catch (error: any) {
     console.error("Error fetching or processing playlist:", error.message);

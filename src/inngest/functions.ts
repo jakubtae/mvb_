@@ -89,7 +89,6 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
     const existingVideo = await db.video.findFirst({
       where: { url: video.url },
     });
-
     let videoId;
     if (!existingVideo) {
       const subtitles = await fetchSubtitles(video.id);
