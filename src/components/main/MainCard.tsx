@@ -22,7 +22,7 @@ const MainCard: React.FC<CustomCardProps> = ({
   description,
 }) => {
   return (
-    <Card className="w-full md:w-1/2 pt-2 px-2 shadow-2xl shadow-purple-500/10 flex-grow bg-background text-foreground">
+    <Card className="w-full md:w-1/2 pt-2 px-2 shadow-2xl shadow-purple-500/10 flex-grow flex-shrink basis-0 bg-background text-foreground">
       <div className="w-full">
         <AspectRatio ratio={16 / 9}>
           <Image
