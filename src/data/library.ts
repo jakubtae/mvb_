@@ -161,7 +161,6 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 ): Promise<VideoResult[]> => {
   try {
     // Split the query into individual words\
-    console.log("GOT TO THE REQUEST");
     const queryWords = query.toLowerCase().trim().split(" ");
 
     // Fetch videos from the database that belong to the specified library
@@ -177,12 +176,10 @@ export const searchLibraryVideosBySubtitleWithContext = async (
     const videosWithContext: VideoResult[] = [];
 
     for (const video of videos) {
-      const entrySet: Set<string> = new Set(); // Set to store unique entry keys
       const entries: VideoEntry[] = [];
-      const foundSubs: Subtitle[] = [];
-
       // Process subtitles to find and add context around matched query words
-      for (const subtitle of video.subtitles) {
+      for (let i = 0; i < video.subtitles.length; i++) {
+        const subtitle = video.subtitles[i];
         if (subtitle.text === queryWords[0]) {
           let foundPhrasearr: Subtitle[] = [];
           let isMatch = true;
@@ -202,7 +199,21 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 
           if (isMatch) {
             // Calculate the phrase, start time, and total duration
-            const phrase = foundPhrasearr.map((sub) => sub.text).join(" ");
+            const previousSubtitle = i > 0 ? video.subtitles[i - 1] : null;
+            const nextSubtitle =
+              i + queryWords.length < video.subtitles.length
+                ? video.subtitles[i + queryWords.length]
+                : null;
+
+            // Create the phrase including the previous and next subtitles
+            const phrase = [
+              previousSubtitle ? previousSubtitle.text : "",
+              ...foundPhrasearr.map((sub) => sub.text),
+              nextSubtitle ? nextSubtitle.text : "",
+            ]
+              .filter((text) => text !== "")
+              .join(" ");
+
             const start = foundPhrasearr[0].start;
             const totalDur = foundPhrasearr
               .reduce((acc, sub) => acc + parseFloat(sub.dur), 0)
@@ -210,7 +221,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 
             const result = {
               phrase: phrase,
-              word: phrase,
+              word: query,
               start: start,
               dur: totalDur,
             };

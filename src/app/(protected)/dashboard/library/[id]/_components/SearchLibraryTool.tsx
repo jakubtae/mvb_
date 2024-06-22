@@ -189,22 +189,38 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                     />
                     <div className="flex flex-col mt-10 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
-                        {video.entries.map((entry, entryIndex) => (
-                          <Button
-                            key={entryIndex}
-                            variant="outline"
-                            className="snap-start w-full flex items-center justify-between p-2"
-                            onClick={() =>
-                              handleButtonClick(index, parseInt(entry.start))
-                            }
-                          >
-                            <span className="truncate">
-                              {entryIndex + 1}. {entry.word}
-                            </span>
-                            {/* <span className="truncate">{entry.phrase}</span> */}
-                            <span>{formatTime(parseInt(entry.start))}</span>
-                          </Button>
-                        ))}
+                        {video.entries.map((entry, entryIndex) => {
+                          const startIndex = entry.phrase.indexOf(entry.word);
+                          const endIndex = startIndex + entry.word.length;
+
+                          // Split the phrase into three parts
+                          const beforeWord = entry.phrase.substring(
+                            0,
+                            startIndex
+                          );
+                          const afterWord = entry.phrase.substring(endIndex);
+                          return (
+                            <Button
+                              key={entryIndex}
+                              variant="outline"
+                              className="snap-start w-full flex items-center justify-between p-2"
+                              onClick={() =>
+                                handleButtonClick(index, parseInt(entry.start))
+                              }
+                            >
+                              <span className="truncate">
+                                {entryIndex + 1}.{" "}
+                                <span className="font-medium">
+                                  {beforeWord}
+                                </span>
+                                <span className="font-bold">{entry.word}</span>
+                                <span className="font-medium">{afterWord}</span>
+                              </span>
+                              {/* <span className="truncate">{entry.phrase}</span> */}
+                              <span>{formatTime(parseInt(entry.start))}</span>
+                            </Button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

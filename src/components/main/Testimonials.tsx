@@ -82,13 +82,13 @@ const Testimonials: React.FC = () => {
           startDelay: 0,
         }),
       ]}
-      className="w-full flex-col flex gap-2"
+      className="w-full flex-col flex gap-2 py-4"
       opts={{
         loop: true,
         align: "start",
       }}
     >
-      <CarouselContent className="w-full py-2">
+      <CarouselContent className="w-full py-4">
         {testimonials.map(
           ({ name, opinion, image }: TestimonialCardProps, index) => (
             <CarouselItem className="md:basis-1/4 lg:basis-1/3" key={index}>
