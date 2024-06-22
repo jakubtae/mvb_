@@ -30,22 +30,6 @@ import { Button } from "@/components/ui/button";
 import { useFieldArray } from "react-hook-form";
 import { LibrarySchema } from "@/schemas";
 
-const playlistRegex =
-  /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
-
-const youtubeUrlValidation = z.string().refine(
-  async (url: string) => {
-    try {
-      return playlistRegex.test(url);
-    } catch (error) {
-      return false;
-    }
-  },
-  {
-    message: "Must be a valid YouTube public playlist link",
-  }
-);
-
 const LibraryForm = () => {
   const router = useRouter();
   const { data: session } = useSession({ required: true });
@@ -61,7 +45,7 @@ const LibraryForm = () => {
     },
   });
 
-  const { control, handleSubmit, register } = form;
+  const { control, handleSubmit, register, getFieldState } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -110,6 +94,9 @@ const LibraryForm = () => {
             />
             <FormItem>
               <FormLabel>Sources</FormLabel>
+              <FormDescription>
+                Currently works only on under 10 videos playlist
+              </FormDescription>
               {fields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-center">
                   <Input
@@ -119,23 +106,26 @@ const LibraryForm = () => {
                     disabled={form.formState.isSubmitting}
                   />
                   {index > 0 && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => remove(index)}
                       disabled={form.formState.isSubmitting}
+                      variant="destructive"
+                      className="px-2 text-xs md:text-small md:px-4 lg:text-base lg:px-6"
                     >
                       Remove
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
-              <button
+              <Button
                 type="button"
                 onClick={() => append({ SourcesId: "new", text: "" })}
                 disabled={form.formState.isSubmitting}
+                className="w-full"
               >
                 Add Source
-              </button>
+              </Button>
               <FormMessage />
             </FormItem>
             <FormField

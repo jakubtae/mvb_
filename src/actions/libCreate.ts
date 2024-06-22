@@ -58,15 +58,22 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
           throw new Error("Bad url");
         }
         const playlist = await ytfps(playlistId, { limit: 13 });
+        // ! TODO : split the playlist in parts of 10 and then wait for them to finish before launching another batch of video managing
         await Promise.all(
           playlist.videos.map(async (playlistVideo) => {
-            await inngest.send({
-              name: "video/process",
-              data: {
-                videoLink: playlistVideo,
-                libraryId: newLib.id,
-              },
+            const foundVideo = await db.video.findUnique({
+              where: { url: playlistVideo.url },
             });
+            if (!foundVideo) {
+              console.log("Video does not exists");
+              await inngest.send({
+                name: "video/process",
+                data: {
+                  videoLink: playlistVideo,
+                  libraryId: newLib.id,
+                },
+              });
+            }
           })
         );
       })

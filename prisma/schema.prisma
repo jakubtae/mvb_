@@ -94,7 +94,7 @@ enum VideoStatus {
 model Video {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId
   title        String
-  url          String
+  url          String      @unique
   videoId      String // Renamed to avoid confusion with `id`
   length       String
   milisLength  Int // Use Int for numeric fields

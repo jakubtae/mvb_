@@ -30,20 +30,23 @@ const playlistRegex =
 // const channelRegex = /^https:\/\/www\.youtube\.com\/channel\/[A-Za-z0-9_-]+$/;
 // const videoRegex = /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]+(&t=\d+s)?$/;
 
-const youtubeUrlValidation = z.string().refine(
-  async (url: string) => {
-    try {
-      //* Validating if an url is a public playlist takes place in a :
-      // src\data\library.ts CreateLibrary
-      return playlistRegex.test(url);
-    } catch (error) {
-      return false;
+const youtubeUrlValidation = z
+  .string()
+  .min(1)
+  .refine(
+    async (url: string) => {
+      try {
+        //* Validating if an url is a public playlist takes place in a :
+        // src\data\library.ts CreateLibrary
+        return playlistRegex.test(url);
+      } catch (error) {
+        return false;
+      }
+    },
+    {
+      message: "Must be a valid YouTube public playlist link",
     }
-  },
-  {
-    message: "Must be a valid YouTube public playlist link",
-  }
-);
+  );
 
 // Video schema
 export const VideoSchema = z.object({

@@ -113,26 +113,22 @@ export const findrecentLibraries = async (user_id: string) => {
   }
 };
 
-export const findLibraryById = cache(
-  async (id: string) => {
-    try {
-      const library = await db.library.findFirst({
-        where: {
-          id: id,
-        },
-        include: {
-          Videos: true, // Include all fields of Video
-        },
-      });
-      return library;
-    } catch (error) {
-      console.error("Failed to find a library by ID", error);
-      throw new Error("Error fetching library by ID from database");
-    }
-  },
-  ["/", "serverAction", "findLibraryById"],
-  { revalidate: 60 * 60 * 12, tags: ["findLibraryByID"] }
-);
+export const findLibraryById = async (id: string) => {
+  try {
+    const library = await db.library.findFirst({
+      where: {
+        id: id,
+      },
+      include: {
+        Videos: true, // Include all fields of Video
+      },
+    });
+    return library;
+  } catch (error) {
+    console.error("Failed to find a library by ID", error);
+    throw new Error("Error fetching library by ID from database");
+  }
+};
 
 interface VideoEntry {
   start: string;
