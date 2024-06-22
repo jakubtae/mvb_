@@ -85,17 +85,17 @@
     filter: brightness(0.8);
   }
   .listMain .item:hover {
-    transform: translateZ(10px);
+    transform: translateZ(50px);
     filter: brightness(1);
   }
 
   .listMain .item:hover + * {
-    transform: translateZ(5px) rotateY(5deg);
+    transform: translateZ(10px) rotateY(5deg);
     filter: brightness(0.9);
   }
 
   .listMain .item:has(+ *:hover) {
-    transform: translateZ(5px) rotateY(-5deg);
+    transform: translateZ(30px) rotateY(-5deg);
     filter: brightness(0.9);
   }
 }
@@ -110,17 +110,17 @@
     filter: brightness(0.8);
   }
   .listMain .item:hover {
-    transform: translateZ(10px);
+    transform: translateZ(30px);
     filter: brightness(1);
   }
 
   .listMain .item:hover + * {
-    transform: translateZ(5px) rotateX(-5deg);
+    transform: translateZ(5px) rotateX(-10deg);
     filter: brightness(0.9);
   }
 
   .listMain .item:has(+ *:hover) {
-    transform: translateZ(5px) rotateX(5deg);
+    transform: translateZ(5px) rotateX(10deg);
     filter: brightness(0.9);
   }
 }
