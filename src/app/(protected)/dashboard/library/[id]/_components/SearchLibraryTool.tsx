@@ -187,7 +187,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                       iframeClassName="w-full "
                       className="w-full md:w-1/2 aspect-video	"
                     />
-                    <div className="flex flex-col mt-10 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
+                    <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
                         {video.entries.map((entry, entryIndex) => {
                           const startIndex = entry.phrase.indexOf(entry.word);
@@ -213,7 +213,9 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                                 <span className="font-medium">
                                   {beforeWord}
                                 </span>
-                                <span className="font-bold">{entry.word}</span>
+                                <span className="font-semibold text-white">
+                                  {entry.word}
+                                </span>
                                 <span className="font-medium">{afterWord}</span>
                               </span>
                               {/* <span className="truncate">{entry.phrase}</span> */}

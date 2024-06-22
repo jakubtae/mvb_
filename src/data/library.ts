@@ -178,6 +178,9 @@ export const searchLibraryVideosBySubtitleWithContext = async (
     for (const video of videos) {
       const entries: VideoEntry[] = [];
       // Process subtitles to find and add context around matched query words
+      const wordsBefore = 3; // Number of words to include before the match
+      const wordsAfter = 3; // Number of words to include after the match
+
       for (let i = 0; i < video.subtitles.length; i++) {
         const subtitle = video.subtitles[i];
         if (subtitle.text === queryWords[0]) {
@@ -185,7 +188,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
           let isMatch = true;
 
           for (var z = 0; z < queryWords.length; z++) {
-            const currentIndex = subtitle.wordIndex + z;
+            const currentIndex = i + z;
             if (
               currentIndex < video.subtitles.length &&
               video.subtitles[currentIndex].text === queryWords[z]
@@ -198,21 +201,32 @@ export const searchLibraryVideosBySubtitleWithContext = async (
           }
 
           if (isMatch) {
-            // Calculate the phrase, start time, and total duration
-            const previousSubtitle = i > 0 ? video.subtitles[i - 1] : null;
-            const nextSubtitle =
-              i + queryWords.length < video.subtitles.length
-                ? video.subtitles[i + queryWords.length]
-                : null;
+            // Get the previous subtitles if they exist
+            const previousSubtitles = [];
+            for (let j = i - wordsBefore; j < i; j++) {
+              if (j >= 0) {
+                previousSubtitles.push(video.subtitles[j].text);
+              }
+            }
+
+            // Get the next subtitles if they exist
+            const nextSubtitles = [];
+            for (
+              let j = i + queryWords.length;
+              j < i + queryWords.length + wordsAfter;
+              j++
+            ) {
+              if (j < video.subtitles.length) {
+                nextSubtitles.push(video.subtitles[j].text);
+              }
+            }
 
             // Create the phrase including the previous and next subtitles
             const phrase = [
-              previousSubtitle ? previousSubtitle.text : "",
+              ...previousSubtitles,
               ...foundPhrasearr.map((sub) => sub.text),
-              nextSubtitle ? nextSubtitle.text : "",
-            ]
-              .filter((text) => text !== "")
-              .join(" ");
+              ...nextSubtitles,
+            ].join(" ");
 
             const start = foundPhrasearr[0].start;
             const totalDur = foundPhrasearr
