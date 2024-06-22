@@ -5,7 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 export const createNewLibrary = async (
   name: string,
-  sources: string,
+  sources: string[],
   id: string,
   videoIds: string[],
   visibility: "PRIVATE" | "PUBLIC"

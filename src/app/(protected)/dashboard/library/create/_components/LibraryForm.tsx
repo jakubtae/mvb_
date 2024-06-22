@@ -1,27 +1,9 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { LibrarySchema } from "@/schemas";
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-import { FormError } from "@/components/form-error";
-import { FormSuccess } from "@/components/form-success";
-
 import { newLibrary } from "@/actions/libCreate";
-
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,49 +11,87 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormError } from "@/components/form-error";
+import { FormSuccess } from "@/components/form-success";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useFieldArray } from "react-hook-form";
+import { LibrarySchema } from "@/schemas";
+
+const playlistRegex =
+  /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
+
+const youtubeUrlValidation = z.string().refine(
+  async (url: string) => {
+    try {
+      return playlistRegex.test(url);
+    } catch (error) {
+      return false;
+    }
+  },
+  {
+    message: "Must be a valid YouTube public playlist link",
+  }
+);
+
 const LibraryForm = () => {
   const router = useRouter();
-  const { data: session, status } = useSession({ required: true });
+  const { data: session } = useSession({ required: true });
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
-
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LibrarySchema>>({
     resolver: zodResolver(LibrarySchema),
     defaultValues: {
       name: "",
-      sources: "",
+      sources: [{ SourcesId: "1", text: "" }],
       visibility: "PRIVATE",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LibrarySchema>) => {
+  const { control, handleSubmit, register } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "sources",
+  });
+
+  const onSubmit = async (values: z.infer<typeof LibrarySchema>) => {
     setError("");
     setSuccess("");
     const id = session?.user.id as string;
-    startTransition(() => {
-      newLibrary(values, id).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
-        if (data.success && data.id) {
-          router.push(`/dashboard/library/${data.id || ""}`, { scroll: true });
-        }
-      });
-    });
+    try {
+      const data = await newLibrary(values, id);
+      setError(data.error);
+      setSuccess(data.success);
+      if (data.success && data.id) {
+        router.push(`/dashboard/library/${data.id || ""}`, { scroll: true });
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+      console.error("Error creating library:", error);
+    }
   };
 
   return (
     <Card className="w-full max-w-[600px] shadow-none border-none py-10">
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <FormField
-              control={form.control}
+              control={control}
               name="name"
               render={({ field }) => (
                 <FormItem>
@@ -80,7 +100,7 @@ const LibraryForm = () => {
                     <Input
                       {...field}
                       type="text"
-                      disabled={isPending}
+                      disabled={form.formState.isSubmitting}
                       placeholder="Your library name"
                     />
                   </FormControl>
@@ -88,34 +108,42 @@ const LibraryForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="sources"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sources</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      type="text"
-                      placeholder="Your YouTube public playlist link"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    We only accept one source right now. We are working on
-                    expanding this.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+              <FormLabel>Sources</FormLabel>
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-center">
+                  <Input
+                    {...register(`sources.${index}.text` as const)}
+                    defaultValue={field.text}
+                    placeholder="Enter a YouTube playlist link"
+                    disabled={form.formState.isSubmitting}
+                  />
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      disabled={form.formState.isSubmitting}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => append({ SourcesId: "new", text: "" })}
+                disabled={form.formState.isSubmitting}
+              >
+                Add Source
+              </button>
+              <FormMessage />
+            </FormItem>
             <FormField
               control={form.control}
               name="visibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Visibility</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -139,8 +167,12 @@ const LibraryForm = () => {
             />
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button type="submit" className="w-full" disabled={isPending}>
-              Create a library
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              Create Library
             </Button>
           </form>
         </Form>

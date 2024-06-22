@@ -4,15 +4,6 @@ import { db } from "@/lib/prismadb";
 import { Subtitle, Library } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
-  async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "10s");
-    return { event, statusCode: 200, body: JSON.stringify("Hello, World!") };
-  }
-);
-
 export const processVideo = inngest.createFunction(
   { id: "process-video" },
   { event: "video/process" },
@@ -138,12 +129,13 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
         },
         data: {
           libraryIDs: { push: libraryId },
+          status: "FINISHED",
         },
       });
     }
     await db.library.update({
       where: { id: libraryId },
-      data: { videoIds: { push: videoId }, status: { set: "FINISHED" } },
+      data: { videoIds: { push: videoId } },
     });
     // ! Doesn't work
     revalidateTag("findLibraryByID");

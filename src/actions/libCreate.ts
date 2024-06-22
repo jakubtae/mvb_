@@ -1,16 +1,17 @@
 "use server";
-import * as z from "zod";
 import { LibrarySchema } from "@/schemas";
-import { createNewLibrary } from "@/data/library";
-import { deleteALibrary } from "@/data/library";
+import { createNewLibrary, deleteALibrary } from "@/data/library";
 import ytfps from "ytfps";
 import { inngest } from "@/inngest/client";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
-export const newLibrary = async (
-  values: z.infer<typeof LibrarySchema>,
-  id: string
-) => {
+interface ValueTypes {
+  name: string;
+  sources: { SourcesId: string; text: string }[];
+  visibility: "PRIVATE" | "PUBLIC";
+}
+
+export const newLibrary = async (values: ValueTypes, id: string) => {
   const validatedFields = await LibrarySchema.safeParseAsync(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
@@ -18,34 +19,18 @@ export const newLibrary = async (
   if (!id) {
     return { error: "Must provide userId" };
   }
+
   const { name, sources, visibility } = validatedFields.data;
-  const playlistRegex =
-    /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
 
-  // Extract the playlist ID
-  const match = sources.match(playlistRegex);
-  const playlistId = match ? match[1] : null;
-  if (!playlistId) {
-    throw new Error("Bad url");
-  }
-
-  let playlist;
-  try {
-    playlist = await ytfps(playlistId, { limit: 13 });
-  } catch (error: any) {
-    console.error("Error fetching playlist:", error.message);
-    if (error.message === "This playlist is private or broken") {
-      return { error: "The playlist is private or broken" };
-    }
-    return { error: "An error occurred while fetching the playlist" };
-  }
+  // Extracting an array of source text strings
+  const sourceTexts = sources.map((source) => source.text);
 
   // Create the library initially
   let newLib;
   try {
     newLib = await createNewLibrary(
       name,
-      sources,
+      sourceTexts,
       id,
       [],
       visibility as "PUBLIC" | "PRIVATE"
@@ -59,17 +44,42 @@ export const newLibrary = async (
   }
 
   // Start processing videos in the background
-  playlist.videos.forEach(async (playlistVideo) => {
-    await inngest.send({
-      name: "video/process",
-      data: {
-        videoLink: playlistVideo,
-        libraryId: newLib.id,
-      },
-    });
-  });
-  // ! IS A WORKING CACHE
+  try {
+    const playlistRegex =
+      /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
+
+    // Extract the playlist ID from the first source
+    Promise.all(
+      sourceTexts.map(async (source) => {
+        const match = source.match(playlistRegex);
+        const playlistId = match ? match[1] : null;
+        if (!playlistId) {
+          throw new Error("Bad url");
+        }
+        const playlist = await ytfps(playlistId, { limit: 13 });
+        playlist.videos.forEach(async (playlistVideo) => {
+          await inngest.send({
+            name: "video/process",
+            data: {
+              videoLink: playlistVideo,
+              libraryId: newLib.id,
+            },
+          });
+        });
+      })
+    );
+
+    // Send each video for processing
+  } catch (error: any) {
+    console.error("Error fetching or processing playlist:", error.message);
+    return {
+      error: "An error occurred while fetching or processing the playlist",
+    };
+  }
+
+  // Revalidate cache tag
   revalidateTag("getUserLibarries");
+
   return { success: "Library created", id: newLib.id };
 };
 
