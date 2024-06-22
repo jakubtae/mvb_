@@ -97,7 +97,7 @@ export default function Home() {
         <span>8498 researchers already love it</span>
       </main>
       <LandingSection id="howitwokrs" headerText="How it works?">
-        <div className="flex flex-col gap-4 md:flex-row xl:gap-10 xl:px-10">
+        <div className="flex flex-col gap-4 md:flex-row xl:gap-10 xl:px-10 listMain">
           {cards.map((card, key) => (
             <MainCard
               src={card.src}

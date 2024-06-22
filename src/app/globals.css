@@ -74,3 +74,53 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media (width> 700px) {
+  .listMain {
+    transform-style: preserve-3d;
+    transform: perspective(1000px);
+  }
+  .listMain .item {
+    transition: all 200ms ease-in-out;
+    filter: brightness(0.8);
+  }
+  .listMain .item:hover {
+    transform: translateZ(10px);
+    filter: brightness(1);
+  }
+
+  .listMain .item:hover + * {
+    transform: translateZ(5px) rotateY(5deg);
+    filter: brightness(0.9);
+  }
+
+  .listMain .item:has(+ *:hover) {
+    transform: translateZ(5px) rotateY(-5deg);
+    filter: brightness(0.9);
+  }
+}
+
+@media (width < 700px) {
+  .listMain {
+    transform-style: preserve-3d;
+    transform: perspective(1000px);
+  }
+  .listMain .item {
+    transition: all 200ms ease-in-out;
+    filter: brightness(0.8);
+  }
+  .listMain .item:hover {
+    transform: translateZ(10px);
+    filter: brightness(1);
+  }
+
+  .listMain .item:hover + * {
+    transform: translateZ(5px) rotateX(-5deg);
+    filter: brightness(0.9);
+  }
+
+  .listMain .item:has(+ *:hover) {
+    transform: translateZ(5px) rotateX(5deg);
+    filter: brightness(0.9);
+  }
+}
