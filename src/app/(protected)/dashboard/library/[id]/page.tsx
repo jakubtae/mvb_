@@ -18,6 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { LoaderCircle } from "lucide-react";
 
 interface LibraryIDPageProps {
   params: {
@@ -60,6 +61,7 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   const inProcessVideoCount = library.videoStatus
     .filter((video): video is NonNullable<typeof video> => video !== null)
     .filter((video) => video.status === "IN_PROCESS").length;
+
   return (
     <>
       <div className="flex flex-col gap-y-4 w-full">
@@ -123,7 +125,17 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
                 few minutes
               </span>
             )}{" "}
-            <SearchLibraryTool libraryid={library.id} />
+            {library.videoNumber !== finishedVideosCount + noSubsVideoCount ? (
+              <div className="w-full bg-neutral-700 font-semibold text-black flex justify-center items-center flex-col py-10">
+                Library is getting created. Refresh the page in a few minutes
+                <LoaderCircle className="animate-spin" />
+              </div>
+            ) : (
+              <SearchLibraryTool
+                libraryid={library.id}
+                docsLimit={library.videoNumber || 0}
+              />
+            )}
           </TabsContent>
           <TabsContent value="settings">
             <LibrarySettings id={library.id} />

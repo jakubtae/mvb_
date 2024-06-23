@@ -12,6 +12,7 @@ import { formatTime } from "@/lib/formatTime";
 
 interface SearchLibraryInterface {
   libraryid: string;
+  docsLimit: number;
 }
 
 interface VideoEntry {
@@ -35,21 +36,32 @@ interface VideoResult {
   url: string;
 }
 
-const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
+const SearchLibraryTool = ({
+  libraryid,
+  docsLimit,
+}: SearchLibraryInterface) => {
   const [query, setQuery] = useState("");
+  const [take, setTake] = useState(docsLimit);
+  const [skip, setSkip] = useState(0);
+
   const [results, setResults] = useState<VideoResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
-
+  console.log(docsLimit);
   useEffect(() => {
     const fetchSearchResults = async () => {
       setLoading(true);
       setError(null);
       try {
         if (query.trim() !== "") {
-          const searchResults = await searchLibrary(query, libraryid);
+          const searchResults = await searchLibrary(
+            query,
+            libraryid,
+            take,
+            skip
+          );
           if (searchResults && searchResults.success) {
             setResults(searchResults.success);
           } else if (searchResults && searchResults.error) {
@@ -74,7 +86,7 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
       fetchSearchResults();
       setSearchTriggered(false); // Reset the trigger
     }
-  }, [searchTriggered, libraryid, query]);
+  }, [searchTriggered, libraryid, query, take, skip]);
 
   useEffect(() => {
     // Initialize refs for each video
@@ -89,6 +101,28 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
   };
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
+  };
+
+  const handleTakeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    if (value > docsLimit) {
+      setTake(docsLimit);
+    } else if (value <= 0) {
+      setTake(1); // Ensuring take is at least 1, assuming 1 is the minimum valid value
+    } else {
+      setTake(value);
+    }
+  };
+
+  const handleSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    if (value < 0) {
+      setSkip(0); // Ensuring skip doesn't go below 0
+    } else if (value + take > docsLimit) {
+      setSkip(docsLimit - take); // Ensuring skip + take doesn't exceed total documents
+    } else {
+      setSkip(value);
+    }
   };
 
   const handleSearchClick = () => {
@@ -108,8 +142,8 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
   };
 
   return (
-    <div className="flex flex-col gap-y-10 w-full mt-4">
-      <div className="w-full flex flex-grow flex-col gap-2">
+    <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4">
+      <div className="w-full flex flex-grow flex-col gap-2 gap-y-4">
         <Label htmlFor="queryBox">Your search query</Label>
         <div className="flex items-end justify-between gap-4">
           <Input
@@ -131,6 +165,33 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
             Search
           </Button>
         </div>
+        <div className="flex gap-2 flex-col gap-y-6">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="take">Number of documents to search</Label>
+            <Input
+              type="number"
+              id="take"
+              value={take}
+              onChange={handleTakeChange}
+              max={docsLimit}
+              disabled={loading}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="skip">Starting document</Label>
+            <Input
+              type="number"
+              id="skip"
+              value={skip}
+              onChange={handleSkipChange}
+              max={docsLimit}
+              disabled={loading}
+            />
+          </div>
+        </div>
+        {!loading && results.length > 0 && (
+          <>Found {results.length} relevant videos</>
+        )}
       </div>
 
       {/* Display results */}
@@ -203,12 +264,12 @@ const SearchLibraryTool = ({ libraryid }: SearchLibraryInterface) => {
                             <Button
                               key={entryIndex}
                               variant="outline"
-                              className="snap-start w-full flex items-center justify-between p-2"
+                              className="snap-start w-full flex items-center justify-between p-2 py-4 md:py-0"
                               onClick={() =>
                                 handleButtonClick(index, parseInt(entry.start))
                               }
                             >
-                              <span className="truncate">
+                              <span className="text-wrap py-4 text-left">
                                 {entryIndex + 1}.{" "}
                                 <span className="font-medium">
                                   {beforeWord}

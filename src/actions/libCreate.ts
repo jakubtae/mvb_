@@ -68,7 +68,7 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
 
     await db.library.update({
       where: { id: newLib.id },
-      data: { videoNumber: uniqueVideos.length },
+      data: { videoNumber: uniqueVideos.length, status: "FINISHED" },
     });
     // Send each unique video for processing
     await inngest.send({

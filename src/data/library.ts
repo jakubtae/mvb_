@@ -160,7 +160,9 @@ interface Subtitle {
 
 export const searchLibraryVideosBySubtitleWithContext = async (
   query: string,
-  libraryId: string
+  libraryId: string,
+  take: number,
+  skip: number
 ): Promise<VideoResult[]> => {
   try {
     // Split the query into individual words\
@@ -173,6 +175,8 @@ export const searchLibraryVideosBySubtitleWithContext = async (
           has: libraryId,
         },
       },
+      take: take,
+      skip: skip,
     });
 
     // Process each video to add context around matched subtitles
