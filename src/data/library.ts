@@ -127,6 +127,7 @@ export const findLibraryById = async (id: string) => {
         name: true,
         status: true,
         videoStatus: true,
+        videoNumber: true,
       },
     });
     return library;

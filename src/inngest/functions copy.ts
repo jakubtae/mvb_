@@ -3,86 +3,26 @@ import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
 import { Subtitle, Library } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { YTvideo } from "node_modules/ytfps/lib/interfaces";
-
-const parseTimeToSeconds = (time: string): number => {
-  const parts = time.split(":").map(Number);
-  if (parts.length === 3) {
-    // HH:MM:SS
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  } else if (parts.length === 2) {
-    // MM:SS
-    return parts[0] * 60 + parts[1];
-  } else {
-    throw new Error(`Invalid time format: ${time}`);
-  }
-};
-
 export const processVideo = inngest.createFunction(
   { id: "process-video" },
   { event: "video/process" },
   async ({ event, step }) => {
-    const startTime = Date.now(); // Start time tracking
-    const uniqueVideos = event.data.uniqueVideos;
-    console.log(`Started backprocess for ${event.data.libraryId}`);
-
-    const errors: Array<{ videoUrl: string; error: string }> = [];
-    const updatedVideoStatuses: Array<{
-      id: string;
-      status: "IN_PROCESS" | "NO_SUBS" | "FINISHED";
-    }> = [];
-
-    const totalVideoTimeInSeconds = uniqueVideos.reduce(
-      (sum: number, video: YTvideo) => sum + parseTimeToSeconds(video.length),
-      0
+    const processStatus = await processVideoInBackground(
+      event.data.videoLink,
+      event.data.libraryId
     );
-
-    await Promise.all(
-      uniqueVideos.map(async (video: YTvideo) => {
-        const { id, status } = await processVideoInBackground(
-          video,
-          event.data.libraryId
-        );
-        if (id && status) {
-          updatedVideoStatuses.push({ id, status });
-        } else {
-          errors.push({
-            videoUrl: video.url,
-            error: "Failed to process video",
-          });
-        }
-      })
-    ).then(async () => {
-      console.log(`Finished processing ${event.data.libraryId} library`);
-
-      // Update library with all processed video statuses
-      await db.library.update({
-        where: { id: event.data.libraryId },
-        data: {
-          videoIds: { push: updatedVideoStatuses.map((v) => v.id) },
-          videoStatus: { push: updatedVideoStatuses }, // Push each updated video status
-        },
-      });
-    });
-    const endTime = Date.now(); // End time tracking
-    const duration = (endTime - startTime) / 1000; // Duration in seconds
-    console.log(
-      `\n Processing time for ${event.data.libraryId}: \n ${uniqueVideos.length} videos \n of length : ${totalVideoTimeInSeconds} seconds \n within ${duration} seconds\n `
-    );
-
-    if (errors.length > 0) {
+    if (processStatus.error) {
       return {
         event,
-        statusCode: 500,
-        body: JSON.stringify({ errors }),
+        statusCode: 506,
+        body: JSON.stringify({ error: processStatus.error }),
       };
     }
-
     return {
       event,
-      statusCode: 200,
+      statusCode: 506,
       body: JSON.stringify({
-        success: `Finished processing videos for library: ${event.data.libraryId}`,
+        success: `Finished taking care of this video ${event.data.videoLink} for this library: ${event.data.libraryId}`,
       }),
     };
   }
@@ -143,8 +83,9 @@ const fetchSubtitles = async (videoID: string, lang = "en") => {
   }
 };
 
-const processVideoInBackground = async (video: YTvideo, libraryId: string) => {
+const processVideoInBackground = async (video: any, libraryId: string) => {
   try {
+    console.log(`Started processing for ${video.url}`);
     const existingVideo = await db.video.findFirst({
       where: { url: video.url },
     });
@@ -174,17 +115,17 @@ const processVideoInBackground = async (video: YTvideo, libraryId: string) => {
       if (!splitSubtitles) {
         throw new Error("Error splitting subtitles");
       }
-      const updatedVideo = await db.video.update({
+      const newVideo = await db.video.update({
         where: {
           id: baseVideo.id,
         },
         data: {
           status: splitSubtitles.length > 0 ? "FINISHED" : "NO_SUBS",
-          subtitles: splitSubtitles,
+          subtitles: splitSubtitles, // Store the split subtitles here
         },
       });
 
-      videoObject = updatedVideo;
+      videoObject = newVideo;
     } else {
       videoObject = existingVideo;
       await db.video.update({
@@ -193,17 +134,24 @@ const processVideoInBackground = async (video: YTvideo, libraryId: string) => {
         },
         data: {
           libraryIDs: { push: libraryId },
+          status: "FINISHED",
         },
       });
     }
-
-    // Return videoObject.id and videoObject.status
-    return {
-      id: videoObject.id,
-      status: videoObject.status,
-    };
-  } catch (error: any) {
+    await db.library.update({
+      where: { id: libraryId },
+      data: {
+        videoIds: { push: videoObject.id },
+        videoStatus: {
+          push: { id: videoObject.id, status: videoObject.status },
+        },
+      },
+    });
+    // ! Doesn't work
+    revalidateTag("findLibraryByID");
+    return { success: "Success creating this video" };
+  } catch (error) {
     console.error("Error creating video entries:", error);
-    return { error: error };
+    return { error: "Some error message" };
   }
 };

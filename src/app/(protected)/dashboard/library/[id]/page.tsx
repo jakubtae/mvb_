@@ -107,13 +107,13 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
           <TabsContent value="search" className="flex flex-col gap-4">
             <div className="flex gap-2">
               <Badge variant="outline">
-                {inProcessVideoCount} / {library.videoStatus.length}
+                {inProcessVideoCount} / {library.videoNumber}
               </Badge>{" "}
               <Badge>
-                {finishedVideosCount} / {library.videoStatus.length}
+                {finishedVideosCount} / {library.videoNumber}
               </Badge>{" "}
               <Badge variant="destructive">
-                {noSubsVideoCount} / {library.videoStatus.length}
+                {noSubsVideoCount} / {library.videoNumber}
               </Badge>
             </div>
             <Separator orientation="horizontal" />

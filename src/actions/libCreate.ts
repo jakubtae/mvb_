@@ -56,7 +56,7 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
         if (!playlistId) {
           throw new Error("Bad url");
         }
-        const playlist = await ytfps(playlistId, { limit: 13 });
+        const playlist = await ytfps(playlistId);
         return playlist.videos;
       })
     );
@@ -66,40 +66,18 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
       new Map(allVideos.flat().map((video) => [video.url, video])).values()
     );
 
-    console.log(uniqueVideos.length);
-
+    await db.library.update({
+      where: { id: newLib.id },
+      data: { videoNumber: uniqueVideos.length },
+    });
     // Send each unique video for processing
-    await Promise.all(
-      uniqueVideos.map(async (playlistVideo) => {
-        const foundVideo = await db.video.findUnique({
-          where: { url: playlistVideo.url },
-        });
-        if (!foundVideo) {
-          console.log("Video does not exist");
-          await inngest.send({
-            name: "video/process",
-            data: {
-              videoLink: playlistVideo,
-              libraryId: newLib.id,
-            },
-          });
-        } else {
-          await db.library.update({
-            where: { id: newLib.id },
-            data: {
-              videoIds: { push: foundVideo.id },
-              videoStatus: {
-                push: { id: foundVideo.id, status: foundVideo.status },
-              },
-            },
-          });
-          await db.video.update({
-            where: { id: foundVideo.id },
-            data: { libraryIDs: { push: newLib.id } },
-          });
-        }
-      })
-    );
+    await inngest.send({
+      name: "video/process",
+      data: {
+        uniqueVideos: uniqueVideos,
+        libraryId: newLib.id,
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching or processing playlist:", error.message);
     return {

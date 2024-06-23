@@ -73,17 +73,12 @@ model Library {
   Videos      Video[]          @relation(fields: [videoIds], references: [id])
   visibility  visibilityEnum   @default(PRIVATE)
   uniqueViews String[]         @db.ObjectId
+  videoNumber Int?
 }
 
 type videoStatusLib {
   id     String
   status videoStatus
-}
-
-enum videoStatus {
-  IN_PROCESS
-  FINISHED
-  NO_SUBS
 }
 
 enum visibilityEnum {
@@ -97,7 +92,7 @@ enum LibStatus {
   FINISHED
 }
 
-enum VideoStatus {
+enum videoStatus {
   FINISHED
   IN_PROCESS
   NO_SUBS
@@ -113,7 +108,7 @@ model Video {
   thumbnailUrl String // Use camelCase for consistency
   author       Author // Embedded type for author
   subtitles    Subtitle[] // Array of embedded Subtitle objects
-  status       VideoStatus @default(IN_PROCESS)
+  status       videoStatus @default(IN_PROCESS)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   libraryIDs   String[]    @default([]) @db.ObjectId
