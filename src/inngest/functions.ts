@@ -4,7 +4,7 @@ import { db } from "@/lib/prismadb";
 import { Subtitle, Library } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { YTvideo } from "node_modules/ytfps/lib/interfaces";
-
+import { parseTimeToSeconds, formatSecondsToHHMMSS } from "@/lib/timeRelated";
 interface ProcessVideoResponse {
   event: Event;
   statusCode: number;
@@ -15,29 +15,6 @@ interface VideoStatus {
   id: string;
   status: "IN_PROCESS" | "NO_SUBS" | "FINISHED";
 }
-const parseTimeToSeconds = (time: string): number => {
-  const parts = time.split(":").map(Number);
-  if (parts.length === 3) {
-    // HH:MM:SS
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  } else if (parts.length === 2) {
-    // MM:SS
-    return parts[0] * 60 + parts[1];
-  } else {
-    throw new Error(`Invalid time format: ${time}`);
-  }
-};
-
-const formatSecondsToHHMMSS = (totalSeconds: number): string => {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return [
-    hours.toString().padStart(2, "0"),
-    minutes.toString().padStart(2, "0"),
-    seconds.toString().padStart(2, "0"),
-  ].join(":");
-};
 
 export const processVideo = inngest.createFunction(
   { id: "process-video" },
@@ -74,7 +51,7 @@ export const processVideo = inngest.createFunction(
 
     const tasks: Array<() => Promise<void>> = uniqueVideos.map(
       (video: YTvideo) => async () => {
-        console.log(`Started processing ${video.url}`);
+        // console.log(`Started processing ${video.url}`);
         try {
           const { id, status } = await processVideoInBackground(
             video,
@@ -99,7 +76,7 @@ export const processVideo = inngest.createFunction(
 
     await processWithConcurrencyLimit(tasks, concurrencyLimit);
 
-    console.log(`Finished processing ${event.data.libraryId} library`);
+    // console.log(`Finished processing ${event.data.libraryId} library`);
 
     // Update library with all processed video statuses
     await db.library.update({
@@ -124,6 +101,10 @@ export const processVideo = inngest.createFunction(
     const duration = (endTime - startTime) / 1000; // Duration in seconds
     console.log(
       `Processing time for ${event.data.libraryId}: ${duration} seconds`
+    );
+
+    console.log(
+      `Processing speed : ${totalVideoTimeInSeconds / duration} in seconds`
     );
 
     if (errors.length > 0) {
@@ -191,9 +172,6 @@ function splitSubtitlesIntoWords(subtitles: LocalSubtitle[]): {
 const fetchSubtitles = async (videoID: string, lang = "en") => {
   try {
     const subtitles = await getSubtitles({ videoID, lang });
-    if (subtitles.length === 0) {
-      console.log(`No subtitles for ${videoID}`);
-    }
     return subtitles;
   } catch (error) {
     console.error("Error fetching subtitles:", error);

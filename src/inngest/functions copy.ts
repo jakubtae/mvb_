@@ -85,7 +85,6 @@ const fetchSubtitles = async (videoID: string, lang = "en") => {
 
 const processVideoInBackground = async (video: any, libraryId: string) => {
   try {
-    console.log(`Started processing for ${video.url}`);
     const existingVideo = await db.video.findFirst({
       where: { url: video.url },
     });

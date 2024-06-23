@@ -19,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { LoaderCircle } from "lucide-react";
+import { formatSecondsToHHMMSS } from "@/lib/timeRelated";
 
 interface LibraryIDPageProps {
   params: {
@@ -126,9 +127,14 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
               </span>
             )}{" "}
             {library.videoNumber !== finishedVideosCount + noSubsVideoCount ? (
-              <div className="w-full bg-neutral-700 font-semibold text-black flex justify-center items-center flex-col py-10">
-                Library is getting created. Refresh the page in a few minutes
-                <LoaderCircle className="animate-spin" />
+              <div className="w-full dark:bg-zinc-800 font-semibold dark:text-zink-100 flex justify-center items-center flex-col py-20">
+                Library is getting created. Refresh the page in around{" "}
+                {library.predictedDuration ? (
+                  <>{formatSecondsToHHMMSS(library.predictedDuration + 20)}</>
+                ) : (
+                  <>few minutes</>
+                )}
+                <LoaderCircle className="animate-spin" color="#8B5FBF" />
               </div>
             ) : (
               <SearchLibraryTool

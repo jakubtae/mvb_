@@ -5,6 +5,8 @@ import ytfps from "ytfps";
 import { inngest } from "@/inngest/client";
 import { revalidateTag } from "next/cache";
 import { db } from "@/lib/prismadb";
+import { YTvideo } from "node_modules/ytfps/lib/interfaces";
+import { parseTimeToSeconds, formatSecondsToHHMMSS } from "@/lib/timeRelated";
 
 interface ValueTypes {
   name: string;
@@ -12,6 +14,7 @@ interface ValueTypes {
   visibility: "PRIVATE" | "PUBLIC";
 }
 
+const avgTime = 5000; //in seconds, lowered because of unkown server metrics ( 7680 )
 export const newLibrary = async (values: ValueTypes, id: string) => {
   const validatedFields = await LibrarySchema.safeParseAsync(values);
   if (!validatedFields.success) {
@@ -66,9 +69,21 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
       new Map(allVideos.flat().map((video) => [video.url, video])).values()
     );
 
+    // Calculate total video time in seconds and convert to HH:MM:SS
+    const totalVideoTimeInSeconds = uniqueVideos.reduce(
+      (sum: number, video: YTvideo) => sum + parseTimeToSeconds(video.length),
+      0
+    );
+
+    const preditedTime = Math.floor(totalVideoTimeInSeconds / avgTime);
+
     await db.library.update({
       where: { id: newLib.id },
-      data: { videoNumber: uniqueVideos.length, status: "FINISHED" },
+      data: {
+        videoNumber: uniqueVideos.length,
+        status: "FINISHED",
+        predictedDuration: preditedTime,
+      },
     });
     // Send each unique video for processing
     await inngest.send({
