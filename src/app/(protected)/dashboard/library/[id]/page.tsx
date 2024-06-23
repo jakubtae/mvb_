@@ -10,6 +10,15 @@ import { auth } from "@/auth";
 import { db } from "@/lib/prismadb";
 import LibrarySettings from "./_components/LibrarySettings";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
 interface LibraryIDPageProps {
   params: {
     id: string;
@@ -42,29 +51,47 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
       });
     }
   }
-  const finishedVideosCount = library.Videos.filter(
-    (video): video is NonNullable<typeof video> => video !== null
-  ).filter((video) => video.status === "FINISHED").length;
-  const noSubsVideosCount = library.Videos.filter(
-    (video): video is NonNullable<typeof video> => video !== null
-  ).filter((video) => video.status === "NO_SUBS").length;
-  const noSubsWord = noSubsVideosCount > 1 ? "videos" : "video";
-  const finishedVideosWord = finishedVideosCount > 1 ? "videos" : "video";
+  const finishedVideosCount = library.videoStatus
+    .filter((video): video is NonNullable<typeof video> => video !== null)
+    .filter((video) => video.status === "FINISHED").length;
+  const noSubsVideoCount = library.videoStatus
+    .filter((video): video is NonNullable<typeof video> => video !== null)
+    .filter((video) => video.status === "NO_SUBS").length;
+  const inProcessVideoCount = library.videoStatus
+    .filter((video): video is NonNullable<typeof video> => video !== null)
+    .filter((video) => video.status === "IN_PROCESS").length;
   return (
     <>
       <div className="flex flex-col gap-y-4 w-full">
-        <Button variant="ghost" asChild>
-          <Link href="/dashboard/libraries">Go back</Link>
-        </Button>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/libraries">
+                Libraries
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/libraries">
+                {session.user.name}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{library.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="flex w-full justify-between">
           <Button variant="link" asChild>
             <Link href={"/dashboard/library/" + library.id}>
               <h1 className="text-4xl font-bold lowercase">{library.name}</h1>
             </Link>
           </Button>
-          <div className="flex gap-6">
-            <DeleteLibrary id={library.id} />
-          </div>
         </div>
         <Tabs defaultValue="search" className="w-full mt-4">
           <TabsList className="w-full flex justify-between !py-6 mb-4">
@@ -72,12 +99,23 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
               <TabsTrigger value="search" className="py-2">
                 Search
               </TabsTrigger>
-              <TabsTrigger value="sources" className="py-2">
-                Sources
+              <TabsTrigger value="settings" className="py-2">
+                Settings
               </TabsTrigger>
             </div>
           </TabsList>
           <TabsContent value="search" className="flex flex-col gap-4">
+            <div className="flex gap-2">
+              <Badge variant="outline">
+                {inProcessVideoCount} / {library.videoStatus.length}
+              </Badge>{" "}
+              <Badge>
+                {finishedVideosCount} / {library.videoStatus.length}
+              </Badge>{" "}
+              <Badge variant="destructive">
+                {noSubsVideoCount} / {library.videoStatus.length}
+              </Badge>
+            </div>
             <Separator orientation="horizontal" />
             {library.status === "IN_PROCESS" && (
               <span className="text-wrap text-xs dark:text-neutral-300">
@@ -85,19 +123,10 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
                 few minutes
               </span>
             )}{" "}
-            {noSubsVideosCount > 0 && (
-              <Badge className="px-4 py-2" variant="destructive">
-                No subtitles for {noSubsVideosCount} {noSubsWord}{" "}
-              </Badge>
-            )}
-            <Badge className="px-4 py-2" variant="outline">
-              Finished {finishedVideosCount} /{" "}
-              {library.videoIds.length - noSubsVideosCount} {finishedVideosWord}
-            </Badge>
             <SearchLibraryTool libraryid={library.id} />
           </TabsContent>
-          <TabsContent value="sources">
-            <LibrarySettings />
+          <TabsContent value="settings">
+            <LibrarySettings id={library.id} />
           </TabsContent>
         </Tabs>
       </div>

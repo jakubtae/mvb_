@@ -119,8 +119,14 @@ export const findLibraryById = async (id: string) => {
       where: {
         id: id,
       },
-      include: {
-        Videos: true, // Include all fields of Video
+      select: {
+        id: true,
+        userId: true,
+        visibility: true,
+        uniqueViews: true,
+        name: true,
+        status: true,
+        videoStatus: true,
       },
     });
     return library;

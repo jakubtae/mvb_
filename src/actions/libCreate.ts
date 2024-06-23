@@ -44,13 +44,12 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
     return { error: "An error occurred while creating the library" };
   }
 
+  const playlistRegex =
+    /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
   // Start processing videos in the background
   try {
-    const playlistRegex =
-      /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
-
-    // Extract the playlist ID from the first source
-    Promise.all(
+    // Retrieve playlists for each source
+    const allVideos = await Promise.all(
       sourceTexts.map(async (source) => {
         const match = source.match(playlistRegex);
         const playlistId = match ? match[1] : null;
@@ -58,27 +57,49 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
           throw new Error("Bad url");
         }
         const playlist = await ytfps(playlistId, { limit: 13 });
-        // ! TODO : split the playlist in parts of 10 and then wait for them to finish before launching another batch of video managing
-        await Promise.all(
-          playlist.videos.map(async (playlistVideo) => {
-            const foundVideo = await db.video.findUnique({
-              where: { url: playlistVideo.url },
-            });
-            if (!foundVideo) {
-              console.log("Video does not exists");
-              await inngest.send({
-                name: "video/process",
-                data: {
-                  videoLink: playlistVideo,
-                  libraryId: newLib.id,
-                },
-              });
-            }
-          })
-        );
+        return playlist.videos;
       })
     );
-    // Send each video for processing
+
+    // Flatten the array of videos and remove duplicates based on playlistVideo.url
+    const uniqueVideos = Array.from(
+      new Map(allVideos.flat().map((video) => [video.url, video])).values()
+    );
+
+    console.log(uniqueVideos.length);
+
+    // Send each unique video for processing
+    await Promise.all(
+      uniqueVideos.map(async (playlistVideo) => {
+        const foundVideo = await db.video.findUnique({
+          where: { url: playlistVideo.url },
+        });
+        if (!foundVideo) {
+          console.log("Video does not exist");
+          await inngest.send({
+            name: "video/process",
+            data: {
+              videoLink: playlistVideo,
+              libraryId: newLib.id,
+            },
+          });
+        } else {
+          await db.library.update({
+            where: { id: newLib.id },
+            data: {
+              videoIds: { push: foundVideo.id },
+              videoStatus: {
+                push: { id: foundVideo.id, status: foundVideo.status },
+              },
+            },
+          });
+          await db.video.update({
+            where: { id: foundVideo.id },
+            data: { libraryIDs: { push: newLib.id } },
+          });
+        }
+      })
+    );
   } catch (error: any) {
     console.error("Error fetching or processing playlist:", error.message);
     return {
@@ -88,11 +109,8 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
 
   // Revalidate cache tag
   revalidateTag("getUserLibarries");
-
   return { success: "Library created", id: newLib.id };
 };
-
-// Background video processing function
 
 export const deleteLibrary = async (id: string) => {
   try {

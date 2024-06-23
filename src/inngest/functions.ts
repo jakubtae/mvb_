@@ -86,11 +86,28 @@ const fetchSubtitles = async (videoID: string, lang = "en") => {
 
 const processVideoInBackground = async (video: any, libraryId: string) => {
   try {
+    console.log(`Started processing for ${video.url}`);
     const existingVideo = await db.video.findFirst({
       where: { url: video.url },
     });
-    let videoId;
+    let videoObject;
     if (!existingVideo) {
+      const baseVideo = await db.video.create({
+        data: {
+          title: video.title,
+          url: video.url,
+          videoId: video.id,
+          length: video.length,
+          milisLength: video.milis_length,
+          thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
+          author: {
+            name: video.author.name,
+            url: video.author.url,
+          },
+          status: "IN_PROCESS",
+          libraryIDs: [libraryId],
+        },
+      });
       const subtitles = await fetchSubtitles(video.id);
       if (!subtitles) {
         throw new Error("Error getting subtitles");
@@ -99,32 +116,22 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
       if (!splitSubtitles) {
         throw new Error("Error splitting subtitles");
       }
-      const newVideo = await db.video.create({
+      const newVideo = await db.video.update({
+        where: {
+          id: baseVideo.id,
+        },
         data: {
-          title: video.title,
-          url: video.url,
-          videoId: video.id,
-          length: video.length,
-          milisLength: video.milis_length,
           status: splitSubtitles.length > 0 ? "FINISHED" : "NO_SUBS",
-          thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
-          author: {
-            name: video.author.name,
-            url: video.author.url,
-          },
           subtitles: splitSubtitles, // Store the split subtitles here
-          libraryIDs: [libraryId],
         },
       });
 
-      videoId = newVideo.id;
-      // console.log(`Updated this library ${libraryId}`);
-      // revalidatePath("/dashboard/library/" + libraryId);
+      videoObject = newVideo;
     } else {
-      videoId = existingVideo.id;
+      videoObject = existingVideo;
       await db.video.update({
         where: {
-          id: videoId,
+          id: videoObject.id,
         },
         data: {
           libraryIDs: { push: libraryId },
@@ -134,7 +141,12 @@ const processVideoInBackground = async (video: any, libraryId: string) => {
     }
     await db.library.update({
       where: { id: libraryId },
-      data: { videoIds: { push: videoId } },
+      data: {
+        videoIds: { push: videoObject.id },
+        videoStatus: {
+          push: { id: videoObject.id, status: videoObject.status },
+        },
+      },
     });
     // ! Doesn't work
     revalidateTag("findLibraryByID");

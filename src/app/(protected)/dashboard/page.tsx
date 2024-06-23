@@ -70,7 +70,9 @@ const DashboardPage = async () => {
         </div>
         <div className="w-full py-2 flex items-center flex-col">
           {!recentLibaries || recentLibaries.length === 0 ? (
-            <p className="font-black">You have no recent libraries. </p>
+            <p className="font-semibold text-neutral-500">
+              You have no recent libraries.{" "}
+            </p>
           ) : (
             <LibraryContainer libraries={recentLibaries} />
           )}
@@ -99,12 +101,12 @@ const DashboardPage = async () => {
                 </Button>
               </>
             ) : (
-              <span className="text-center text-neutral-200">
+              <span className="text-center text-neutral-200 my-4">
                 No upcoming features
               </span>
             )}
           </div>
-          <Separator orientation="horizontal" />
+          <Separator orientation="horizontal" className="!bg-neutral-600" />
           <ProposeFeature />
         </div>
         <div className="flex-grow flex-shrink basis-0 w-full md:max-w-[400px]">
