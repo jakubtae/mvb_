@@ -1,15 +1,8 @@
 import { inngest } from "./client";
 import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
-import { Subtitle, Library } from "@prisma/client";
-import { revalidatePath, revalidateTag } from "next/cache";
 import { YTvideo } from "node_modules/ytfps/lib/interfaces";
 import { parseTimeToSeconds, formatSecondsToHHMMSS } from "@/lib/timeRelated";
-interface ProcessVideoResponse {
-  event: Event;
-  statusCode: number;
-  body: string;
-}
 
 interface VideoStatus {
   id: string;

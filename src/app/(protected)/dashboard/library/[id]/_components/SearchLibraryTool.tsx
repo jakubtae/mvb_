@@ -165,7 +165,7 @@ const SearchLibraryTool = ({
             Search
           </Button>
         </div>
-        <div className="flex gap-2 flex-col gap-y-6">
+        <div className="flex gap-2 flex-col sm:flex-row gap-y-6">
           <div className="flex flex-col gap-2">
             <Label htmlFor="take">Number of documents to search</Label>
             <Input
