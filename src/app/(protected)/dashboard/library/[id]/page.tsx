@@ -41,7 +41,11 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   if (!library) {
     redirect("/dashboard/libraries");
   }
-  if (library.visibility === "PRIVATE" && library.userId !== session.user.id) {
+  if (
+    library.visibility === "PRIVATE" &&
+    library.userId !== session.user.id &&
+    session.user.role !== "ADMIN"
+  ) {
     return <>This library is private</>;
   }
   if (library.visibility === "PUBLIC") {
@@ -126,11 +130,14 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             )}{" "}
             {library.videoNumber !== finishedVideosCount + noSubsVideoCount ? (
               <div className="w-full dark:bg-zinc-800 font-semibold dark:text-zink-100 flex justify-center items-center flex-col py-20">
-                Library is getting created. Refresh the page in{" "}
+                Library is getting created. <br />
                 {library.predictedDuration ? (
                   <Timer predictedTime={library.predictedDuration} />
                 ) : (
-                  <>few minutes</>
+                  <>
+                    Depending on the size of your library refresh the page
+                    between few seconds to few minutes.
+                  </>
                 )}
                 <LoaderCircle className="animate-spin" color="#8B5FBF" />
               </div>
