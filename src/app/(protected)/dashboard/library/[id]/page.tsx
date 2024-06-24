@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { findLibraryById } from "@/data/library";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import DeleteLibrary from "../../_components/DeleteLibrary";
 import SearchLibraryTool from "./_components/SearchLibraryTool";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -19,7 +18,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { LoaderCircle } from "lucide-react";
-import { formatSecondsToHHMMSS } from "@/lib/timeRelated";
+import { Timer } from "./_components/timer";
 
 interface LibraryIDPageProps {
   params: {
@@ -62,7 +61,6 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
   const inProcessVideoCount = library.videoStatus
     .filter((video): video is NonNullable<typeof video> => video !== null)
     .filter((video) => video.status === "IN_PROCESS").length;
-
   return (
     <>
       <div className="flex flex-col gap-y-4 w-full">
@@ -128,9 +126,9 @@ const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
             )}{" "}
             {library.videoNumber !== finishedVideosCount + noSubsVideoCount ? (
               <div className="w-full dark:bg-zinc-800 font-semibold dark:text-zink-100 flex justify-center items-center flex-col py-20">
-                Library is getting created. Refresh the page in around{" "}
+                Library is getting created. Refresh the page in{" "}
                 {library.predictedDuration ? (
-                  <>{formatSecondsToHHMMSS(library.predictedDuration + 20)}</>
+                  <Timer predictedTime={library.predictedDuration} />
                 ) : (
                   <>few minutes</>
                 )}

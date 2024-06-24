@@ -2,6 +2,7 @@ import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import { Library } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
+import Fuse from "fuse.js";
 
 export const createNewLibrary = async (
   name: string,
@@ -158,6 +159,14 @@ interface Subtitle {
   text: string;
   wordIndex: number;
 }
+/**
+ *
+ * @param query A word/pharse you want to look for
+ * @param libraryId Library ID
+ * @param take how many libraries you want to search through
+ * @param skip the library you start from
+ * @returns an array of object of VideoResult type
+ */
 
 export const searchLibraryVideosBySubtitleWithContext = async (
   query: string,
@@ -185,7 +194,6 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 
     for (const video of videos) {
       const entries: VideoEntry[] = [];
-      // Process subtitles to find and add context around matched query words
       const wordsBefore = 3; // Number of words to include before the match
       const wordsAfter = 3; // Number of words to include after the match
 

@@ -264,7 +264,7 @@ const SearchLibraryTool = ({
                             <Button
                               key={entryIndex}
                               variant="outline"
-                              className="snap-start w-full flex items-center justify-between p-2 py-4 md:py-0"
+                              className="snap-start w-full flex items-center justify-between p-2 py-0 !h-auto md:!py-0"
                               onClick={() =>
                                 handleButtonClick(index, parseInt(entry.start))
                               }
