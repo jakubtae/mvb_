@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"; // Assuming you have a Button c
 import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
+import React from "react";
 
 import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
@@ -18,8 +19,10 @@ interface SearchLibraryInterface {
 interface VideoEntry {
   start: string;
   dur: string;
-  word: string;
-  phrase: string;
+  words: {
+    text: string;
+    type: "QUERY" | "CONTEXT";
+  }[];
 }
 
 function extractYouTubeVideoId(url: string): string {
@@ -49,7 +52,6 @@ const SearchLibraryTool = ({
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
-  console.log(docsLimit);
   useEffect(() => {
     const fetchSearchResults = async () => {
       setLoading(true);
@@ -251,36 +253,35 @@ const SearchLibraryTool = ({
                     <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
                         {video.entries.map((entry, entryIndex) => {
-                          const startIndex = entry.phrase.indexOf(entry.word);
-                          const endIndex = startIndex + entry.word.length;
-
-                          // Split the phrase into three parts
-                          const beforeWord = entry.phrase.substring(
-                            0,
-                            startIndex
-                          );
-                          const afterWord = entry.phrase.substring(endIndex);
                           return (
                             <Button
                               key={entryIndex}
                               variant="outline"
-                              className="snap-start w-full flex items-center justify-between p-2 py-0 !h-auto md:!py-0"
+                              className="snap-start w-full flex justify-between items-start p-2 !h-auto md:!py-0 gap-1"
                               onClick={() =>
                                 handleButtonClick(index, parseInt(entry.start))
                               }
                             >
                               <span className="text-wrap py-4 text-left">
                                 {entryIndex + 1}.{" "}
-                                <span className="font-medium">
-                                  {beforeWord}
-                                </span>
-                                <span className="font-semibold text-white">
-                                  {entry.word}
-                                </span>
-                                <span className="font-medium">{afterWord}</span>
+                                {entry.words.map((word, wordIndex) => (
+                                  <React.Fragment key={wordIndex}>
+                                    <span
+                                      className={
+                                        word.type === "QUERY"
+                                          ? "font-semibold text-white"
+                                          : ""
+                                      }
+                                    >
+                                      {word.text}
+                                    </span>{" "}
+                                    {/* Add space after each word */}
+                                  </React.Fragment>
+                                ))}
                               </span>
-                              {/* <span className="truncate">{entry.phrase}</span> */}
-                              <span>{formatTime(parseInt(entry.start))}</span>
+                              <span className="py-4">
+                                {formatTime(parseInt(entry.start))}
+                              </span>
                             </Button>
                           );
                         })}

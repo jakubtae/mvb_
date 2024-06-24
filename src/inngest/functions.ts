@@ -3,6 +3,7 @@ import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
 import { YTvideo } from "node_modules/ytfps/lib/interfaces";
 import { parseTimeToSeconds, formatSecondsToHHMMSS } from "@/lib/timeRelated";
+import { revalidatePath } from "next/cache";
 
 interface VideoStatus {
   id: string;
@@ -107,7 +108,7 @@ export const processVideo = inngest.createFunction(
         body: JSON.stringify({ errors, duration, totalVideoTime }),
       };
     }
-
+    revalidatePath(`/dashboard/library/${event.data.libraryId}`);
     return {
       event,
       statusCode: 200,
