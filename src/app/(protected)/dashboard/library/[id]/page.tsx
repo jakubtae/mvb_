@@ -1,14 +1,4 @@
-import { redirect } from "next/navigation";
-import { findLibraryById } from "@/data/library";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import SearchLibraryTool from "./_components/SearchLibraryTool";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { auth } from "@/auth";
-import { db } from "@/lib/prismadb";
-import LibrarySettings from "./_components/LibrarySettings";
-import { Badge } from "@/components/ui/badge";
+"use client";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +8,16 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { LoaderCircle } from "lucide-react";
-import { Timer } from "./_components/timer";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { useRef, useState, useEffect } from "react";
+import {
+  getLibraryStatus,
+  isValidObjectId,
+  LibraryCheckResult,
+} from "./_actions/pageAction";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SearchLibraryTool from "./_components/SearchLibraryTool";
 
 interface LibraryIDPageProps {
   params: {
@@ -26,134 +25,145 @@ interface LibraryIDPageProps {
   };
 }
 
-const isValidObjectId = (id: string): boolean => {
-  const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-  return objectIdRegex.test(id);
-};
+const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
+  const router = useRouter();
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push("/auth/login");
+    },
+  });
 
-const LibraryIDPage = async ({ params }: LibraryIDPageProps) => {
-  const session = await auth();
-  if (!isValidObjectId(params.id) || !session || !session.user.id) {
-    redirect("/dashboard/libraries");
+  const [loading, setLoading] = useState<boolean>(true);
+  const libraryRef = useRef<LibraryCheckResult | { error: string } | null>(
+    null
+  ); // Ref to hold the library state
+  const intervalId = useRef<NodeJS.Timeout | null>(null); // Ref to hold the interval ID
+
+  useEffect(() => {
+    if (!isValidObjectId(params.id)) {
+      router.push("/dashboard/libraries");
+      return;
+    }
+
+    const fetchLibraryStatus = async () => {
+      console.log("Fetching");
+      try {
+        const data = await getLibraryStatus(
+          params.id,
+          session?.user.id as string
+        );
+        libraryRef.current = data; // Update libraryRef with fetched data
+        if ("status" in data && data.status === "FINISHED") {
+          setLoading(false);
+          clearInterval(intervalId.current!); // Clear interval when finished
+        }
+      } catch (error: any) {
+        libraryRef.current = { error: error.message }; // Store error in libraryRef
+        setLoading(false);
+        clearInterval(intervalId.current!); // Clear interval on error
+      }
+    };
+
+    // Fetch data only if libraryRef.current is not null and libraryRef.current.status is not "FINISHED"
+    if (
+      (libraryRef.current && "error" in libraryRef.current) ||
+      (libraryRef.current &&
+        "status" in libraryRef.current &&
+        libraryRef.current.status !== "FINISHED")
+    ) {
+      fetchLibraryStatus();
+    }
+
+    // Clear interval if it exists when params.id, router, or session change
+    if (intervalId.current) {
+      clearInterval(intervalId.current);
+    }
+
+    // Set interval to fetch every 5 seconds
+    intervalId.current = setInterval(fetchLibraryStatus, 5000);
+
+    return () => {
+      // Clean up on unmount: clear interval
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
+    };
+  }, [params.id, router, session]);
+
+  // Access library from useRef
+  const library = libraryRef.current;
+
+  if (loading || !library) {
+    return (
+      <div className="w-full h-[400px] flex flex-col items-center justify-center">
+        <span className="font-semibold text-center">
+          This library is being prepared. If you just created it you will have
+          to wait between few seconds to few minutes.
+        </span>
+        <LoaderCircle className="animate-spin" color="#8B5FBF" />
+      </div>
+    );
   }
 
-  const library = await findLibraryById(params.id);
-  if (!library) {
-    redirect("/dashboard/libraries");
+  if ("error" in library) {
+    return <div>Error: {library.error}</div>;
   }
+
   if (
     library.visibility === "PRIVATE" &&
-    library.userId !== session.user.id &&
-    session.user.role !== "ADMIN"
+    library.userId !== session?.user?.id
   ) {
     return <>This library is private</>;
   }
-  if (library.visibility === "PUBLIC") {
-    if (!library.uniqueViews.includes(session.user.id)) {
-      await db.library.update({
-        where: { id: params.id },
-        data: { uniqueViews: { push: session.user.id } },
-      });
-    }
-  }
-  const finishedVideosCount = library.videoStatus
-    .filter((video): video is NonNullable<typeof video> => video !== null)
-    .filter((video) => video.status === "FINISHED").length;
-  const noSubsVideoCount = library.videoStatus
-    .filter((video): video is NonNullable<typeof video> => video !== null)
-    .filter((video) => video.status === "NO_SUBS").length;
-  const inProcessVideoCount = library.videoStatus
-    .filter((video): video is NonNullable<typeof video> => video !== null)
-    .filter((video) => video.status === "IN_PROCESS").length;
+
+  // Destructure library safely assuming it's not null and doesn't have an error
+  const { name, id, videoNumber } = library;
+
   return (
-    <>
-      <div className="flex flex-col gap-y-4 w-full">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/libraries">
-                Libraries
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/libraries">
-                {session.user.name}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{library.name}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex w-full justify-between">
-          <Button variant="link" asChild>
-            <Link href={"/dashboard/library/" + library.id}>
-              <h1 className="text-4xl font-bold lowercase">{library.name}</h1>
-            </Link>
-          </Button>
-        </div>
-        <Tabs defaultValue="search" className="w-full mt-4">
-          <TabsList className="w-full flex justify-between !py-6 mb-4">
-            <div className="flex gap-2">
-              <TabsTrigger value="search" className="py-2">
-                Search
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="py-2">
-                Settings
-              </TabsTrigger>
-            </div>
-          </TabsList>
-          <TabsContent value="search" className="flex flex-col gap-4">
-            <div className="flex gap-2">
-              <Badge variant="outline">
-                {inProcessVideoCount} / {library.videoNumber}
-              </Badge>{" "}
-              <Badge>
-                {finishedVideosCount} / {library.videoNumber}
-              </Badge>{" "}
-              <Badge variant="destructive">
-                {noSubsVideoCount} / {library.videoNumber}
-              </Badge>
-            </div>
-            <Separator orientation="horizontal" />
-            {library.status === "IN_PROCESS" && (
-              <span className="text-wrap text-xs dark:text-neutral-300">
-                If your library is big you might have to wait and refresh for a
-                few minutes
-              </span>
-            )}{" "}
-            {library.videoNumber !== finishedVideosCount + noSubsVideoCount ? (
-              <div className="w-full dark:bg-zinc-800 font-semibold dark:text-zink-100 flex justify-center items-center flex-col py-20">
-                Library is getting created. <br />
-                {library.predictedDuration ? (
-                  <Timer predictedTime={library.predictedDuration} />
-                ) : (
-                  <>
-                    Depending on the size of your library refresh the page
-                    between few seconds to few minutes.
-                  </>
-                )}
-                <LoaderCircle className="animate-spin" color="#8B5FBF" />
-              </div>
-            ) : (
-              <SearchLibraryTool
-                libraryid={library.id}
-                docsLimit={library.videoNumber || 0}
-              />
-            )}
-          </TabsContent>
-          <TabsContent value="settings">
-            <LibrarySettings id={library.id} />
-          </TabsContent>
-        </Tabs>
+    <div className="flex flex-col gap-y-4 w-full">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/libraries">
+              Libraries
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/libraries">
+              {session?.user?.name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="flex w-full justify-between">
+        <h1 className="text-4xl font-bold lowercase">{name}</h1>
       </div>
-    </>
+      <Tabs defaultValue="search" className="w-full mt-4">
+        <TabsList className="w-full flex justify-between !py-6 mb-4">
+          <div className="flex gap-2">
+            <TabsTrigger value="search" className="py-2">
+              Search
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="py-2">
+              Settings
+            </TabsTrigger>
+          </div>
+        </TabsList>
+        <TabsContent value="search">
+          <SearchLibraryTool libraryid={id} docsLimit={videoNumber} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

@@ -36,26 +36,27 @@ export default function Home() {
   const cards = [
     {
       src: "/photo1.avif",
-      alt: "examplImg",
-      title: "1. Import sources",
+      alt: "exampleImg",
+      title: "1. Import Sources",
       description:
-        "Currently you can import YouTube playlists as a source. We are working to support single videos and channels. In the future you will be able to add content from X, Instagram and others.",
+        "Currently, you can import YouTube playlists as a source. We are working to support single videos and channels. In the future, you will be able to add content from X, Instagram, and others.",
     },
     {
       src: "/photo1.avif",
-      alt: "examplImg",
-      title: "2. Wait for the process to finish",
+      alt: "exampleImg",
+      title: "2. Wait for the Process to Finish",
       description:
-        "Because we need to fetch content from provided sources it might take a few minutes for every time a certain piece of content is used. The second time will take only a few seconds",
+        "Since we need to fetch content from the provided sources, it might take a few minutes for the initial retrieval of each piece of content. Subsequent retrievals will only take a few seconds.",
     },
     {
       src: "/photo1.avif",
-      alt: "examplImg",
-      title: "3. Find what you want",
+      alt: "exampleImg",
+      title: "3. Find What You Want",
       description:
-        "Now it's time for research. Use the search bard to find what you want. Choose between actual search and sematnic search. Peek at common topics and related materials",
+        "Now it's time for research. Use the search bar to find what you need. Choose between actual search and semantic search. Explore common topics and related materials.",
     },
   ];
+
   return (
     <div className="flex flex-col gap-10">
       <main

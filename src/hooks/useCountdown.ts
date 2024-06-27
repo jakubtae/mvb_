@@ -15,13 +15,7 @@ export const useCountdown = (
     }
 
     const customInterval = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime <= interval) {
-          clearInterval(customInterval);
-          return 0;
-        }
-        return prevTime - interval;
-      });
+      setTime((prev) => Math.max(prev - interval, 0));
     }, interval);
 
     return () => clearInterval(customInterval);

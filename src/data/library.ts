@@ -142,8 +142,15 @@ export const findLibraryById = async (id: string) => {
 interface VideoEntry {
   start: string;
   dur: string;
-  word: string;
-  phrase: string;
+  words: {
+    text: string;
+    type: "QUERY" | "CONTEXT";
+  }[];
+}
+
+interface WordArray {
+  text: string;
+  type: "QUERY" | "CONTEXT";
 }
 
 interface VideoResult {
@@ -158,6 +165,7 @@ interface Subtitle {
   dur: string;
   text: string;
   wordIndex: number;
+  type: "QUERY" | "CONTEXT";
 }
 /**
  *
@@ -175,7 +183,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
   skip: number
 ): Promise<VideoResult[]> => {
   try {
-    // Split the query into individual words\
+    // Split the query into individual words
     const queryWords = query.toLowerCase().trim().split(" ");
 
     // Fetch videos from the database that belong to the specified library
@@ -191,73 +199,115 @@ export const searchLibraryVideosBySubtitleWithContext = async (
 
     // Process each video to add context around matched subtitles
     const videosWithContext: VideoResult[] = [];
-
+    const gapWord = 3;
+    const wordsAfter = 3;
+    const wordsBefore = 3;
     for (const video of videos) {
       const entries: VideoEntry[] = [];
-      const wordsBefore = 3; // Number of words to include before the match
-      const wordsAfter = 3; // Number of words to include after the match
 
       for (let i = 0; i < video.subtitles.length; i++) {
         const subtitle = video.subtitles[i];
+
+        // Check if the current subtitle matches the first query word
         if (subtitle.text === queryWords[0]) {
           let foundPhrasearr: Subtitle[] = [];
           let isMatch = true;
 
-          for (var z = 0; z < queryWords.length; z++) {
+          // Build foundPhrasearr for the entire queryWords sequence
+          for (let z = 0; z < queryWords.length; z++) {
             const currentIndex = i + z;
-            if (
-              currentIndex < video.subtitles.length &&
-              video.subtitles[currentIndex].text === queryWords[z]
-            ) {
-              foundPhrasearr.push(video.subtitles[currentIndex]);
+
+            if (currentIndex < video.subtitles.length) {
+              // Check if current subtitle matches query word
+              if (video.subtitles[currentIndex].text === queryWords[z]) {
+                foundPhrasearr.push({
+                  ...video.subtitles[currentIndex],
+                  type: "QUERY",
+                });
+              } else {
+                // Attempt to find gap words within gapWord range
+                let foundGap = false;
+                for (let gw = 1; gw <= gapWord; gw++) {
+                  if (
+                    currentIndex + gw < video.subtitles.length &&
+                    video.subtitles[currentIndex + gw].text === queryWords[z]
+                  ) {
+                    // Push each gap word found
+                    for (let g = 0; g < gw; g++) {
+                      foundPhrasearr.push({
+                        ...video.subtitles[currentIndex + g],
+                        type: "CONTEXT",
+                      });
+                    }
+                    foundPhrasearr.push({
+                      ...video.subtitles[currentIndex + gw],
+                      type: "QUERY",
+                    });
+                    foundGap = true;
+                    break; // Exit the gap word search loop
+                  }
+                }
+                if (!foundGap) {
+                  isMatch = false;
+                  break; // Exit the query word loop
+                }
+              }
             } else {
               isMatch = false;
-              break;
+              break; // Exit the query word loop
             }
           }
 
           if (isMatch) {
-            // Get the previous subtitles if they exist
-            const previousSubtitles = [];
-            for (let j = i - wordsBefore; j < i; j++) {
-              if (j >= 0) {
-                previousSubtitles.push(video.subtitles[j].text);
-              }
+            // Collect previous subtitles as context
+            const previousSubtitles: WordArray[] = [];
+            for (let j = Math.max(0, i - wordsBefore); j < i; j++) {
+              previousSubtitles.push({
+                text: video.subtitles[j].text,
+                type: "CONTEXT",
+              });
             }
 
-            // Get the next subtitles if they exist
-            const nextSubtitles = [];
-            for (
-              let j = i + queryWords.length;
-              j < i + queryWords.length + wordsAfter;
-              j++
-            ) {
+            // Collect next subtitles as context
+            const nextSubtitles: WordArray[] = [];
+            let nextStartIndex = i + queryWords.length;
+
+            // If gap words were found, adjust nextStartIndex accordingly
+            if (foundPhrasearr.length > queryWords.length) {
+              nextStartIndex += foundPhrasearr.length - queryWords.length;
+            }
+
+            for (let j = nextStartIndex; j < nextStartIndex + wordsAfter; j++) {
               if (j < video.subtitles.length) {
-                nextSubtitles.push(video.subtitles[j].text);
+                nextSubtitles.push({
+                  text: video.subtitles[j].text,
+                  type: "CONTEXT",
+                });
               }
             }
 
-            // Create the phrase including the previous and next subtitles
-            const phrase = [
+            // Combine all parts into the final result
+            const joinedWords: WordArray[] = [
               ...previousSubtitles,
-              ...foundPhrasearr.map((sub) => sub.text),
+              ...foundPhrasearr.map((sub) => ({
+                text: sub.text,
+                type: sub.type,
+              })),
               ...nextSubtitles,
-            ].join(" ");
+            ];
 
-            const start = foundPhrasearr[0].start;
+            const start = foundPhrasearr[0].start; // Assuming start exists in foundPhrasearr
             const totalDur = foundPhrasearr
               .reduce((acc, sub) => acc + parseFloat(sub.dur), 0)
               .toFixed(10);
 
-            const result = {
-              phrase: phrase,
-              word: query,
+            const result: VideoEntry = {
+              words: joinedWords,
               start: start,
               dur: totalDur,
             };
 
             entries.push(result);
-            // console.log(result);
           }
         }
       }

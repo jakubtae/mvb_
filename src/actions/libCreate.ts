@@ -2,17 +2,125 @@
 import { LibrarySchema } from "@/schemas";
 import { createNewLibrary, deleteALibrary } from "@/data/library";
 import ytfps from "ytfps";
-import { inngest } from "@/inngest/client";
 import { revalidateTag } from "next/cache";
 import { db } from "@/lib/prismadb";
 import { YTvideo } from "node_modules/ytfps/lib/interfaces";
 import { parseTimeToSeconds, formatSecondsToHHMMSS } from "@/lib/timeRelated";
+import { processVideoInBackground } from "@/actions/Library_create/functions";
 
 interface ValueTypes {
   name: string;
   sources: { SourcesId: string; text: string }[];
   visibility: "PRIVATE" | "PUBLIC";
 }
+
+interface VideoStatus {
+  id: string;
+  status: "IN_PROCESS" | "NO_SUBS" | "FINISHED";
+}
+
+interface CreateLib {
+  libraryId: string;
+  uniqueVideos: YTvideo[];
+}
+const createLib = async ({ uniqueVideos, libraryId }: CreateLib) => {
+  try {
+    const startTime = Date.now(); // Start time tracking
+    const concurrencyLimit = 10; // Adjust concurrency level as needed
+
+    console.log(`Started backprocess for ${libraryId}`);
+
+    const errors: Array<{ videoUrl: string; error: string }> = [];
+    const updatedVideoStatuses: VideoStatus[] = [];
+
+    const processWithConcurrencyLimit = async (
+      tasks: Array<() => Promise<void>>,
+      limit: number
+    ): Promise<void[]> => {
+      const results: Promise<void>[] = [];
+      const executing: Promise<void>[] = [];
+      for (const task of tasks) {
+        const p: Promise<void> = task().then((result: void) => {
+          executing.splice(executing.indexOf(p), 1);
+          return result;
+        });
+        results.push(p);
+        executing.push(p);
+        if (executing.length >= limit) {
+          await Promise.race(executing);
+        }
+      }
+      return Promise.all(results);
+    };
+
+    const tasks: Array<() => Promise<void>> = uniqueVideos.map(
+      (video: YTvideo) => async () => {
+        // console.log(`Started processing ${video.url}`);
+        try {
+          const { id, status } = await processVideoInBackground(
+            video,
+            libraryId
+          );
+          if (id && status) {
+            updatedVideoStatuses.push({ id, status });
+          } else {
+            errors.push({
+              videoUrl: video.url,
+              error: "Failed to process video",
+            });
+          }
+        } catch (error) {
+          errors.push({
+            videoUrl: video.url,
+            error: (error as Error).message || "Unknown error occurred",
+          });
+        }
+      }
+    );
+
+    await processWithConcurrencyLimit(tasks, concurrencyLimit);
+
+    // Update library with all processed video statuses
+    await db.library.update({
+      where: { id: libraryId },
+      data: {
+        videoIds: { push: updatedVideoStatuses.map((v) => v.id) },
+        videoStatus: { push: updatedVideoStatuses }, // Push each updated video status
+      },
+    });
+
+    // Calculate total video time in seconds and convert to HH:MM:SS
+    const totalVideoTimeInSeconds = uniqueVideos.reduce(
+      (sum: number, video: YTvideo) => sum + parseTimeToSeconds(video.length),
+      0
+    );
+    const totalVideoTime = formatSecondsToHHMMSS(totalVideoTimeInSeconds);
+    console.log(`Total video time for ${libraryId}: ${totalVideoTime}`);
+
+    const endTime = Date.now(); // End time tracking
+    const duration = (endTime - startTime) / 1000; // Duration in seconds
+    console.log(`Processing time for ${libraryId}: ${duration} seconds`);
+
+    console.log(
+      `Processing speed : ${totalVideoTimeInSeconds / duration} in seconds`
+    );
+
+    if (errors.length > 0) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ errors, duration, totalVideoTime }),
+      };
+    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: `Finished processing videos for library: ${libraryId}`,
+        duration,
+        totalVideoTime,
+      }),
+    };
+  } catch (error) {}
+};
 
 const avgTime = 5000; //in seconds, lowered because of unkown server metrics ( 7680 )
 export const newLibrary = async (values: ValueTypes, id: string) => {
@@ -30,21 +138,15 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
   const sourceTexts = sources.map((source) => source.text);
 
   // Create the library initially
-  let newLib;
-  try {
-    newLib = await createNewLibrary(
-      name,
-      sourceTexts,
-      id,
-      [],
-      visibility as "PUBLIC" | "PRIVATE"
-    );
-    if (newLib.error) {
-      return { error: newLib.error };
-    }
-  } catch (error) {
-    console.error("Error creating initial library:", error);
-    return { error: "An error occurred while creating the library" };
+  let newLib = await createNewLibrary(
+    name,
+    sourceTexts,
+    id,
+    [],
+    visibility as "PUBLIC" | "PRIVATE"
+  );
+  if (!newLib) {
+    throw new Error(`Error creating a library`);
   }
 
   const playlistRegex =
@@ -85,14 +187,7 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
         predictedDuration: preditedTime,
       },
     });
-    // Send each unique video for processing
-    await inngest.send({
-      name: "video/process",
-      data: {
-        uniqueVideos: uniqueVideos,
-        libraryId: newLib.id,
-      },
-    });
+    createLib({ libraryId: newLib.id as string, uniqueVideos: uniqueVideos });
   } catch (error: any) {
     console.error("Error fetching or processing playlist:", error.message);
     return {

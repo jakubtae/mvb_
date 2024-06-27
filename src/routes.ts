@@ -3,12 +3,7 @@
  * Those routes do not require authentication
  * @type {string[]}
  */
-export const publicRoutes = [
-  "/",
-  "/api/inngest",
-  "/.netlify/functions/inngest",
-  "/.redwood/functions/inngest",
-];
+export const publicRoutes = ["/"];
 
 /**
  * An array of routes that are used for authentication

@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-// import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/prismadb";
 
@@ -24,7 +23,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
   },
-  // adapter: MongoDBAdapter(clientPromise),
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt", maxAge: 60 * 60 * 12 },
   ...authConfig,
