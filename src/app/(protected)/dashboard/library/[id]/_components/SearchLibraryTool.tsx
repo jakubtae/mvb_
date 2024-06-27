@@ -144,8 +144,8 @@ const SearchLibraryTool = ({
   };
 
   return (
-    <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4">
-      <div className="w-full flex flex-grow flex-col gap-2 gap-y-4">
+    <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
+      <div className="w-full flex flex-grow flex-col gap-2 gap-y-4 top-[100%]">
         <Label htmlFor="queryBox">Your search query</Label>
         <div className="flex items-end justify-between gap-4">
           <Input

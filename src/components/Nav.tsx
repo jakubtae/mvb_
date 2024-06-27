@@ -63,7 +63,7 @@ const menuList: MenuGroup[] = [
 async function Nav() {
   const session = await auth();
   return (
-    <div className="sticky top-0 z-10 bg-white">
+    <div className=" z-10 bg-white">
       <TopNav />
       <div className="flex gap-4 justify-between items-center px-4 py-2 font-semibold border-b-2 border-b-gray-200 bg-background">
         <div className="w-full flex items-center justify-between">

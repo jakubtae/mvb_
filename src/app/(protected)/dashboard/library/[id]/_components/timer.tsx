@@ -7,11 +7,10 @@ import { useRouter } from "next/navigation";
 interface TimerProps {
   predictedTime: number;
 }
+
 export const Timer = ({ predictedTime }: TimerProps) => {
   const router = useRouter();
-  const initialTime = predictedTime * 1000;
-  const time = useCountdown(initialTime, () =>
-    alert("Try refreshing the page now")
-  );
+  const initialTime = predictedTime * 1000; // Convert to milliseconds
+  const time = useCountdown(initialTime, () => router.refresh());
   return <>{formatSecondsToHHMMSS(time / 1000)}</>;
 };
