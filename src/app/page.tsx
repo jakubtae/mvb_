@@ -73,13 +73,8 @@ export default function Home() {
           <span className="font-semibold"> your research smooth&clean</span>
         </h2>
         <div className="flex flex-col gap-2 md:gap-6 md:flex-row">
-          <Button
-            variant="default"
-            size="lg"
-            className="font-bold text-lg py-6"
-            asChild
-          >
-            <Link href="/auth/login">Start now</Link>
+          <Button size="lg" className="font-bold text-lg py-6" asChild>
+            <Link href="/dashboard">Start now</Link>
           </Button>
           <Button
             variant="outline"
