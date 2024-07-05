@@ -79,7 +79,8 @@ export const processVideoInBackground = async (
           videoId: video.id,
           length: video.length,
           milisLength: video.milis_length,
-          thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
+          thumbnailUrl: video.thumbnail_url,
+          // `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
           author: {
             name: video.author.name,
             url: video.author.url,

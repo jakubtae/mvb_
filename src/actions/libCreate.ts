@@ -14,7 +14,7 @@ interface ValueTypes {
   visibility: "PRIVATE" | "PUBLIC";
 }
 
-interface VideoStatus {
+export interface VideoStatus {
   id: string;
   status: "IN_PROCESS" | "NO_SUBS" | "FINISHED";
 }
@@ -111,6 +111,10 @@ const createLib = async ({ uniqueVideos, libraryId }: CreateLib) => {
         body: JSON.stringify({ errors, duration, totalVideoTime }),
       };
     }
+    await db.library.update({
+      where: { id: libraryId },
+      data: { status: { set: "FINISHED" } },
+    });
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -183,7 +187,7 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
       where: { id: newLib.id },
       data: {
         videoNumber: uniqueVideos.length,
-        status: "FINISHED",
+        status: { set: "IN_PROCESS" },
         predictedDuration: preditedTime,
       },
     });

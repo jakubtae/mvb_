@@ -91,6 +91,11 @@ async function Nav() {
                 Pricing
               </Link>
             </Button>
+            <Button variant="ghost" className="w-full" asChild>
+              <Link href="/#contact" scroll={true}>
+                Contact
+              </Link>
+            </Button>
             <div className="flex gap-4 items-center flex-grow">
               {!session?.user.role ? (
                 <>

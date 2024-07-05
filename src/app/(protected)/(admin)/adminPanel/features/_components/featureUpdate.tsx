@@ -247,7 +247,6 @@ function CalendarUpdate({ id, formData }: FeatureDeleteParams) {
 }
 
 const FeatureUpdate = ({ id, formData }: FeatureDeleteParams) => {
-  console.log(formData);
   return (
     <Dialog>
       <DialogTrigger asChild className="max-w-[300px]">

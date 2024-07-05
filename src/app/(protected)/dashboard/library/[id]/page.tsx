@@ -18,6 +18,8 @@ import {
 } from "./_actions/pageAction";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchLibraryTool from "./_components/SearchLibraryTool";
+import LibrarySettings from "./_components/LibrarySettings";
+import Link from "next/link";
 
 interface LibraryIDPageProps {
   params: {
@@ -58,6 +60,11 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
           setLoading(false);
           clearInterval(intervalId.current!); // Clear interval when finished
         }
+        if ("error" in data) {
+          setLoading(false);
+          clearInterval(intervalId.current!); // Clear interval when finished
+          console.log(data.error);
+        }
       } catch (error: any) {
         libraryRef.current = { error: error.message }; // Store error in libraryRef
         setLoading(false);
@@ -81,7 +88,7 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
     }
 
     // Set interval to fetch every 5 seconds
-    intervalId.current = setInterval(fetchLibraryStatus, 5000);
+    intervalId.current = setInterval(fetchLibraryStatus, 3000);
 
     return () => {
       // Clean up on unmount: clear interval
@@ -93,7 +100,6 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
 
   // Access library from useRef
   const library = libraryRef.current;
-
   if (loading || !library) {
     return (
       <div className="w-full h-[400px] flex flex-col items-center justify-center">
@@ -107,14 +113,75 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
   }
 
   if ("error" in library) {
-    return <div>Error: {library.error}</div>;
+    return (
+      <>
+        <div className="flex flex-col gap-y-4 w-full">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard/libraries">
+                  Libraries
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard/libraries">
+                  {session?.user?.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="flex w-full justify-between">
+            <h1 className="text-4xl font-bold lowercase">{library.error}</h1>
+            <Link href="/dashboard/libraries">Go back</Link>
+            <Link href="/dashboard">Report the issue</Link>
+          </div>
+        </div>
+      </>
+    );
   }
 
   if (
     library.visibility === "PRIVATE" &&
     library.userId !== session?.user?.id
   ) {
-    return <>This library is private</>;
+    return (
+      <>
+        <div className="flex flex-col gap-y-4 w-full">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard/libraries">
+                  Libraries
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard/libraries">
+                  {session?.user?.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="flex w-full justify-between">
+            <h1 className="text-4xl font-bold lowercase">
+              This library is private
+            </h1>
+            <Link href="/dashboard/libraries">Go back</Link>
+          </div>
+        </div>
+      </>
+    );
   }
 
   // Destructure library safely assuming it's not null and doesn't have an error
@@ -161,6 +228,9 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
         </TabsList>
         <TabsContent value="search">
           <SearchLibraryTool libraryid={id} docsLimit={videoNumber} />
+        </TabsContent>
+        <TabsContent value="settings">
+          <LibrarySettings id={id} />
         </TabsContent>
       </Tabs>
     </div>

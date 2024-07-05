@@ -37,7 +37,8 @@ const GetRecentFeature = cache(
 const DashboardPage = async () => {
   const session = await auth();
   if (!session || !session.user.id) {
-    return console.log("No session id");
+    console.log("No session id");
+    return <>No session id</>;
   }
   const recentLibaries = await findrecentLibraries(session.user.id);
   const features = await GetRecentFeature();

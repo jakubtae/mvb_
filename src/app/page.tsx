@@ -23,7 +23,7 @@ interface LandingSectionType {
 const LandingSection = ({ id, headerText, children }: LandingSectionType) => {
   return (
     <section
-      className="scroll-mt-[250px] snap-start flex flex-col items-center px-4 gap-4 py-6"
+      className="scroll-mt-[250px] snap-start flex flex-col items-center px-4 gap-10 py-6 my-4"
       id={id}
     >
       <Header2Tag headerText={headerText} />
@@ -58,14 +58,13 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 mt-10">
       <main
-        className="min-h-[400px] px-4 py-6 relative flex flex-col gap-6 justify-start items-center text-center"
+        className=" px-4 py-6 mt-10 relative flex flex-col gap-6 justify-start items-center text-center"
         id="main"
       >
-        <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold drop-shadow-xl capitalize w-full md:w-2/3">
-          Make researching content easy{" "}
-          <span className="lowercase">with an effective tool</span>
+        <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold drop-shadow-xl capitalize w-full md:w-2/3">
+          Make researching content easy with an effective tool
         </h1>
         <h2 className="text-lg font-medium w-full md:w-5/6 lg:w-3/5">
           <span className="font-bold lowercase">medialibrary</span> allows you
@@ -92,7 +91,7 @@ export default function Home() {
         </div>
         <span>8498 researchers already love it</span>
       </main>
-      <LandingSection id="howitwokrs" headerText="How it works?">
+      <LandingSection id="howitwokrs" headerText="How does it work?">
         <div className="flex flex-col gap-4 md:flex-row xl:gap-10 xl:px-10 listMain">
           {cards.map((card, key) => (
             <MainCard
@@ -115,8 +114,7 @@ export default function Home() {
         </div>
       </LandingSection>
       <LandingSection headerText="Contact us" id="contact">
-        <div className="text-xs md:text-base flex flex-row w-full justify-center items-center gap-2">
-          Shoot me a dm.
+        <div className="text-xs md:text-base flex flex-col w-full justify-center items-center">
           <div className="flex flex-row gap-2 items-center justify-center">
             <Button variant="secondary" asChild>
               <Link

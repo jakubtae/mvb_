@@ -1,4 +1,5 @@
 "use server";
+import { VideoStatus } from "@/actions/libCreate";
 import { db } from "@/lib/prismadb";
 
 export type LibraryCheckResult = {
@@ -8,6 +9,8 @@ export type LibraryCheckResult = {
   userId: string;
   id: string;
   videoNumber: number;
+  predictedDuration: number;
+  videoStatus: VideoStatus[];
 };
 
 export const isValidObjectId = (id: string): boolean => {
@@ -30,13 +33,25 @@ export const getLibraryStatus = async (
         userId: true,
         uniqueViews: true,
         videoNumber: true,
+        predictedDuration: true,
+        videoStatus: true,
       },
     });
     if (!library) {
       throw new Error("Didn't find such library.");
     }
-    const { status, name, visibility, userId, id, videoNumber } = library;
+    const {
+      status,
+      name,
+      visibility,
+      userId,
+      id,
+      videoNumber,
+      predictedDuration,
+      videoStatus,
+    } = library;
     let number = Number(videoNumber);
+    let predictedNumber = Number(predictedDuration);
     if (visibility === "PUBLIC" && !library.uniqueViews?.includes(puserId)) {
       await db.library.update({
         where: { id: libraryId },
@@ -50,6 +65,8 @@ export const getLibraryStatus = async (
       visibility,
       id,
       videoNumber: number,
+      predictedDuration: predictedNumber,
+      videoStatus,
     };
   } catch (error: any) {
     return { error: `Error occurred: ${error}` };

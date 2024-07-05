@@ -249,6 +249,7 @@ const SearchLibraryTool = ({
                       }
                       iframeClassName="w-full "
                       className="w-full md:w-1/2 aspect-video	"
+                      loading="lazy"
                     />
                     <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
