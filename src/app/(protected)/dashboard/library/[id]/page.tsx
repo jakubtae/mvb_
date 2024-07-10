@@ -230,7 +230,7 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
           <SearchLibraryTool libraryid={id} docsLimit={videoNumber} />
         </TabsContent>
         <TabsContent value="settings">
-          <LibrarySettings id={id} />
+          <LibrarySettings libId={id} />
         </TabsContent>
       </Tabs>
     </div>

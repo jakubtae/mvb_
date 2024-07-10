@@ -6,9 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SquareArrowOutUpRight } from "lucide-react";
+import SourceDropdown from "./SourceDropdown";
 
 interface LibrarySettingsTypes {
-  id: string;
+  libId: string;
 }
 
 interface SourceType {
@@ -20,13 +22,13 @@ interface SourceType {
   status: string;
 }
 
-const LibrarySettings = ({ id }: LibrarySettingsTypes) => {
+const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
   const [sources, setSources] = useState<any>(null);
 
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        const result = await getLibSources(id);
+        const result = await getLibSources(libId);
         setSources(result?.Videos);
       } catch (error) {
         console.error("Error fetching library sources:", error);
@@ -34,18 +36,21 @@ const LibrarySettings = ({ id }: LibrarySettingsTypes) => {
     };
 
     fetchSources();
-  }, [id]);
+  }, [libId]);
 
   return (
     <div className="flex flex-col gap-2">
       Library settings
       <h2 className="text-xl md:text-2xl font-bold">Sources</h2>
       <h3 className="text-lg md:text-xl font-semibold">Youtube</h3>
-      <div className="grid w-full grid-cols-auto-fit-minmax gap-y-6 gap-x-2">
+      <div className="grid w-full grid-cols-auto-fit-minmax gap-y-6 gap-x-8">
         {sources ? (
           sources.map(({ id, url, thumbnailUrl, title }: SourceType) => {
             return (
-              <Link href={url} target="blank" key={id}>
+              <div
+                className="flex flex-col gap-4 overflow-hidden w-full"
+                key={id}
+              >
                 <AspectRatio ratio={16 / 9} className="rounded-lg">
                   <Image
                     src={thumbnailUrl}
@@ -54,7 +59,18 @@ const LibrarySettings = ({ id }: LibrarySettingsTypes) => {
                     className="object-cover rounded-lg transition-transform hover:scale-[1.01]"
                   />
                 </AspectRatio>
-              </Link>
+                <div className="flex w-full justify-between gap-2">
+                  <span className="text-sm w-full flex-grow line-clamp-2">
+                    {title}
+                  </span>
+                  <SourceDropdown
+                    id={id}
+                    title={title}
+                    url={url}
+                    libId={libId}
+                  />
+                </div>
+              </div>
             );
           })
         ) : (
@@ -67,7 +83,7 @@ const LibrarySettings = ({ id }: LibrarySettingsTypes) => {
           </>
         )}
       </div>
-      <DeleteLibrary id={id} />
+      <DeleteLibrary id={libId} />
     </div>
   );
 };
