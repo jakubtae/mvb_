@@ -67,9 +67,7 @@ export default function Home() {
           Make researching content easy with an effective tool
         </h1>
         <h2 className="text-lg font-medium w-full md:w-5/6 lg:w-3/5">
-          <span className="font-bold lowercase">medialibrary</span> allows you
-          to import Tweets, YouTube videos / playlists and other content to make
-          <span className="font-semibold"> your research smooth&clean</span>
+          Import YouTube videos and Tweets and search through them
         </h2>
         <div className="flex flex-col gap-2 md:gap-6 md:flex-row">
           <Button size="lg" className="font-bold text-lg py-6" asChild>

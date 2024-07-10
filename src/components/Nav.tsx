@@ -65,7 +65,7 @@ async function Nav() {
   return (
     <div className="sticky top-0 z-10 bg-red">
       <TopNav />
-      <div className="flex gap-4 justify-between items-center px-4 py-2 font-semibold border-b-2 border-b-foreground/20 bg-background">
+      <div className="flex gap-4 justify-between items-center px-4 py-1 font-semibold border-b-2 border-b-foreground/20 bg-background">
         <div className="w-full flex items-center justify-between">
           <BrandLogo variant="light" />
         </div>
@@ -75,7 +75,7 @@ async function Nav() {
               <HamburgerMenuIcon />
             </Button>
           </SheetTrigger>
-          <nav className="hidden md:flex md:gap-4 md:flex-row md:relative md:top-0 bg-background dark:bg-background">
+          <nav className="hidden md:flex md:gap-4 md:flex-row md:relative md:top-0 bg-background dark:bg-background items-center">
             <Button variant="ghost" className="w-full" asChild>
               <Link href="/#howitworks" scroll={true}>
                 How it works?

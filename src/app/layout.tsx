@@ -33,9 +33,9 @@ export default async function RootLayout({
               <Nav />
               <div className="flex-grow">{children}</div>
               <Toaster />
-              <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground">
+              {/* <footer className="bg-background text-background font-bold flex p-4 items-center border-t-2 border-t-foreground/20">
                 <BrandLogo variant="dark" />
-              </footer>
+              </footer> */}
               <Analytics />
             </div>
           </AuthProvider>
