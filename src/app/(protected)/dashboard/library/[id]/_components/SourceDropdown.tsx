@@ -4,39 +4,36 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  MoreVertical,
-  SquareArrowOutUpRight,
-} from "lucide-react";
+import { MoreVertical, SquareArrowOutUpRight } from "lucide-react";
 import Link from "next/link";
 import { deleteSource } from "../_actions/deleteSource";
 import { useRouter } from "next/navigation";
 
 interface SourceDropdownSpecs {
   id: string;
-  title: string;
   url: string;
   libId: string;
+  onDelete: (id: string) => void;
 }
-const SourceDropdown = ({ id, title, url, libId }: SourceDropdownSpecs) => {
+
+const SourceDropdown = ({ id, url, libId, onDelete }: SourceDropdownSpecs) => {
   const router = useRouter();
-  const onClickHandler = (id: string, libId: string) => {
-    deleteSource(id, libId).then((data) => {
+
+  const onClickHandler = async (id: string, libId: string) => {
+    try {
+      const data = await deleteSource(id, libId);
       if (data.success) {
-        console.log("Removed the source");
-        // TODO: fix this refresh - currently doesn't refresh at all
-        router.refresh();
-      }
-      if (data.error) {
+        onDelete(id);
+      } else if (data.error) {
         console.error(data.error);
       }
-    });
+    } catch (error) {
+      console.error("Failed to delete source:", error);
+    }
   };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -55,10 +52,10 @@ const SourceDropdown = ({ id, title, url, libId }: SourceDropdownSpecs) => {
             Delete source
           </Button>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link
             href={url}
-            target="blank"
+            target="_blank"
             className="flex w-full justify-around items-center"
           >
             Open in YT
