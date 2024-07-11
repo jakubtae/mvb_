@@ -33,7 +33,7 @@ const DeleteLibrary = ({ id }: DeleteLibraryPros) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Delete this library</Button>
+        <Button variant="subtleDestructive">Delete this library</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

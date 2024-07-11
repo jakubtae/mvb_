@@ -42,25 +42,27 @@ const SourceDropdown = ({ id, url, libId, onDelete }: SourceDropdownSpecs) => {
           <MoreVertical size={20} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="gap-2">
+      <DropdownMenuContent className="flex flex-col gap-2">
         <DropdownMenuItem asChild>
           <Button
-            variant="destructive"
+            variant="subtleDestructive"
             onClick={() => onClickHandler(id, libId)}
             className="w-full"
           >
-            Delete source
+            Remove source
           </Button>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link
-            href={url}
-            target="_blank"
-            className="flex w-full justify-around items-center"
-          >
-            Open in YT
-            <SquareArrowOutUpRight size={12} />
-          </Link>
+          <Button asChild variant="ghost">
+            <Link
+              href={url}
+              target="_blank"
+              className="flex w-full justify-around items-center"
+            >
+              Open in YT
+              <SquareArrowOutUpRight size={12} />
+            </Link>
+          </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
