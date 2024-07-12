@@ -52,6 +52,17 @@ const SearchLibraryTool = ({
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
+
+  useEffect(() => {
+    const savedQuery = localStorage.getItem("savedQuery");
+    const savedResults = localStorage.getItem("savedResults");
+
+    if (savedQuery && savedResults) {
+      setQuery(savedQuery);
+      setResults(JSON.parse(savedResults));
+    }
+  }, []);
+
   useEffect(() => {
     const fetchSearchResults = async () => {
       setLoading(true);
@@ -66,6 +77,11 @@ const SearchLibraryTool = ({
           );
           if (searchResults && searchResults.success) {
             setResults(searchResults.success);
+            localStorage.setItem("savedQuery", query);
+            localStorage.setItem(
+              "savedResults",
+              JSON.stringify(searchResults.success)
+            );
           } else if (searchResults && searchResults.error) {
             setError(searchResults.error);
             setResults([]); // Clear previous results on error
@@ -97,12 +113,33 @@ const SearchLibraryTool = ({
 
   const handleKeyDown = (event: any) => {
     if (event.key === "Enter") {
-      setSearchTriggered(true);
-      // Perform your desired action here
+      if (query.trim() !== localStorage.getItem("savedQuery")) {
+        setSearchTriggered(true);
+      }
     }
   };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
+  };
+
+  const handleSearchClick = () => {
+    if (
+      query.trim() !== "" &&
+      query.trim() !== localStorage.getItem("savedQuery")
+    ) {
+      setSearchTriggered(true);
+    }
+  };
+
+  const handleButtonClick = (index: number, time: number) => {
+    if (playerRefs.current[index]) {
+      playerRefs.current[index].seekTo(time - 2);
+    }
+  };
+
+  const handlePlayerReady = (index: number, event: any) => {
+    playerRefs.current[index] = event.target;
   };
 
   // const handleTakeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,22 +163,6 @@ const SearchLibraryTool = ({
   //     setSkip(value);
   //   }
   // };
-
-  const handleSearchClick = () => {
-    if (query.trim() !== "") {
-      setSearchTriggered(true);
-    }
-  };
-
-  const handleButtonClick = (index: number, time: number) => {
-    if (playerRefs.current[index]) {
-      playerRefs.current[index].seekTo(time - 2);
-    }
-  };
-
-  const handlePlayerReady = (index: number, event: any) => {
-    playerRefs.current[index] = event.target;
-  };
 
   return (
     <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
