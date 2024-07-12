@@ -5,14 +5,16 @@ export const searchLibrary = async (
   query: string,
   libraryId: string,
   take: number,
-  skip: number
+  skip: number,
+  userId: string
 ) => {
   try {
     const result = await searchLibraryVideosBySubtitleWithContext(
       query,
       libraryId,
       take,
-      skip
+      skip,
+      userId
     );
     return { success: result };
   } catch (error) {

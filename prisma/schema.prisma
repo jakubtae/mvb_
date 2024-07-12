@@ -77,6 +77,20 @@ model Library {
   predictedDuration Int?
 }
 
+model Queries {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  query     String
+  libraryId String          @db.ObjectId
+  activity  queryActivity[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+type queryActivity {
+  who  String   @db.ObjectId
+  when DateTime @default(now())
+}
+
 type videoStatusLib {
   id     String
   status videoStatus

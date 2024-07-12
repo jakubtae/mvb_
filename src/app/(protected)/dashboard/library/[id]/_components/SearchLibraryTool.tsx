@@ -16,6 +16,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 interface SearchLibraryInterface {
   libraryid: string;
   docsLimit: number;
+  userId: string;
 }
 
 interface VideoEntry {
@@ -44,6 +45,7 @@ interface VideoResult {
 const SearchLibraryTool = ({
   libraryid,
   docsLimit,
+  userId,
 }: SearchLibraryInterface) => {
   const [query, setQuery] = useState("");
   const [take, setTake] = useState(docsLimit);
@@ -54,7 +56,6 @@ const SearchLibraryTool = ({
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
-
   useEffect(() => {
     const savedQuery = localStorage.getItem("savedQuery");
     const savedResults = localStorage.getItem("savedResults");
@@ -75,7 +76,8 @@ const SearchLibraryTool = ({
             query,
             libraryid,
             take,
-            skip
+            skip,
+            userId
           );
           if (searchResults && searchResults.success) {
             setResults(searchResults.success);

@@ -227,7 +227,13 @@ const LibraryIDPage = ({ params }: LibraryIDPageProps) => {
           </div>
         </TabsList>
         <TabsContent value="search">
-          <SearchLibraryTool libraryid={id} docsLimit={videoNumber} />
+          {session && session.user.id && (
+            <SearchLibraryTool
+              libraryid={id}
+              docsLimit={videoNumber}
+              userId={session.user.id}
+            />
+          )}
         </TabsContent>
         <TabsContent value="settings">
           <LibrarySettings libId={id} />

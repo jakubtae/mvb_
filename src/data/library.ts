@@ -142,10 +142,14 @@ export const findLibraryById = async (id: string) => {
 interface VideoEntry {
   start: string;
   dur: string;
-  words: {
-    text: string;
-    type: "QUERY" | "CONTEXT";
-  }[];
+  words: WordArray[];
+}
+
+interface Subtitle {
+  start: string;
+  dur: string;
+  text: string;
+  type: "QUERY" | "CONTEXT";
 }
 
 interface WordArray {
@@ -160,27 +164,22 @@ interface VideoResult {
   url: string;
   entries: VideoEntry[];
 }
-interface Subtitle {
-  start: string;
-  dur: string;
-  text: string;
-  wordIndex: number;
-  type: "QUERY" | "CONTEXT";
-}
-/**
- *
- * @param query A word/pharse you want to look for
- * @param libraryId Library ID
- * @param take how many libraries you want to search through
- * @param skip the library you start from
- * @returns an array of object of VideoResult type
- */
 
+/**
+ * Search library videos by subtitle with context.
+ * @param query A word/phrase you want to look for.
+ * @param libraryId Library ID.
+ * @param take How many videos you want to search through.
+ * @param skip The number of videos to skip.
+ * @param userId User ID performing the query.
+ * @returns An array of VideoResult objects.
+ */
 export const searchLibraryVideosBySubtitleWithContext = async (
   query: string,
   libraryId: string,
   take: number,
-  skip: number
+  skip: number,
+  userId: string
 ): Promise<VideoResult[]> => {
   try {
     // Split the query into individual words
@@ -202,6 +201,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
     const gapWord = 3;
     const wordsAfter = 3;
     const wordsBefore = 3;
+
     for (const video of videos) {
       const entries: VideoEntry[] = [];
 
@@ -322,6 +322,43 @@ export const searchLibraryVideosBySubtitleWithContext = async (
           entries,
         });
       }
+    }
+
+    // Save the query to db
+    const queryExists = await db.queries.findFirst({
+      where: {
+        query: query,
+        libraryId: libraryId,
+      },
+    });
+
+    if (!queryExists) {
+      await db.queries.create({
+        data: {
+          query: query,
+          libraryId: libraryId,
+          activity: [
+            {
+              who: userId,
+              when: new Date(),
+            },
+          ],
+        },
+      });
+    } else {
+      await db.queries.update({
+        where: {
+          id: queryExists.id,
+        },
+        data: {
+          activity: {
+            push: {
+              who: userId,
+              when: new Date(),
+            },
+          },
+        },
+      });
     }
 
     // Return the processed videos with subtitles context
