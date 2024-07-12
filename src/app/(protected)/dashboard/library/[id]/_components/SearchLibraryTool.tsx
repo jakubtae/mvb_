@@ -159,7 +159,7 @@ const SearchLibraryTool = ({
   return (
     <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
       <div className="w-full flex flex-grow flex-col gap-2 gap-y-4 top-[100%]">
-        <Label htmlFor="queryBox">Your search query</Label>
+        {" "}
         <div className="flex items-end justify-between gap-4">
           <Input
             id="queryBox"
@@ -182,11 +182,17 @@ const SearchLibraryTool = ({
         </div>
         {!loading && results.length > 0 && (
           <>
-            <p>
-              Found {results.length} relevant sources and{" "}
-              {results.reduce((acc, result) => acc + result.entries.length, 0)}{" "}
+            <span className="text-sm text-neutral-500">
+              Found <span className="font-semibold">{results.length}</span>{" "}
+              relevant sources and{" "}
+              <span className="font-semibold">
+                {results.reduce(
+                  (acc, result) => acc + result.entries.length,
+                  0
+                )}
+              </span>{" "}
               results
-            </p>
+            </span>
           </>
         )}
       </div>
@@ -242,7 +248,7 @@ const SearchLibraryTool = ({
                     </Link>
                   </Button>
 
-                  <div className="flex flex-col md:flex-row items-start mt-6 md:mt-8 w-full">
+                  <div className="flex flex-col lg:flex-row items-start mt-6 md:mt-8 w-full">
                     <>
                       {videoDisplayArr[index] ? (
                         <YouTube
@@ -253,18 +259,18 @@ const SearchLibraryTool = ({
                             handlePlayerReady(index, event)
                           }
                           iframeClassName="w-full "
-                          className="w-full md:w-1/2 aspect-[2/1] md:aspect-video"
+                          className="w-full lg:w-1/2 aspect-[2/1] md:aspect-video"
                           loading="lazy"
                         />
                       ) : (
-                        <div className="w-full md:w-1/2 relative">
+                        <div className="w-full lg:w-1/2 relative mb-4 rounded-lg">
                           <AspectRatio ratio={2 / 1}>
                             <Image
                               src={video.image}
                               fill
                               alt={video.title}
                               loading="lazy"
-                              className="h-full object-cover"
+                              className="object-cover"
                             />
                           </AspectRatio>
                           <Button
@@ -282,7 +288,7 @@ const SearchLibraryTool = ({
                         </div>
                       )}
                     </>
-                    <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
+                    <div className="flex flex-col mt-4 gap-2 flex-1 lg:ml-4 overflow-y-auto w-full lg:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
                         {video.entries.map((entry, entryIndex) => {
                           return (
