@@ -42,6 +42,8 @@ interface VideoResult {
   url: string;
 }
 
+import { searchResult } from "@/data/library";
+
 const SearchLibraryTool = ({
   libraryid,
   docsLimit,
@@ -51,18 +53,26 @@ const SearchLibraryTool = ({
   const [take, setTake] = useState(docsLimit);
   const [skip, setSkip] = useState(0);
 
-  const [results, setResults] = useState<VideoResult[]>([]);
+  const [searchResults, setSearchResults] = useState<searchResult>({
+    results: [],
+    queries: [],
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
+
   useEffect(() => {
     const savedQuery = localStorage.getItem("savedQuery");
     const savedResults = localStorage.getItem("savedResults");
 
     if (savedQuery && savedResults) {
       setQuery(savedQuery);
-      setResults(JSON.parse(savedResults));
+      const parsedResult = JSON.parse(savedResults);
+      setSearchResults({
+        results: parsedResult.results,
+        queries: parsedResult.queries,
+      });
     }
   }, []);
 
@@ -80,7 +90,10 @@ const SearchLibraryTool = ({
             userId
           );
           if (searchResults && searchResults.success) {
-            setResults(searchResults.success);
+            setSearchResults({
+              results: searchResults.success.results,
+              queries: searchResults.success.queries,
+            });
             localStorage.setItem("savedQuery", query);
             localStorage.setItem(
               "savedResults",
@@ -88,17 +101,29 @@ const SearchLibraryTool = ({
             );
           } else if (searchResults && searchResults.error) {
             setError(searchResults.error);
-            setResults([]); // Clear previous results on error
+            setSearchResults({
+              results: [],
+              queries: [],
+            });
           } else {
-            setResults([]); // No results found case
+            setSearchResults({
+              results: [],
+              queries: [],
+            });
           }
         } else {
-          setResults([]);
+          setSearchResults({
+            results: [],
+            queries: [],
+          });
         }
       } catch (err) {
         console.error("Error searching videos:", err);
         setError("An error occurred while searching videos.");
-        setResults([]);
+        setSearchResults({
+          results: [],
+          queries: [],
+        });
       } finally {
         setLoading(false);
       }
@@ -108,14 +133,14 @@ const SearchLibraryTool = ({
       fetchSearchResults();
       setSearchTriggered(false); // Reset the trigger
     }
-  }, [searchTriggered, libraryid, query, take, skip]);
+  }, [searchTriggered, libraryid, query, take, skip, userId]);
 
   useEffect(() => {
     // Initialize refs for each video
-    playerRefs.current = new Array(results.length);
-  }, [results.length]);
+    playerRefs.current = new Array(searchResults.results.length);
+  }, [searchResults.results.length]);
 
-  const handleKeyDown = (event: any) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (query.trim() !== localStorage.getItem("savedQuery")) {
         setSearchTriggered(true);
@@ -145,10 +170,11 @@ const SearchLibraryTool = ({
     }
   };
 
-  const handlePlayerReady = (index: number, event: any) => {
+  const handlePlayerReady = (index: number, event: YouTubeEvent) => {
     playerRefs.current[index] = event.target;
   };
-  const [videoDisplayArr, setVideoDisplayArr] = useState<Boolean[]>([]);
+
+  const [videoDisplayArr, setVideoDisplayArr] = useState<boolean[]>([]);
 
   const ytLoad = (index: number) => {
     setVideoDisplayArr((prevState) => {
@@ -161,7 +187,6 @@ const SearchLibraryTool = ({
   return (
     <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
       <div className="w-full flex flex-grow flex-col gap-2 gap-y-4 top-[100%]">
-        {" "}
         <div className="flex items-end justify-between gap-4">
           <Input
             id="queryBox"
@@ -182,22 +207,36 @@ const SearchLibraryTool = ({
             Search
           </Button>
         </div>
-        {!loading && results.length > 0 && (
-          <>
+        {!loading && searchResults.results.length > 0 && (
+          <div className="flex w-full justify-between">
+            <div className="space-x-2 text-sm text-neutral-500">
+              Most searched topics :{" "}
+              {searchResults.queries.map((q, index) => (
+                <span key={index} className="font-semibold">
+                  {q}
+                  {index !== searchResults.queries.length - 1 && <>,</>}
+                </span>
+              ))}
+            </div>
             <span className="text-sm text-neutral-500">
-              Found <span className="font-semibold">{results.length}</span>{" "}
+              Found{" "}
+              <span className="font-semibold">
+                {searchResults.results.length}
+              </span>{" "}
               relevant sources and{" "}
               <span className="font-semibold">
-                {results.reduce(
+                {searchResults.results.reduce(
                   (acc, result) => acc + result.entries.length,
                   0
                 )}
               </span>{" "}
               results
             </span>
-          </>
+          </div>
         )}
       </div>
+
+      {/* Display queries */}
 
       {/* Display results */}
       <div className="flex flex-col gap-4 w-full">
@@ -213,17 +252,13 @@ const SearchLibraryTool = ({
           </p>
         )}
 
-        {!loading && results.length > 0
-          ? results.map((video, index) => {
+        {!loading && searchResults.results.length > 0
+          ? searchResults.results.map((video, index) => {
               const opts: YouTubeProps["opts"] = {
                 playerVars: {
                   start: parseInt(video.entries[0].start) - 2,
                 },
               };
-              let videoDisplay = false;
-              if (index === 1) {
-                videoDisplay = true;
-              }
 
               return (
                 <div
@@ -235,7 +270,6 @@ const SearchLibraryTool = ({
                     asChild
                     className="flex-grow !cursor-pointer"
                   >
-                    {/* Cursor pointer doesn't work on ARC */}
                     <Link
                       href={video.url}
                       target="_blank"
@@ -244,96 +278,92 @@ const SearchLibraryTool = ({
                       style={{ cursor: "pointer" }}
                     >
                       <h1 className="text-sm md:text-base font-semibold">
-                        {video.title} <span>({video.entries.length})</span>
+                        {video.title}{" "}
+                        <span>({video.entries.length} entries)</span>
                       </h1>
                       <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
                     </Link>
                   </Button>
 
                   <div className="flex flex-col lg:flex-row items-start mt-6 md:mt-8 w-full">
-                    <>
-                      {videoDisplayArr[index] ? (
-                        <YouTube
-                          videoId={extractYouTubeVideoId(video.url)}
-                          title={video.title}
-                          opts={opts}
-                          onReady={(event: YouTubeEvent) =>
-                            handlePlayerReady(index, event)
-                          }
-                          iframeClassName="w-full "
-                          className="w-full lg:w-1/2 aspect-[2/1] md:aspect-video"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full lg:w-1/2 relative mb-4 rounded-lg">
-                          <AspectRatio ratio={2 / 1}>
-                            <Image
-                              src={video.image}
-                              fill
-                              alt={video.title}
-                              loading="lazy"
-                              className="object-cover"
-                            />
-                          </AspectRatio>
-                          <Button
-                            variant="invisible"
-                            onClick={() => ytLoad(index)}
-                            className="absolute top-0 left-0 w-full h-full grid place-items-center"
-                          >
-                            <Image
-                              src={ytLogo}
-                              alt="Play video"
-                              height={50}
-                              width={60}
-                            />
-                          </Button>
-                        </div>
-                      )}
-                    </>
+                    {videoDisplayArr[index] ? (
+                      <YouTube
+                        videoId={extractYouTubeVideoId(video.url)}
+                        title={video.title}
+                        opts={opts}
+                        onReady={(event: YouTubeEvent) =>
+                          handlePlayerReady(index, event)
+                        }
+                        iframeClassName="w-full"
+                        className="w-full lg:w-1/2 aspect-[2/1] md:aspect-video"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full lg:w-1/2 relative mb-4 rounded-lg">
+                        <AspectRatio ratio={2 / 1}>
+                          <Image
+                            src={video.image}
+                            fill
+                            alt={video.title}
+                            loading="lazy"
+                            className="object-cover"
+                          />
+                        </AspectRatio>
+                        <Button
+                          variant="invisible"
+                          onClick={() => ytLoad(index)}
+                          className="absolute top-0 left-0 w-full h-full grid place-items-center"
+                        >
+                          <Image
+                            src={ytLogo}
+                            alt="Play video"
+                            height={50}
+                            width={60}
+                          />
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="flex flex-col mt-4 gap-2 flex-1 lg:ml-4 overflow-y-auto w-full lg:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
-                        {video.entries.map((entry, entryIndex) => {
-                          return (
-                            <Button
-                              key={entryIndex}
-                              variant="outline"
-                              className="snap-start w-full flex justify-between items-start p-2 !h-auto md:!py-0 gap-1"
-                              onClick={() =>
-                                handleButtonClick(index, parseInt(entry.start))
-                              }
-                            >
-                              <span className="text-wrap py-4 text-left">
-                                {entryIndex + 1}.{" "}
-                                {entry.words.map((word, wordIndex) => (
-                                  <React.Fragment key={wordIndex}>
-                                    <span
-                                      className={
-                                        word.type === "QUERY"
-                                          ? "font-semibold text-white"
-                                          : ""
-                                      }
-                                    >
-                                      {word.text}
-                                    </span>{" "}
-                                    {/* Add space after each word */}
-                                  </React.Fragment>
-                                ))}
-                              </span>
-                              <span className="py-4">
-                                {formatTime(parseInt(entry.start))}
-                              </span>
-                            </Button>
-                          );
-                        })}
+                        {video.entries.map((entry, entryIndex) => (
+                          <Button
+                            key={entryIndex}
+                            variant="outline"
+                            className="snap-start w-full flex justify-between items-start p-2 !h-auto md:!py-0 gap-1"
+                            onClick={() =>
+                              handleButtonClick(index, parseInt(entry.start))
+                            }
+                          >
+                            <span className="text-wrap py-4 text-left">
+                              {entryIndex + 1}.{" "}
+                              {entry.words.map((word, wordIndex) => (
+                                <React.Fragment key={wordIndex}>
+                                  <span
+                                    className={
+                                      word.type === "QUERY"
+                                        ? "font-semibold text-white"
+                                        : ""
+                                    }
+                                  >
+                                    {word.text}
+                                  </span>{" "}
+                                  {/* Add space after each word */}
+                                </React.Fragment>
+                              ))}
+                            </span>
+                            <span className="py-4">
+                              {formatTime(parseInt(entry.start))}
+                            </span>
+                          </Button>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
               );
             })
-          : !loading &&
-            results.length === 0 &&
-            !error && (
+          : !loading && (
               <p className="p-4 bg-gray-100 dark:bg-background/60 dark:border-2 dark:border-gray-300/10 shadow-md rounded-lg">
                 No results found
               </p>

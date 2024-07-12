@@ -165,6 +165,11 @@ interface VideoResult {
   entries: VideoEntry[];
 }
 
+export interface searchResult {
+  results: VideoResult[];
+  queries: String[];
+}
+
 /**
  * Search library videos by subtitle with context.
  * @param query A word/phrase you want to look for.
@@ -180,12 +185,31 @@ export const searchLibraryVideosBySubtitleWithContext = async (
   take: number,
   skip: number,
   userId: string
-): Promise<VideoResult[]> => {
+): Promise<searchResult> => {
   try {
     // Split the query into individual words
     const queryWords = query.toLowerCase().trim().split(" ");
 
     // Fetch videos from the database that belong to the specified library
+    const popularQueries = await db.queries.findMany({
+      where: {
+        libraryId: libraryId,
+      },
+      select: {
+        query: true,
+        activity: true,
+      },
+      orderBy: {
+        // Order by the length of activity array in descending order
+        activity: {
+          _count: "desc",
+        },
+      },
+      take: 3, // Take the top 3 results
+    });
+
+    // Extract query strings from the results
+    const popularQueryStrings = popularQueries.map((q) => q.query);
     const videos = await db.video.findMany({
       where: {
         libraryIDs: {
@@ -362,7 +386,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
     }
 
     // Return the processed videos with subtitles context
-    return videosWithContext;
+    return { queries: popularQueryStrings, results: videosWithContext };
   } catch (error) {
     console.error("Failed to search videos by subtitle with context", error);
     throw new Error(
