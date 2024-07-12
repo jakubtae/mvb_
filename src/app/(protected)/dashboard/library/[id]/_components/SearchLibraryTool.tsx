@@ -7,9 +7,11 @@ import { searchLibrary } from "@/actions/searchLib"; // Replace with actual path
 import Link from "next/link";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
 import React from "react";
-
+import ytLogo from "@/../public/yt_logo.svg";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { formatTime } from "@/lib/formatTime";
+import Image from "next/image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface SearchLibraryInterface {
   libraryid: string;
@@ -133,6 +135,9 @@ const SearchLibraryTool = ({
   };
 
   const handleButtonClick = (index: number, time: number) => {
+    if (!playerRefs.current[index]) {
+      ytLoad(index);
+    }
     if (playerRefs.current[index]) {
       playerRefs.current[index].seekTo(time - 2);
     }
@@ -141,28 +146,15 @@ const SearchLibraryTool = ({
   const handlePlayerReady = (index: number, event: any) => {
     playerRefs.current[index] = event.target;
   };
+  const [videoDisplayArr, setVideoDisplayArr] = useState<Boolean[]>([]);
 
-  // const handleTakeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = parseInt(event.target.value, 10);
-  //   if (value > docsLimit) {
-  //     setTake(docsLimit);
-  //   } else if (value <= 0) {
-  //     setTake(1); // Ensuring take is at least 1, assuming 1 is the minimum valid value
-  //   } else {
-  //     setTake(value);
-  //   }
-  // };
-
-  // const handleSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = parseInt(event.target.value, 10);
-  //   if (value < 0) {
-  //     setSkip(0); // Ensuring skip doesn't go below 0
-  //   } else if (value + take > docsLimit) {
-  //     setSkip(docsLimit - take); // Ensuring skip + take doesn't exceed total documents
-  //   } else {
-  //     setSkip(value);
-  //   }
-  // };
+  const ytLoad = (index: number) => {
+    setVideoDisplayArr((prevState) => {
+      const newState = [...prevState];
+      newState[index] = true;
+      return newState;
+    });
+  };
 
   return (
     <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
@@ -188,30 +180,6 @@ const SearchLibraryTool = ({
             Search
           </Button>
         </div>
-        {/* <div className="flex gap-2 flex-col sm:flex-row gap-y-6">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="take">Number of documents to search</Label>
-            <Input
-              type="number"
-              id="take"
-              value={take}
-              onChange={handleTakeChange}
-              max={docsLimit}
-              disabled={loading}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="skip">Starting document</Label>
-            <Input
-              type="number"
-              id="skip"
-              value={skip}
-              onChange={handleSkipChange}
-              max={docsLimit}
-              disabled={loading}
-            />
-          </div>
-        </div> */}
         {!loading && results.length > 0 && (
           <>
             <p>
@@ -244,40 +212,76 @@ const SearchLibraryTool = ({
                   start: parseInt(video.entries[0].start) - 2,
                 },
               };
+              let videoDisplay = false;
+              if (index === 1) {
+                videoDisplay = true;
+              }
 
               return (
                 <div
                   key={index}
                   className="w-full mb-4 p-4 pt-8 md:pt-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
                 >
-                  <div className="w-full flex flex-col md:flex-row items-center justify-between">
-                    <Button variant="link" asChild className="flex-grow">
-                      <Link
-                        href={video.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full flex items-center justify-between text-wrap"
-                      >
-                        <h1 className="text-sm md:text-base font-semibold">
-                          {video.title} <span>({video.entries.length})</span>
-                        </h1>
-                        <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+                  <Button
+                    variant="link"
+                    asChild
+                    className="flex-grow !cursor-pointer"
+                  >
+                    {/* Cursor pointer doesn't work on ARC */}
+                    <Link
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-between text-wrap"
+                      style={{ cursor: "pointer" }}
+                    >
+                      <h1 className="text-sm md:text-base font-semibold">
+                        {video.title} <span>({video.entries.length})</span>
+                      </h1>
+                      <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
+                    </Link>
+                  </Button>
 
                   <div className="flex flex-col md:flex-row items-start mt-6 md:mt-8 w-full">
-                    <YouTube
-                      videoId={extractYouTubeVideoId(video.url)}
-                      title={video.title}
-                      opts={opts}
-                      onReady={(event: YouTubeEvent) =>
-                        handlePlayerReady(index, event)
-                      }
-                      iframeClassName="w-full "
-                      className="w-full md:w-1/2 aspect-[2/1] md:aspect-video"
-                      loading="lazy"
-                    />
+                    <>
+                      {videoDisplayArr[index] ? (
+                        <YouTube
+                          videoId={extractYouTubeVideoId(video.url)}
+                          title={video.title}
+                          opts={opts}
+                          onReady={(event: YouTubeEvent) =>
+                            handlePlayerReady(index, event)
+                          }
+                          iframeClassName="w-full "
+                          className="w-full md:w-1/2 aspect-[2/1] md:aspect-video"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full md:w-1/2 relative">
+                          <AspectRatio ratio={2 / 1}>
+                            <Image
+                              src={video.image}
+                              fill
+                              alt={video.title}
+                              loading="lazy"
+                              className="h-full object-cover"
+                            />
+                          </AspectRatio>
+                          <Button
+                            variant="invisible"
+                            onClick={() => ytLoad(index)}
+                            className="absolute top-0 left-0 w-full h-full grid place-items-center"
+                          >
+                            <Image
+                              src={ytLogo}
+                              alt="Play video"
+                              height={50}
+                              width={60}
+                            />
+                          </Button>
+                        </div>
+                      )}
+                    </>
                     <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
                       <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
                         {video.entries.map((entry, entryIndex) => {

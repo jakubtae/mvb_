@@ -23,6 +23,7 @@ const buttonVariants = cva(
         buy: "bg-violet-700 hover:bg-violet-800/80 font-bold text-white",
         subtleDestructive:
           "text-red-500 bg-foreground/10 hover:bg-foreground/20 hover:text-red-500",
+        invisible: "cursor-pointer",
       },
       size: {
         default: "h-9 px-4 py-2",
