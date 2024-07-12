@@ -105,27 +105,27 @@ const SearchLibraryTool = ({
     setQuery(event.target.value);
   };
 
-  const handleTakeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    if (value > docsLimit) {
-      setTake(docsLimit);
-    } else if (value <= 0) {
-      setTake(1); // Ensuring take is at least 1, assuming 1 is the minimum valid value
-    } else {
-      setTake(value);
-    }
-  };
+  // const handleTakeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = parseInt(event.target.value, 10);
+  //   if (value > docsLimit) {
+  //     setTake(docsLimit);
+  //   } else if (value <= 0) {
+  //     setTake(1); // Ensuring take is at least 1, assuming 1 is the minimum valid value
+  //   } else {
+  //     setTake(value);
+  //   }
+  // };
 
-  const handleSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    if (value < 0) {
-      setSkip(0); // Ensuring skip doesn't go below 0
-    } else if (value + take > docsLimit) {
-      setSkip(docsLimit - take); // Ensuring skip + take doesn't exceed total documents
-    } else {
-      setSkip(value);
-    }
-  };
+  // const handleSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = parseInt(event.target.value, 10);
+  //   if (value < 0) {
+  //     setSkip(0); // Ensuring skip doesn't go below 0
+  //   } else if (value + take > docsLimit) {
+  //     setSkip(docsLimit - take); // Ensuring skip + take doesn't exceed total documents
+  //   } else {
+  //     setSkip(value);
+  //   }
+  // };
 
   const handleSearchClick = () => {
     if (query.trim() !== "") {
@@ -167,7 +167,7 @@ const SearchLibraryTool = ({
             Search
           </Button>
         </div>
-        <div className="flex gap-2 flex-col sm:flex-row gap-y-6">
+        {/* <div className="flex gap-2 flex-col sm:flex-row gap-y-6">
           <div className="flex flex-col gap-2">
             <Label htmlFor="take">Number of documents to search</Label>
             <Input
@@ -190,9 +190,15 @@ const SearchLibraryTool = ({
               disabled={loading}
             />
           </div>
-        </div>
+        </div> */}
         {!loading && results.length > 0 && (
-          <>Found {results.length} relevant videos</>
+          <>
+            <p>
+              Found {results.length} relevant sources and{" "}
+              {results.reduce((acc, result) => acc + result.entries.length, 0)}{" "}
+              results
+            </p>
+          </>
         )}
       </div>
 
@@ -232,7 +238,7 @@ const SearchLibraryTool = ({
                         className="w-full flex items-center justify-between text-wrap"
                       >
                         <h1 className="text-sm md:text-base font-semibold">
-                          {video.title}
+                          {video.title} <span>({video.entries.length})</span>
                         </h1>
                         <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
                       </Link>
@@ -248,11 +254,11 @@ const SearchLibraryTool = ({
                         handlePlayerReady(index, event)
                       }
                       iframeClassName="w-full "
-                      className="w-full md:w-1/2 aspect-video	"
+                      className="w-full md:w-1/2 aspect-[2/1] md:aspect-video"
                       loading="lazy"
                     />
                     <div className="flex flex-col mt-4 gap-2 flex-1 md:ml-4 overflow-y-auto w-full md:mt-0">
-                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always pr-4">
+                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
                         {video.entries.map((entry, entryIndex) => {
                           return (
                             <Button
