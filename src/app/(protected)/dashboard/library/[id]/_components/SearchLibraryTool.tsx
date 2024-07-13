@@ -74,7 +74,7 @@ const SearchLibraryTool = ({
         queries: parsedResult.queries,
       });
     }
-  }, []);
+  }, [libraryid]);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
