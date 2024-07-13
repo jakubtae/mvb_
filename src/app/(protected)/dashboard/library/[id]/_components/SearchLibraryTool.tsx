@@ -63,8 +63,8 @@ const SearchLibraryTool = ({
   const playerRefs = useRef<any[]>([]); // Array of refs for YouTube players
 
   useEffect(() => {
-    const savedQuery = localStorage.getItem("savedQuery");
-    const savedResults = localStorage.getItem("savedResults");
+    const savedQuery = localStorage.getItem(`savedQuery_${libraryid}`);
+    const savedResults = localStorage.getItem(`savedResults_${libraryid}`);
 
     if (savedQuery && savedResults) {
       setQuery(savedQuery);
@@ -94,9 +94,9 @@ const SearchLibraryTool = ({
               results: searchResults.success.results,
               queries: searchResults.success.queries,
             });
-            localStorage.setItem("savedQuery", query);
+            localStorage.setItem(`savedQuery_${libraryid}`, query);
             localStorage.setItem(
-              "savedResults",
+              `savedResults_${libraryid}`,
               JSON.stringify(searchResults.success)
             );
           } else if (searchResults && searchResults.error) {
@@ -213,7 +213,7 @@ const SearchLibraryTool = ({
               Most searched topics :{" "}
               {searchResults.queries.map((q, index) => (
                 <span key={index} className="font-semibold">
-                  {q}
+                  &quot;{q}&quot;
                   {index !== searchResults.queries.length - 1 && <>,</>}
                 </span>
               ))}
