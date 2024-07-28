@@ -325,7 +325,7 @@ const SearchLibraryTool = ({
                     )}
 
                     <div className="flex flex-col mt-4 gap-2 flex-1 lg:ml-4 overflow-y-auto w-full lg:mt-0">
-                      <div className="w-full lg:max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
+                      <div className="w-full max-h-[360px] overflow-y-auto space-y-4 snap-y snap-always lg:pr-4">
                         {video.entries.map((entry, entryIndex) => (
                           <Button
                             key={entryIndex}

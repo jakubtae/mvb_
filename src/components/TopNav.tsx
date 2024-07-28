@@ -40,7 +40,7 @@ const TopNav = () => {
           </Link>
           <button
             onClick={() => {
-              cookies.set("nav-close", "true");
+              cookies.set("nav-close", "true", { expires: undefined });
             }}
             className="absolute right-0"
           >
