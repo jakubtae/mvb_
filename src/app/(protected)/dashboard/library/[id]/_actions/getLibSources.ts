@@ -14,6 +14,7 @@ export const getLibSources = async (id: string) => {
             title: true,
             author: true,
             status: true,
+            videoId: true,
           },
         },
       },

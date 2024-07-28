@@ -279,7 +279,7 @@ const SearchLibraryTool = ({
                     >
                       <h1 className="text-sm md:text-base font-semibold">
                         {video.title}{" "}
-                        <span>({video.entries.length} entries)</span>
+                        <span>({video.entries.length} mentions)</span>
                       </h1>
                       <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
                     </Link>
@@ -330,7 +330,7 @@ const SearchLibraryTool = ({
                           <Button
                             key={entryIndex}
                             variant="outline"
-                            className="snap-start w-full flex justify-between items-start p-2 !h-auto md:!py-0 gap-1"
+                            className="snap-start w-full flex justify-between items-start p-2 !h-auto !py-0 gap-1"
                             onClick={() =>
                               handleButtonClick(index, parseInt(entry.start))
                             }
