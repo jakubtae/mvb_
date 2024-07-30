@@ -1,5 +1,5 @@
 "use server";
-import { searchLibraryVideosBySubtitleWithContext } from "@/data/library";
+import { searchLibraryVideosBySubtitleWithContext } from "@/hooks/data/library";
 
 export const searchLibrary = async (
   query: string,

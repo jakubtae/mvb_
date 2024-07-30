@@ -116,7 +116,12 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
   return (
     <>
       <h2 className="text-lg md:text-xl font-semibold">Sources</h2>
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        defaultValue="item-1"
+      >
         {noSubsSources.length > 0 && (
           <AccordionItem value="item-1" className="flex flex-col gap-y-2">
             <AccordionTrigger className="text-lg font-medium">

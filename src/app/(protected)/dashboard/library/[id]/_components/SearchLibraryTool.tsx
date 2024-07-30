@@ -42,7 +42,7 @@ interface VideoResult {
   url: string;
 }
 
-import { searchResult } from "@/data/library";
+import { searchResult } from "@/hooks/data/library";
 
 const SearchLibraryTool = ({
   libraryid,

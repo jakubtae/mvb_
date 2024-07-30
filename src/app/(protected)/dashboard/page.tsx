@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { findrecentLibraries } from "@/data/library";
+import { findrecentLibraries } from "@/hooks/data/library";
 import { cache } from "@/lib/cache";
 import { db } from "@/lib/prismadb";
 import Link from "next/link";

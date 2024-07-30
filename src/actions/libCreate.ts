@@ -1,6 +1,6 @@
 "use server";
 import { LibrarySchema } from "@/schemas";
-import { createNewLibrary, deleteALibrary } from "@/data/library";
+import { createNewLibrary, deleteALibrary } from "@/hooks/data/library";
 import ytfps from "ytfps";
 import { revalidateTag } from "next/cache";
 import { db } from "@/lib/prismadb";

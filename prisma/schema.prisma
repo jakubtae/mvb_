@@ -123,6 +123,7 @@ model Video {
   thumbnailUrl String // Use camelCase for consistency
   author       Author // Embedded type for author
   subtitles    Subtitle[] // Array of embedded Subtitle objects
+  forcedBy     String?     @db.ObjectId
   status       videoStatus @default(IN_PROCESS)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt

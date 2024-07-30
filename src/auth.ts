@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/prismadb";
 
 import authConfig from "@/auth.config";
-import { findUserByID } from "./data/user";
+import { findUserByID } from "./hooks/data/user";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
