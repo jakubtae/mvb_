@@ -34,14 +34,14 @@ const VideoPage = ({ params }: VideoPageParams) => {
   }
 
   return (
-    <div className="flex flex-col gap-2 w-full items-center">
-      <h1 className="text-xl md:text-2xl font-medium">{video.title}</h1>
+    <div className="flex flex-col gap-2 w-full">
       <YouTube
         videoId={video.videoId}
         title={video.title}
         iframeClassName="h-full w-full"
-        className="aspect-video w-full md:w-4/5"
+        className="aspect-video w-full"
       />
+      <h1 className="text-sm md:text-base font-medium">{video.title}</h1>
     </div>
   );
 };

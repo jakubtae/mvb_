@@ -1,7 +1,7 @@
 import { getSubtitles } from "youtube-caption-extractor";
 import { db } from "@/lib/prismadb";
 import { YTvideo } from "node_modules/ytfps/lib/interfaces";
-
+import { channelId, videoId } from "@gonetone/get-youtube-id-by-url";
 type LocalSubtitle = {
   start: string;
   dur: string;
@@ -72,6 +72,7 @@ export const processVideoInBackground = async (
     });
     let videoObject;
     if (!existingVideo) {
+      const chanId = await channelId(video.author.url);
       const baseVideo = await db.video.create({
         data: {
           title: video.title,
@@ -82,6 +83,7 @@ export const processVideoInBackground = async (
           thumbnailUrl: video.thumbnail_url,
           // `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
           author: {
+            channelId: chanId,
             name: video.author.name,
             url: video.author.url,
           },

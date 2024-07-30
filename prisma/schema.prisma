@@ -136,8 +136,9 @@ model Video {
 
 // Define an embedded type for Author
 type Author {
-  name String
-  url  String
+  channelId String
+  name      String
+  url       String
 }
 
 type Subtitle {
