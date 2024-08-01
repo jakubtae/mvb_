@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import EditLibraryForm from "./EditLibraryForm";
 
 interface LibrarySettingsTypes {
   libId: string;
@@ -30,16 +31,27 @@ interface SourceType {
   videoId: string;
 }
 
+export interface libDefaultType {
+  name: string;
+  visibility: "PRIVATE" | "PUBLIC";
+  sources: string[];
+}
+
 const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
   const [sources, setSources] = useState<SourceType[] | null>(null);
-
+  const [libDefault, setlibDefault] = useState<libDefaultType | null>(null);
   useEffect(() => {
     const fetchSources = async () => {
       try {
         const result = await getLibSources(libId);
         if (result?.Videos) {
-          console.log(result.Videos);
           setSources(result.Videos);
+          let libProps = {
+            name: result.name,
+            visibility: result.visibility,
+            sources: result.sources,
+          };
+          setlibDefault(libProps);
         } else {
           setSources([]);
         }
@@ -100,7 +112,6 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
             <Skeleton key={idx} className="w-auto h-[100px] rounded-lg" />
           ))}
         </div>
-        <DeleteLibrary id={libId} />
       </div>
     );
   }
@@ -119,7 +130,7 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
       <Accordion
         type="single"
         collapsible
-        className="w-full"
+        className="w-full mx-2"
         defaultValue="item-1"
       >
         {noSubsSources.length > 0 && (
@@ -153,9 +164,21 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
           </AccordionItem>
         )}
       </Accordion>
-      <div className="mt-4 flex flex-col gap-4">
-        <h2 className="text-lg md:text-xl font-semibold mb-2">Settings</h2>
-        <DeleteLibrary id={libId} />
+      <div className="mt-4 flex flex-col gap-4 justify-start items-start">
+        <h2 className="text-lg md:text-xl font-semibold">Settings</h2>
+        {libDefault && (
+          <div className="w-full mx-2 space-y-2">
+            <h3 className="md:text-lg font-semibold">General Settings</h3>
+            <EditLibraryForm
+              name={libDefault.name}
+              visibility={libDefault.visibility}
+              sources={libDefault.sources}
+            />
+            <h3 className="md:text-lg font-semibold">Library Control</h3>
+
+            <DeleteLibrary id={libId} />
+          </div>
+        )}
       </div>
     </>
   );

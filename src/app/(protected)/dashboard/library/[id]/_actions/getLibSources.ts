@@ -6,6 +6,9 @@ export const getLibSources = async (id: string) => {
     const sources = await db.library.findFirst({
       where: { id: id },
       select: {
+        name: true,
+        visibility: true,
+        sources: true,
         Videos: {
           select: {
             id: true,

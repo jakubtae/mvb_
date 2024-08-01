@@ -14,6 +14,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
+// import forceSubs from "./_actions/forceSubs";
 
 interface VideoPageParams {
   params: {
@@ -48,6 +49,21 @@ const VideoPage = ({ params }: VideoPageParams) => {
     return "What";
   }
 
+  // const forceSubsForId = (videoID: string) => {
+  //   if (!session.user?.id) {
+  //     return console.log("User ID required");
+  //   }
+  //   // console.log("Forced subs by " + session?.user.id);
+  //   // console.log("Acting on" + videoID);
+  //   forceSubs(session.user.id, videoID).then((data) => {
+  //     if (data?.error) {
+  //       console.log(error);
+  //     } else {
+  //       console.log("I think this finishewd");
+  //     }
+  //   });
+  // };
+
   return (
     <div className="flex flex-col gap-2 w-full items-start">
       <div className="flex flex-col gap-4 w-full border-2 border-neutral-700 rounded-lg pb-4">
@@ -66,39 +82,44 @@ const VideoPage = ({ params }: VideoPageParams) => {
           )}
         </div>
       </div>
-      {video.subtitles.length > 0 ? (
-        <Button variant="secondary">View subtitles</Button>
-      ) : (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="subtleDestructive">Force Subtitles</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>Force creating subtitles?</DialogHeader>
-            <DialogDescription>
-              Forcing this video will remove X tokens from your account. Are you
-              sure you want to do it? ( YOU CANNOT UNDO IT )
-            </DialogDescription>
-            <div className="flex flex-col sm:flex-row gap-2 w-full justify-between">
-              <DialogClose asChild>
-                <Button variant="destructive">Not now</Button>
-              </DialogClose>
-              <Button
-                variant="buy"
-                className="!font-medium"
-                onClick={() => {
-                  if (!session.user?.id) {
-                    return console.log("User ID required");
-                  }
-                  console.log("Forced subs by " + session?.user.id);
-                }}
-              >
-                Force subtitles
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      {
+        video.subtitles.length > 0 && (
+          <Button variant="secondary">View subtitles</Button>
+        )
+        // : (
+        //   <Dialog>
+        //     <DialogTrigger asChild>
+        //       <Button variant="subtleDestructive">Force Subtitles</Button>
+        //     </DialogTrigger>
+        //     <DialogContent>
+        //       <DialogHeader>
+        //         Do you want to force creating subtitles?
+        //       </DialogHeader>
+        //       <DialogDescription>
+        //         Forcing this video will remove X tokens from your account.
+        //         <br />
+        //         <span className="font-semibold mt-1">
+        //           Are you sure you want to do it? ( YOU CANNOT UNDO IT )
+        //         </span>
+        //       </DialogDescription>
+        //       <div className="flex flex-col sm:flex-row gap-2 w-full justify-between mt-2">
+        //         <DialogClose asChild>
+        //           <Button variant="destructive">Not now</Button>
+        //         </DialogClose>
+        //         <Button
+        //           variant="buy"
+        //           className="!font-medium"
+        //           // onClick={() => {
+        //           //   forceSubsForId(params.id);
+        //           // }}
+        //         >
+        //           Force subtitles
+        //         </Button>
+        //       </div>
+        //     </DialogContent>
+        //   </Dialog>
+        // )
+      }
     </div>
   );
 };

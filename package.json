@@ -42,7 +42,6 @@
     "dotenv": "^16.4.5",
     "embla-carousel-auto-scroll": "^8.1.5",
     "embla-carousel-react": "^8.1.5",
-    "fs": "^0.0.1-security",
     "fuse.js": "^7.0.0",
     "inngest": "^3.19.16",
     "lucide-react": "^0.395.0",
