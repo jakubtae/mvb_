@@ -43,6 +43,7 @@ interface VideoResult {
 }
 
 import { searchResult } from "@/hooks/data/library";
+import SourceDropdown from "./SourceDropdown";
 
 const SearchLibraryTool = ({
   libraryid,
@@ -184,6 +185,20 @@ const SearchLibraryTool = ({
     });
   };
 
+  const handleDeleteSource = (deletedId: string) => {
+    const newResults = searchResults.results.filter(
+      (result) => result.id !== deletedId
+    );
+    const newVideoDisplayArr = videoDisplayArr.filter((_, index) => {
+      return searchResults.results[index].id !== deletedId;
+    });
+    setSearchResults({
+      results: newResults,
+      queries: searchResults.queries,
+    });
+    setVideoDisplayArr(newVideoDisplayArr);
+  };
+
   return (
     <div className="flex flex-col gap-y-6 md:gap-y-10 w-full mt-4 relative">
       <div className="w-full flex flex-grow flex-col gap-2 gap-y-4 top-[100%]">
@@ -263,27 +278,23 @@ const SearchLibraryTool = ({
               return (
                 <div
                   key={index}
-                  className="w-full mb-4 p-4 pt-8 md:pt-4 rounded-lg border border-gray-300 bg-background shadow-md dark:shadow-slate-100/20"
+                  className="w-full mb-4 p-4 pt-8 md:pt-4 rounded-lg border border-gray-500 bg-background shadow-md dark:shadow-slate-300/20"
                 >
-                  <Button
-                    variant="link"
-                    asChild
-                    className="flex-grow !cursor-pointer"
-                  >
-                    <Link
-                      href={video.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-between text-wrap"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <h1 className="text-sm md:text-base font-semibold">
-                        {video.title}{" "}
-                        <span>({video.entries.length} mentions)</span>
-                      </h1>
-                      <SquareArrowOutUpRight className="ml-2 w-8 md:w-4" />
-                    </Link>
-                  </Button>
+                  <div className="flex items-center justify-start w-full flex-row">
+                    <h1 className="text-sm md:text-base font-medium flex-grow">
+                      {video.title}{" "}
+                      <span className="text-neutral-600">
+                        ( {video.entries.length} mentions )
+                      </span>
+                    </h1>
+                    <SourceDropdown
+                      id={video.id}
+                      url={video.url}
+                      libId={libraryid}
+                      vidID={video.videoId}
+                      onDelete={handleDeleteSource}
+                    />
+                  </div>
 
                   <div className="flex flex-col lg:flex-row items-start mt-6 md:mt-8 w-full">
                     {videoDisplayArr[index] ? (
@@ -295,7 +306,7 @@ const SearchLibraryTool = ({
                           handlePlayerReady(index, event)
                         }
                         iframeClassName="w-full"
-                        className="w-full lg:w-1/2 aspect-[2/1] md:aspect-video"
+                        className="w-full lg:w-1/2 aspect-[2/1]"
                         loading="lazy"
                       />
                     ) : (

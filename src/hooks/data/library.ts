@@ -162,6 +162,7 @@ interface VideoResult {
   image: string;
   title: string;
   url: string;
+  videoId: string;
   entries: VideoEntry[];
 }
 
@@ -343,6 +344,7 @@ export const searchLibraryVideosBySubtitleWithContext = async (
           image: video.thumbnailUrl,
           title: video.title,
           url: video.url,
+          videoId: video.videoId,
           entries,
         });
       }
