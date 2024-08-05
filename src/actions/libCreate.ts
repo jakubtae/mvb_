@@ -127,6 +127,7 @@ const createLib = async ({ uniqueVideos, libraryId }: CreateLib) => {
 };
 
 const avgTime = 5000; //in seconds, lowered because of unkown server metrics ( 7680 )
+
 export const newLibrary = async (values: ValueTypes, id: string) => {
   const validatedFields = await LibrarySchema.safeParseAsync(values);
   if (!validatedFields.success) {

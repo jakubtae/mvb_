@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { newLibrary } from "@/actions/libCreate";
+import { updateLibrary } from "@/actions/updateLibrary";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -30,14 +30,24 @@ import { useFieldArray } from "react-hook-form";
 import { LibrarySchema } from "@/schemas";
 import { libDefaultType } from "./LibrarySettings";
 
-const EditLibraryForm = ({ name, visibility, sources }: libDefaultType) => {
+interface ExtendedLibDefaultType extends libDefaultType {
+  libId: string;
+}
+
+const EditLibraryForm = ({
+  name,
+  visibility,
+  sources,
+  libId,
+}: ExtendedLibDefaultType) => {
   const router = useRouter();
+  const pathName = usePathname();
   const { data: session } = useSession({ required: true });
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
 
   const newSourceArr = sources.map((sourceText, index) => {
-    return { sourceId: index, text: sourceText };
+    return { SourcesId: String(index), text: sourceText };
   });
 
   const form = useForm<z.infer<typeof LibrarySchema>>({
@@ -49,7 +59,7 @@ const EditLibraryForm = ({ name, visibility, sources }: libDefaultType) => {
     },
   });
 
-  const { control, handleSubmit, register, getFieldState } = form;
+  const { control, handleSubmit, register } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -57,19 +67,27 @@ const EditLibraryForm = ({ name, visibility, sources }: libDefaultType) => {
   });
 
   const onSubmit = async (values: z.infer<typeof LibrarySchema>) => {
+    console.log("Updating");
     setError("");
     setSuccess("");
-    const id = session?.user.id as string;
+    const id = session?.user.id;
+    if (!id) {
+      setError("User ID is missing.");
+      return;
+    }
     try {
-      const data = await newLibrary(values, id);
+      const data = await updateLibrary(values, id, libId);
       setError(data.error);
       setSuccess(data.success);
-      if (data.success && data.id) {
-        router.push(`/dashboard/library/${data.id || ""}`, { scroll: true });
+      console.log(data);
+      if (data.success) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
-      console.error("Error creating library:", error);
+      console.error("Error updating library:", error);
     }
   };
 

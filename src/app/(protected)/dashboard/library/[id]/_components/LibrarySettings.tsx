@@ -173,6 +173,7 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
               name={libDefault.name}
               visibility={libDefault.visibility}
               sources={libDefault.sources}
+              libId={libId}
             />
             <h3 className="md:text-lg font-semibold">Library Control</h3>
 
