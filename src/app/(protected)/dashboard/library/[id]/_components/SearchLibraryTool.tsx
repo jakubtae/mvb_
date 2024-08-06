@@ -245,7 +245,7 @@ const SearchLibraryTool = ({
                   0
                 )}
               </span>{" "}
-              results
+              mentions
             </span>
           </div>
         )}
@@ -284,7 +284,7 @@ const SearchLibraryTool = ({
                     <h1 className="text-sm md:text-base font-medium flex-grow">
                       {video.title}{" "}
                       <span className="text-neutral-600">
-                        ( {video.entries.length} mentions )
+                        ({video.entries.length} mentions)
                       </span>
                     </h1>
                     <SourceDropdown
@@ -346,7 +346,7 @@ const SearchLibraryTool = ({
                               handleButtonClick(index, parseInt(entry.start))
                             }
                           >
-                            <span className="text-wrap py-4 text-left">
+                            <span className="text-wrap py-3 text-left">
                               {entryIndex + 1}.{" "}
                               {entry.words.map((word, wordIndex) => (
                                 <React.Fragment key={wordIndex}>
