@@ -17,6 +17,7 @@ interface updateLib {
   uniqueVideos: YTvideo[];
 }
 const concurrencyLimit = 10;
+
 export const updateLibrary = async (
   values: ValueTypes,
   userId: string,
@@ -34,7 +35,10 @@ export const updateLibrary = async (
     const newSources = sources.map((source) => {
       return source.text;
     });
-    const checkLib = await db.library.findFirst({ where: { id: libId } });
+    const checkLib = await db.library.findFirst({
+      where: { id: libId },
+      include: { Videos: { select: { url: true } } },
+    });
     if (checkLib?.userId !== userId) {
       throw new Error(
         "Unauthorized access. You have to be an owner of this library to change it."
@@ -44,12 +48,10 @@ export const updateLibrary = async (
     const errors: Array<{ videoUrl: string; error: string }> = [];
 
     if (checkLib.sources !== newSources) {
-      // change sources into videos
       const playlistRegex =
         /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
-      // Start processing videos in the background
+
       try {
-        // Retrieve playlists for each source
         const allVideos = await Promise.all(
           newSources.map(async (source) => {
             const match = source.match(playlistRegex);
@@ -62,9 +64,18 @@ export const updateLibrary = async (
           })
         );
         // Flatten the array of videos and remove duplicates based on playlistVideo.url
-        const uniqueVideos = Array.from(
+        const uniqueVideos1 = Array.from(
           new Map(allVideos.flat().map((video) => [video.url, video])).values()
         );
+        console.log(uniqueVideos1.length);
+        const uniqueVideos = uniqueVideos1.filter(
+          (video) =>
+            !checkLib.Videos.some((libVideo) => libVideo.url === video.url)
+        );
+        console.log(uniqueVideos.length);
+        if (uniqueVideos.length <= 0) {
+          return { success: "No videos to add" };
+        }
 
         const processWithConcurrencyLimit = async (
           tasks: Array<() => Promise<void>>,
@@ -121,7 +132,6 @@ export const updateLibrary = async (
             videoStatus: { push: updatedVideoStatuses }, // Push each updated video status
           },
         });
-        return null;
       } catch (err: any) {
         throw new Error(err);
       }
