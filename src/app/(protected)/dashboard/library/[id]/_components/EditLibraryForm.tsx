@@ -145,9 +145,6 @@ const EditLibraryForm = ({
           </div>
           <FormItem>
             <FormLabel>Sources</FormLabel>
-            <FormDescription>
-              Currently works only on under 10 videos playlist
-            </FormDescription>
             <div className="flex flex-col md:flex-row gap-2 justify-start">
               <div className="flex flex-col gap-2 flex-grow">
                 {fields.map((field, index) => (

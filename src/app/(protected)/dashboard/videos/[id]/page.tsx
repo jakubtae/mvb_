@@ -4,15 +4,6 @@ import fetchVideo from "./_actions/fetchVideo";
 import type { Video } from "@prisma/client";
 import YouTube, { YouTubeProps, YouTubeEvent } from "react-youtube";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogDescription,
-  DialogHeader,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 // import forceSubs from "./_actions/forceSubs";
 
@@ -49,21 +40,6 @@ const VideoPage = ({ params }: VideoPageParams) => {
     return "What";
   }
 
-  // const forceSubsForId = (videoID: string) => {
-  //   if (!session.user?.id) {
-  //     return console.log("User ID required");
-  //   }
-  //   // console.log("Forced subs by " + session?.user.id);
-  //   // console.log("Acting on" + videoID);
-  //   forceSubs(session.user.id, videoID).then((data) => {
-  //     if (data?.error) {
-  //       console.log(error);
-  //     } else {
-  //       console.log("I think this finishewd");
-  //     }
-  //   });
-  // };
-
   return (
     <div className="flex flex-col gap-2 w-full items-start">
       <div className="flex flex-col gap-4 w-full border-2 border-neutral-700 rounded-lg pb-4">
@@ -82,44 +58,24 @@ const VideoPage = ({ params }: VideoPageParams) => {
           )}
         </div>
       </div>
-      {
-        video.subtitles.length > 0 && (
-          <Button variant="secondary">View subtitles</Button>
-        )
-        // : (
-        //   <Dialog>
-        //     <DialogTrigger asChild>
-        //       <Button variant="subtleDestructive">Force Subtitles</Button>
-        //     </DialogTrigger>
-        //     <DialogContent>
-        //       <DialogHeader>
-        //         Do you want to force creating subtitles?
-        //       </DialogHeader>
-        //       <DialogDescription>
-        //         Forcing this video will remove X tokens from your account.
-        //         <br />
-        //         <span className="font-semibold mt-1">
-        //           Are you sure you want to do it? ( YOU CANNOT UNDO IT )
-        //         </span>
-        //       </DialogDescription>
-        //       <div className="flex flex-col sm:flex-row gap-2 w-full justify-between mt-2">
-        //         <DialogClose asChild>
-        //           <Button variant="destructive">Not now</Button>
-        //         </DialogClose>
-        //         <Button
-        //           variant="buy"
-        //           className="!font-medium"
-        //           // onClick={() => {
-        //           //   forceSubsForId(params.id);
-        //           // }}
-        //         >
-        //           Force subtitles
-        //         </Button>
-        //       </div>
-        //     </DialogContent>
-        //   </Dialog>
-        // )
-      }
+      {video.subtitles.length > 0 && (
+        <>
+          <h2 className="font-semibold text-lg">Subtitles</h2>
+          <div id="subs" className="px-2">
+            {video.subtitles
+              .reduce<string[][]>((acc, subtitle, ind) => {
+                if (ind % 14 === 0) acc.push([]);
+                acc[acc.length - 1].push(subtitle.text);
+                return acc;
+              }, [])
+              .map((group, groupInd) => (
+                <div key={groupInd} className="py-1 font-medium">
+                  {group.join(" ")}
+                </div>
+              ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

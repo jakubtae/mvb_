@@ -22,6 +22,10 @@ export const splitSubtitlesIntoWords = (
     dur: string;
     wordIndex: number;
   }[] = [];
+  if (subtitles.length === 0) {
+    console.log("empty");
+    return [];
+  }
   let currentWordIndex = 0;
 
   subtitles.forEach((subtitle, subIndex) => {
@@ -46,10 +50,44 @@ export const splitSubtitlesIntoWords = (
   return words;
 };
 
+import { Innertube } from "youtubei.js";
+
 export const fetchSubtitles = async (videoID: string, lang = "en") => {
   try {
-    const subtitles = await getSubtitles({ videoID, lang });
-    return subtitles;
+    const youtube = await Innertube.create({
+      lang: "en",
+      location: "US",
+      retrieve_player: false,
+    });
+    const info = await youtube.getInfo(videoID);
+
+    try {
+      const transcriptData = await info.getTranscript();
+      if (
+        transcriptData &&
+        transcriptData.transcript.content &&
+        transcriptData.transcript.content.body
+      ) {
+        const data =
+          transcriptData.transcript.content.body.initial_segments.map(
+            (segment) => {
+              const start = segment.start_ms;
+              const end = segment.end_ms;
+              return {
+                text: segment.snippet.text as string,
+                start: start,
+                dur: String(Number(end) - Number(start)),
+              };
+            }
+          );
+        return data;
+      }
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+    return [];
+    // const subtitles = await getSubtitles({ videoID, lang });
   } catch (error) {
     console.error("Error fetching subtitles:", error);
     return null;
@@ -92,6 +130,7 @@ export const processVideoInBackground = async (
           libraryIDs: [libraryId],
         },
       });
+
       const subtitles = await fetchSubtitles(video.id);
       if (!subtitles) {
         throw new Error("Error getting subtitles");

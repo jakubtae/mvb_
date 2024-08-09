@@ -175,8 +175,7 @@ const LibrarySettings = ({ libId }: LibrarySettingsTypes) => {
               sources={libDefault.sources}
               libId={libId}
             />
-            <h3 className="md:text-lg font-semibold">Library Control</h3>
-
+            <h3 className="md:text-lg font-semibold">Advanced Settings</h3>
             <DeleteLibrary id={libId} />
           </div>
         )}

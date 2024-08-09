@@ -94,9 +94,6 @@ const LibraryForm = () => {
             />
             <FormItem>
               <FormLabel>Sources</FormLabel>
-              <FormDescription>
-                Currently works only on under 10 videos playlist
-              </FormDescription>
               {fields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-center">
                   <Input
