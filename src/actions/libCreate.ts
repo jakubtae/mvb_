@@ -166,10 +166,13 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
         if (!playlistId) {
           throw new Error("Bad url");
         }
+        console.log("Fetching yt playlsit");
         const playlist = await ytfps(playlistId);
+        console.log("Fetched yt playlsit");
         return playlist.videos;
       })
     );
+    console.log(allVideos.length);
 
     // Flatten the array of videos and remove duplicates based on playlistVideo.url
     const uniqueVideos = Array.from(
