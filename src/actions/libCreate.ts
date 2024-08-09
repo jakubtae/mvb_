@@ -127,6 +127,7 @@ const createLib = async ({ uniqueVideos, libraryId }: CreateLib) => {
 };
 
 const avgTime = 5000; //in seconds, lowered because of unkown server metrics ( 7680 )
+import { Innertube } from "youtubei.js";
 
 export const newLibrary = async (values: ValueTypes, id: string) => {
   const validatedFields = await LibrarySchema.safeParseAsync(values);
@@ -153,6 +154,11 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
   if (!newLib) {
     throw new Error(`Error creating a library`);
   }
+  const youtube = await Innertube.create({
+    lang: "en",
+    location: "US",
+    retrieve_player: false,
+  });
 
   const playlistRegex =
     /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
@@ -167,6 +173,9 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
           throw new Error("Bad url");
         }
         console.log("Fetching yt playlsit");
+        const generalPlaylist = youtube.getPlaylist(playlistId);
+        const FakePlaylist = (await generalPlaylist).items;
+        console.log(FakePlaylist.length);
         const playlist = await ytfps(playlistId);
         console.log("Fetched yt playlsit");
         return playlist.videos;
@@ -184,6 +193,8 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
       (sum: number, video: YTvideo) => sum + parseTimeToSeconds(video.length),
       0
     );
+
+    // TODO : Create a fucking parser for new playlist fetch to the old one
 
     const preditedTime = Math.floor(totalVideoTimeInSeconds / avgTime);
 
