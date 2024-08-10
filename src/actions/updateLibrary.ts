@@ -17,6 +17,8 @@ interface updateLib {
   uniqueVideos: YTvideo[];
 }
 const concurrencyLimit = 10;
+import { Innertube, YTNodes } from "youtubei.js";
+import { formatTime } from "@/lib/formatTime";
 
 export const updateLibrary = async (
   values: ValueTypes,
@@ -37,7 +39,7 @@ export const updateLibrary = async (
     });
     const checkLib = await db.library.findFirst({
       where: { id: libId },
-      include: { Videos: { select: { url: true } } },
+      include: { Videos: { select: { videoId: true } } },
     });
     if (checkLib?.userId !== userId) {
       throw new Error(
@@ -48,6 +50,11 @@ export const updateLibrary = async (
     const errors: Array<{ videoUrl: string; error: string }> = [];
 
     if (checkLib.sources !== newSources) {
+      const youtube = await Innertube.create({
+        lang: "en",
+        location: "US",
+        retrieve_player: false,
+      });
       const playlistRegex =
         /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/(?:playlist\?list=|.*[?&]list=)([A-Za-z0-9_-]+)(?:&.*)?$/;
 
@@ -59,20 +66,73 @@ export const updateLibrary = async (
             if (!playlistId) {
               throw new Error("Bad url");
             }
-            const playlist = await ytfps(playlistId);
-            return playlist.videos;
+            console.log("Fetching yt playlsit");
+            const generalPlaylist = youtube.getPlaylist(playlistId);
+            const playlist = (await generalPlaylist).items;
+            console.log("Fetched yt playlsit");
+            return playlist;
           })
         );
         // Flatten the array of videos and remove duplicates based on playlistVideo.url
-        const uniqueVideos1 = Array.from(
-          new Map(allVideos.flat().map((video) => [video.url, video])).values()
+        const uniqueVideos2 = Array.from(
+          new Map(allVideos.flat().map((video) => [video.id, video])).values()
         );
-        console.log(uniqueVideos1.length);
-        const uniqueVideos = uniqueVideos1.filter(
+
+        console.log(uniqueVideos2.length);
+
+        const uniqueVideos1 = uniqueVideos2.filter(
           (video) =>
-            !checkLib.Videos.some((libVideo) => libVideo.url === video.url)
+            !checkLib.Videos.some((libVideo) => {
+              return libVideo.videoId === video.id;
+            })
         );
-        console.log(uniqueVideos.length);
+
+        console.log(uniqueVideos1.length);
+
+        const uniqueVideos = uniqueVideos1.map((video) => {
+          if (video instanceof YTNodes.PlaylistVideo) {
+            return {
+              title: String(video.title.text),
+              url: "https://www.youtube.com/watch?v=" + video.id,
+              id: video.id,
+              length: formatTime(video.duration.seconds),
+              milis_length: video.duration.seconds,
+              thumbnail_url: video.thumbnails[0].url,
+              author: {
+                name: video.author.name,
+                url: video.author.url,
+              },
+            };
+          } else if (video instanceof YTNodes.ReelItem) {
+            return {
+              title: String(video.title.text),
+              url: "https://www.youtube.com/watch?v=" + video.id,
+              id: video.id,
+              length: "00:00",
+              milis_length: 0,
+              thumbnail_url: video.thumbnails[0].url,
+              author: {
+                name: "unknown",
+                url: "unknown",
+              },
+            };
+          } else {
+            // Optionally handle other cases or return a default value
+            return {
+              title: "unknown",
+              url: "unknown",
+              id: "unknown",
+              length: "00:00",
+              milis_length: 0,
+              thumbnail_url: "unknown",
+              author: {
+                name: "unknown",
+                url: "unknown",
+              },
+            };
+          }
+        });
+
         if (uniqueVideos.length <= 0) {
           return { success: "No videos to add" };
         }

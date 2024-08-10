@@ -119,7 +119,7 @@ model Video {
   url          String      @unique
   videoId      String // Renamed to avoid confusion with `id`
   length       String
-  milisLength  Int // Use Int for numeric fields
+  milisLength  Int? // Use Int for numeric fields
   thumbnailUrl String // Use camelCase for consistency
   author       Author // Embedded type for author
   subtitles    Subtitle[] // Array of embedded Subtitle objects

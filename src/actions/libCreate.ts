@@ -18,7 +18,6 @@ export interface VideoStatus {
   id: string;
   status: "IN_PROCESS" | "NO_SUBS" | "FINISHED";
 }
-
 interface CreateLib {
   libraryId: string;
   uniqueVideos: YTvideo[];
@@ -127,8 +126,8 @@ const createLib = async ({ uniqueVideos, libraryId }: CreateLib) => {
 };
 
 const avgTime = 5000; //in seconds, lowered because of unkown server metrics ( 7680 )
-import { Innertube } from "youtubei.js";
-
+import { Innertube, YTNodes } from "youtubei.js";
+import { formatTime } from "@/lib/formatTime";
 export const newLibrary = async (values: ValueTypes, id: string) => {
   const validatedFields = await LibrarySchema.safeParseAsync(values);
   if (!validatedFields.success) {
@@ -174,39 +173,72 @@ export const newLibrary = async (values: ValueTypes, id: string) => {
         }
         console.log("Fetching yt playlsit");
         const generalPlaylist = youtube.getPlaylist(playlistId);
-        const FakePlaylist = (await generalPlaylist).items;
-        console.log(FakePlaylist.length);
-        const playlist = await ytfps(playlistId);
+        const playlist = (await generalPlaylist).items;
         console.log("Fetched yt playlsit");
-        return playlist.videos;
+        return playlist;
       })
     );
-    console.log(allVideos.length);
 
     // Flatten the array of videos and remove duplicates based on playlistVideo.url
     const uniqueVideos = Array.from(
-      new Map(allVideos.flat().map((video) => [video.url, video])).values()
+      new Map(allVideos.flat().map((video) => [video.id, video])).values()
     );
 
     // Calculate total video time in seconds and convert to HH:MM:SS
-    const totalVideoTimeInSeconds = uniqueVideos.reduce(
-      (sum: number, video: YTvideo) => sum + parseTimeToSeconds(video.length),
-      0
-    );
+
+    const parsedVideos = uniqueVideos.map((video) => {
+      if (video instanceof YTNodes.PlaylistVideo) {
+        return {
+          title: String(video.title.text),
+          url: "https://www.youtube.com/watch?v=" + video.id,
+          id: video.id,
+          length: formatTime(video.duration.seconds),
+          milis_length: video.duration.seconds,
+          thumbnail_url: video.thumbnails[0].url,
+          author: {
+            name: video.author.name,
+            url: video.author.url,
+          },
+        };
+      } else if (video instanceof YTNodes.ReelItem) {
+        return {
+          title: String(video.title.text),
+          url: "https://www.youtube.com/watch?v=" + video.id,
+          id: video.id,
+          length: "00:00",
+          milis_length: 0,
+          thumbnail_url: video.thumbnails[0].url,
+          author: {
+            name: "unknown",
+            url: "unknown",
+          },
+        };
+      } else {
+        // Optionally handle other cases or return a default value
+        return {
+          title: "unknown",
+          url: "unknown",
+          id: "unknown",
+          length: "00:00",
+          milis_length: 0,
+          thumbnail_url: "unknown",
+          author: {
+            name: "unknown",
+            url: "unknown",
+          },
+        };
+      }
+    });
 
     // TODO : Create a fucking parser for new playlist fetch to the old one
-
-    const preditedTime = Math.floor(totalVideoTimeInSeconds / avgTime);
-
     await db.library.update({
       where: { id: newLib.id },
       data: {
         videoNumber: uniqueVideos.length,
         status: { set: "IN_PROCESS" },
-        predictedDuration: preditedTime,
       },
     });
-    createLib({ libraryId: newLib.id as string, uniqueVideos: uniqueVideos });
+    createLib({ libraryId: newLib.id as string, uniqueVideos: parsedVideos });
   } catch (error: any) {
     console.error("Error fetching or processing playlist:", error.message);
     return {
